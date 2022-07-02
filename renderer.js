@@ -31,8 +31,8 @@ document.getElementById("bpm_sub_button").addEventListener('click', () => {
 // header buttons
 document.querySelectorAll(".header_button").forEach(button => {
   button.classList.add("unclicked");
+  var icon = button.firstChild;
   button.addEventListener("click", () => {
-    var icon = button.firstChild;
     if (button.classList.contains("clicked")){
       button.classList.remove("clicked");
       button.classList.add("unclicked");
@@ -42,6 +42,13 @@ document.querySelectorAll(".header_button").forEach(button => {
       button.classList.add("clicked");
       icon.style.color = 'rgb(80, 19, 0)';
     }
+  });
+  button.addEventListener("mousedown", () => {
+    icon.style.transform = 'scale(0.8)';
+  });
+  button.addEventListener("mouseup", () => {
+    // scale(1.1) because the icon is scaled up by default
+    icon.style.transform = 'scale(1.1)'; 
   });
 });
 /*

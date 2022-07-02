@@ -138,6 +138,34 @@ main::-webkit-scrollbar {
 
 
 
+.header_panel {
+    width: 150px;
+    height: 60px;
+    background-color: var(--bg-light);
+    border-color: var(--bg-medium);
+    border-style: solid;
+    border-width: 1px;
+    display: flex;
+    align-items: center;
+}
+
+.header_panel_handle_wrapper {
+    height: inherit;
+    width: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.header_panel_handle {
+    width: 8px;
+    height: 50px;
+    background-color: var(--bg-dark);
+    clip-path: url(#handle_path);
+}
+
+
+
+
 
 
 .header_button {
@@ -145,7 +173,7 @@ main::-webkit-scrollbar {
     border-style: solid;
     border-radius: 2px;
     padding: 3px;
-    cursor: pointer;
+    cursor: default;
     display: flex;
     justify-content: center;
     width: 20px;

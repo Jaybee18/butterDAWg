@@ -7,14 +7,26 @@
     <script src="https://kit.fontawesome.com/a95d7f2b70.js" crossorigin="anonymous"></script>
     <title>butterDAWg</title>
     <link rel="stylesheet" href="style.css">
+    <svg height="0" width="0" viewbox="0 0 10 50">
+      <defs>
+          <clipPath id="handle_path">
+              <path fill="#FFFFFF" stroke="#000000" stroke-width="1.5794" stroke-miterlimit="10" d="M 0 4 l 2 1 c 2 1 2 1 2 2 l 0 38 c 0 1 0 1 -2 2 l -2 1 l 0 -17z"/>
+          </clipPath>
+      </defs>
+  </svg>
   </head>
   <header>
     <button>Play</button>
     <label id="bpm_count">150</label>bpm
     <button id="bpm_add_button">+</button>
     <button id="bpm_sub_button">-</button>
-    <div class="header_button"><i class="fa-solid fa-floppy-disk"></i></div>
-    <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
+    <div class="header_panel">
+      <div class="header_panel_handle_wrapper">
+        <div class="header_panel_handle"></div>
+      </div>
+      <div class="header_button"><i class="fa-solid fa-floppy-disk"></i></div>
+      <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
+    </div>
   </header>
   <body>
     <div id="content">
