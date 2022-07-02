@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">-->
+    <script src="https://kit.fontawesome.com/a95d7f2b70.js" crossorigin="anonymous"></script>
+    <title>butterDAWg</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <header>
+    <button>Play</button>
+    <label id="bpm_count">150</label>bpm
+    <button id="bpm_add_button">+</button>
+    <button id="bpm_sub_button">-</button>
+    <div class="header_button"><i class="fa-solid fa-floppy-disk"></i></div>
+    <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
+  </header>
+  <body>
+    <div id="content">
+      <div class="sidebar" id="sidebar">
+        test
+      </div>
+      <div class="sidebar_resize" id="sidebar_resize"></div>
+      <div class="main_content" id="main_content">
+        <div class="tracks" id="tracks">
+          
+          
+          <div class="track">
+            <div id="track_wrap">
+              <div class="description">
+                Piano </br>
+                <button>color</button> </br>
+                active <input type="checkbox">
+              </div>
+              <div class="track_content">
+                <div class="track_background">
+                  <canvas id="track_canvas" width="2000" height="500"></canvas>
+                </div>
+              </div>
+            </div>
+            <div id="track_resize"></div>
+          </div>
+              
+              <div class="track_add"><label>+ Add Track</label></div>
+              
+            </div>
+          </div>
+        </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="./renderer.js"></script>
+  </body>
+</html>
