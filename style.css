@@ -173,8 +173,9 @@ main::-webkit-scrollbar {
 
 
 .header_panel {
-    width: 150px;
-    height: 60px;
+    width: fit-content;
+    padding: 5px 5px 5px 0px;
+    height: fit-content; /*60*/
     background-color: var(--bg-light);
     border-color: var(--bg-medium);
     border-style: solid;
@@ -195,6 +196,26 @@ main::-webkit-scrollbar {
     height: 50px;
     background-color: var(--bg-dark);
     clip-path: url(#handle_path);
+}
+
+
+
+
+
+.bpm {
+    margin: 4px;
+    padding: 3px 4px 3px 4px;
+    height: 20px;
+    background-color: rgb(200, 240, 240);
+    border-radius: 25% 25% 25% 25% / 40% 40% 40% 40%; /*30% 30% 30% 30% / 75% 75% 75% 75% ;*/
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.bpm > p {
+    margin: 0px 0px 2px 0px;
 }
 
 
@@ -237,17 +258,64 @@ main::-webkit-scrollbar {
 
 
 
+.player_controls {
+    display: flex;
+    flex-direction: row;
+    height: 40px;
+}
+
+.player_scope {
+    width: 34px;
+    height: inherit;
+    border-radius: 20px 0px 0px 20px;
+    background-color: var(--bg-dark);
+    box-shadow: inset 0px -2px 6px black;
+}
+
+.play {
+    width: 34px;
+    height: inherit;
+    background-color: var(--bg-dark);
+    box-shadow: inset 0px -2px 6px black;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.reset {
+    width: 34px;
+    height: inherit;
+    border-radius: 0px 20px 20px 0px;
+    background-color: var(--bg-dark);
+    box-shadow: inset 0px -2px 6px black;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.player_controls > div > i {
+    transform: scale(0.8);
+}
+
+
+
+
+
+
 .slider {
-    height: 100px;
+    height: 80px;
     width: 20px;
     display: flex;
     justify-content: center;
+    margin: 2px;
 }
 
 .bar {
     background-color: var(--bg-dark);
     width: 6px;
-    height: 100px;
+    height: inherit;
     border-radius: 10px;
     z-index: 0;
 }

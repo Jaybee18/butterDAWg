@@ -12,7 +12,7 @@ document.getElementById("bpm_sub_button").addEventListener('click', () => {
 
 // add track-button functionality
 var resizing_track = null;
-document.getElementById("track_add").addEventListener('click', () => {
+document.getElementById("track_add_label").addEventListener('click', () => {
   // clone and spawn element
   var template = document.getElementById("track_template");
   var clone = template.content.cloneNode(true);
@@ -130,8 +130,7 @@ var resizing_sidebar = false;
     return false;
   }
 
-  document.onmouseup = function(e) {
-    // stop resizing
+  document.addEventListener("mouseup", () => {
     resizing_sidebar = false;
-  }
+  });
 })();

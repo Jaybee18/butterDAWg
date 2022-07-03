@@ -20,8 +20,12 @@
       <div class="header_panel_handle_wrapper">
         <div class="header_panel_handle"></div>
       </div>
-      <button>Play</button>
-      <label id="bpm_count">150</label>bpm
+      <div class="player_controls">
+        <div class="player_scope"></div>
+        <div class="play"><i class="fa-solid fa-play"></i></div>
+        <div class="reset"><i class="fa-solid fa-square"></i></div>
+      </div>
+      <div class="bpm"><p>150</p><p style="font-size: 10px;">.000</p></div>
       <button id="bpm_add_button">+</button>
       <button id="bpm_sub_button">-</button>
     </div>
@@ -32,10 +36,15 @@
       <div class="header_button"><i class="fa-solid fa-floppy-disk"></i></div>
       <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
     </div>
-    <div class="slider">
-      <div class="bar"></div>
-      <div class="handle">
-        <div class="handle_color"></div>
+    <div class="header_panel">
+      <div class="header_panel_handle_wrapper">
+        <div class="header_panel_handle"></div>
+      </div>
+      <div class="slider">
+        <div class="bar"></div>
+        <div class="handle">
+          <div class="handle_color"></div>
+        </div>
       </div>
     </div>
   </header>
@@ -68,7 +77,7 @@
             </div>
           </template>
               
-              <div class="track_add" id="track_add"><label>+ Add Track</label></div>
+              <div class="track_add" id="track_add"><label id="track_add_label">+ Add Track</label></div>
               
             </div>
           </div>
