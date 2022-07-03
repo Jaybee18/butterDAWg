@@ -16,10 +16,15 @@
   </svg>
   </head>
   <header>
-    <button>Play</button>
-    <label id="bpm_count">150</label>bpm
-    <button id="bpm_add_button">+</button>
-    <button id="bpm_sub_button">-</button>
+    <div class="header_panel">
+      <div class="header_panel_handle_wrapper">
+        <div class="header_panel_handle"></div>
+      </div>
+      <button>Play</button>
+      <label id="bpm_count">150</label>bpm
+      <button id="bpm_add_button">+</button>
+      <button id="bpm_sub_button">-</button>
+    </div>
     <div class="header_panel">
       <div class="header_panel_handle_wrapper">
         <div class="header_panel_handle"></div>
@@ -27,34 +32,43 @@
       <div class="header_button"><i class="fa-solid fa-floppy-disk"></i></div>
       <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
     </div>
+    <div class="slider">
+      <div class="bar"></div>
+      <div class="handle">
+        <div class="handle_color"></div>
+      </div>
+    </div>
   </header>
   <body>
     <div id="content">
       <div class="sidebar" id="sidebar">
-        test
+        <div class="sidebar_sample">
+          <label>High Hat</label>
+          <div></div>
+        </div>
       </div>
       <div class="sidebar_resize" id="sidebar_resize"></div>
       <div class="main_content" id="main_content">
         <div class="tracks" id="tracks">
           
           
-          <div class="track">
-            <div id="track_wrap">
-              <div class="description">
-                Piano </br>
-                <button>color</button> </br>
-                active <input type="checkbox">
-              </div>
-              <div class="track_content">
-                <div class="track_background">
-                  <canvas id="track_canvas" width="2000" height="500"></canvas>
+          <template id="track_template">
+            <div class="track">
+              <div id="track_wrap">
+                <div class="description">
+                  Piano </br>
+                </div>
+                <div class="track_content">
+                  <div class="track_background">
+                    <canvas id="track_canvas" width="2000" height="500"></canvas>
+                  </div>
                 </div>
               </div>
+              <div id="track_resize"></div>
             </div>
-            <div id="track_resize"></div>
-          </div>
+          </template>
               
-              <div class="track_add"><label>+ Add Track</label></div>
+              <div class="track_add" id="track_add"><label>+ Add Track</label></div>
               
             </div>
           </div>
