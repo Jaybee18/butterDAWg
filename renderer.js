@@ -1,15 +1,5 @@
 //const { app } = require("electron");
 
-// bpm button functionality
-document.getElementById("bpm_add_button").addEventListener('click', () => {
-    var label = document.getElementById("bpm_count");
-    label.innerHTML = Number.parseInt(label.innerHTML) + 1;
-});
-document.getElementById("bpm_sub_button").addEventListener('click', () => {
-    var label = document.getElementById("bpm_count");
-    label.innerHTML = Number.parseInt(label.innerHTML) - 1;
-});
-
 // add track-button functionality
 var resizing_track = null;
 document.getElementById("track_add_label").addEventListener('click', () => {
@@ -71,10 +61,10 @@ document.querySelectorAll(".slider").forEach(slider => {
     }
   
     var handle = handling_slider.querySelector(".handle");
-    if (e.clientY < 0 || e.clientY > handling_slider.clientHeight - handle.clientHeight + 1) {
+    if (e.clientY < 0 || e.clientY > handling_slider.clientHeight) {
       return;
     }
-    handle.style.margin = e.clientY + "px 0px 0px 0px";
+    handle.style.margin = e.clientY - handling_slider.offsetTop + "px 0px 0px 0px";
   });
 });
 

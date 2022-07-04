@@ -37,6 +37,7 @@ html {
 header {
     background-color: var(--bg-light);
     min-height: 100px;
+    height: fit-content;
     display: flex;
     flex-direction: row;
 }
@@ -202,19 +203,73 @@ main::-webkit-scrollbar {
 
 
 
+.record {
+    width: 30px;
+    height: 30px;
+    border-radius: 50px;
+    border-style: solid;
+    border-color: var(--bg-medium);
+    border-width: 2px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 5px;
+    margin-right: 3px;
+}
+
+.record_red {
+    width: 12px;
+    height: 12px;
+    border-radius: 50px;
+    background-color: red;
+}
+
+
+
+
+
+
 .bpm {
+    background-color: rgb(200, 240, 240);
+    border-radius: 25% 25% 25% 25% / 80% 80% 80% 80%; /*30% 30% 30% 30% / 75% 75% 75% 75% ;*/
+    height: 20px;
     margin: 4px;
     padding: 3px 4px 3px 4px;
-    height: 20px;
-    background-color: rgb(200, 240, 240);
-    border-radius: 25% 25% 25% 25% / 40% 40% 40% 40%; /*30% 30% 30% 30% / 75% 75% 75% 75% ;*/
+    display: flex;
+    flex-direction: row;
+}
+
+#bpm_counter {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
     justify-content: center;
 }
 
-.bpm > p {
+#bpm_arrows {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-left: 3px;
+    margin-right: 2px;
+}
+
+#bpm_arrows > i {
+    color: rgb(119, 172, 172);
+    transform: scale(0.8);
+}
+
+#bpm_arrows > .fa-caret-up {
+    margin-bottom: -4px;
+}
+
+#bpm_arrows > .fa-caret-down {
+    margin-top: -4px;
+}
+
+.bpm > div > p {
     margin: 0px 0px 2px 0px;
 }
 
@@ -247,7 +302,7 @@ main::-webkit-scrollbar {
     box-shadow: inset 0 0 15px #f76708;
 }
 
-.fa-solid {
+.header_button > .fa-solid {
     margin: auto;
     color: rgb(225, 225, 225); /* clicked : rgb(80, 19, 0) */
     opacity: 0.9;
@@ -264,8 +319,12 @@ main::-webkit-scrollbar {
     height: 40px;
 }
 
+.player_controls > div > i {
+    color: rgb(225, 225, 225);
+}
+
 .player_scope {
-    width: 34px;
+    width: 40px;
     height: inherit;
     border-radius: 20px 0px 0px 20px;
     background-color: var(--bg-dark);
