@@ -113,13 +113,15 @@ main::-webkit-scrollbar {
 }
 
 .track {
-    height: 100px;
+    /*height: 100px; specifying the dimensions of the canvas here will cause wrong coordinates
+    width: 2100px;*/
     min-height: 100px;
     max-height: 300px;
+    margin-bottom: 2px;
 }
 
 #track_wrap {
-    width: inherit;
+    width: 100%;
     height: inherit;
     min-height: 100px;
     max-height: 300px;
@@ -132,8 +134,8 @@ main::-webkit-scrollbar {
 #track_resize {
     width: inherit;
     height: 10px;
-    margin-top: -7px;
-    margin-bottom: -3px;
+    margin-top: -5px;
+    margin-bottom: -5px;
     cursor: n-resize;
     width: inherit;
     position: relative;
@@ -152,22 +154,47 @@ main::-webkit-scrollbar {
 }
 
 .track_content {
-    border-radius: 2px;
-    background-color: var(--track-light);
-    flex-grow: 1;
+    /*border-radius: 2px;
     border-style: none solid solid solid;
     border-width: 1px;
-    border-color: var(--border-color);
+    border-color: var(--border-color);*/
+    flex-grow: 1;
+    position: relative;
+    z-index: 0;
 }
 
 .track_background {
+    width: 2000px;
+    height: 100%;
+    position: absolute;
+    z-index: 0;
+}
+
+#track_canvas {
     width: 100%;
     height: 100%;
 }
 
-#track_canvas {
-    width: 2000px;
+.track_object {
+    position: absolute;
+    background-color: rgba(255, 0, 0, 0.3);
+    width: 160px;
     height: 100%;
+}
+
+.track_object_label {
+    width: 100%;
+    height: 15px;
+    background-color: rgba(255, 0, 0, 1.0);
+    border-radius: 3px;
+    box-shadow: inset 0px -2px 4px 0px rgba(0, 0, 0, 0.45);
+}
+
+.track_object_label > p {
+    color: var(--text-color);
+    font-size: 10px;
+    padding: 2px;
+    margin: 0px;
 }
 
 
