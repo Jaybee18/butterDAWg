@@ -66,16 +66,25 @@
   <body>
     <div id="content">
       <div class="sidebar" id="sidebar">
-        <div class="sidebar_sample" draggable="true">
-          <label>High Hat</label>
-          <div></div>
-        </div>
+
+        <!-- sidebar sample template -->
+        <template id="sample_template">
+          <div class="sample_wrapper">
+            <div class="sidebar_sample">
+              <label>High Hat</label>
+              <div><i class="fa-solid fa-drum"></i></div>
+            </div>
+          </div>
+        </template>
+
+        <div class="track_add" id="sample_add"><label id="sample_add_label">+ Add Sample</label></div>
+
       </div>
       <div class="sidebar_resize" id="sidebar_resize"></div>
       <div class="main_content" id="main_content">
         <div class="tracks" id="tracks">
           
-          
+          <!-- track template -->
           <template id="track_template">
             <div class="track">
               <div id="track_wrap">
@@ -86,16 +95,18 @@
                   <div class="track_background">
                     <canvas id="track_canvas" width="2000" height="500"></canvas>
                   </div>
-
-                  <div class="track_object">
-                    <div class="track_object_label">
-                      <p>5th Symphony</p>
-                    </div>
-                  </div>
-
                 </div>
               </div>
               <div id="track_resize"></div>
+            </div>
+          </template>
+
+          <!-- track sample object template -->
+          <template id="track_sample_object">
+            <div class="track_object">
+              <div class="track_object_label">
+                <p>5th Symphony</p>
+              </div>
             </div>
           </template>
               

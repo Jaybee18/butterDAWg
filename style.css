@@ -436,23 +436,34 @@ main::-webkit-scrollbar {
 
 
 .sidebar_sample {
+    position: absolute;
     height: 30px;
+    width: inherit;
     background-color: #17b4db;
-    margin: 4px 2px 4px 2px;
+    /*margin: 4px 2px 4px 2px;*/
     display: flex;
     justify-content: space-between;
     align-items: center;
     user-select: none;
+    border-radius: 3px;
 }
 
 .sidebar_sample > div {
     width: 15px;
     height: 15px;
-    background-color: white;
     margin-right: 4px;
+}
+
+.sidebar_sample > div > i {
+    color: white;
 }
 
 .sidebar_sample > label {
     margin-left: 4px;
     color: var(--text-color);
+}
+
+.sample_wrapper {
+    height: 30px;
+    width: inherit;
 }

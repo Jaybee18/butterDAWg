@@ -1,5 +1,15 @@
 //const { app } = require("electron");
 
+function currently_hovered_track() {
+  t = null;
+  tracklist.forEach(track => {
+    if (track.matches(":hover")) {
+      t = track;
+    }
+  });
+  return t;
+}
+
 // add track-button functionality
 var resizing_track = null;
 var tracklist = [];
@@ -46,9 +56,6 @@ document.getElementById("track_add_label").addEventListener('click', () => {
   element.addEventListener("mouseenter", () => {
     currently_hoverd_track = element;
   });
-
-  // add drag and drop functionality (temporarily misused for the test widget)
-  dragElement(element.querySelector(".track_object"));
 });
 
 document.addEventListener("mouseup", () => {
@@ -58,6 +65,18 @@ document.addEventListener("mouseup", () => {
 document.getElementById("tracks").addEventListener("mouseleave", () => {
   // no track is hovered, when the mouse leaves the tracks-area
   currently_hoverd_track = null;
+});
+
+// function for adding samples
+document.getElementById("sample_add_label").addEventListener("click", () => {
+  // clone and spawn element
+  var template = document.getElementById("sample_template");
+  var clone = template.content.cloneNode(true);
+  var sidebar = document.getElementById("sidebar");
+  sidebar.insertBefore(clone, document.getElementById("sample_add"));
+
+  var element = sidebar.children[sidebar.childElementCount-2].firstElementChild;
+  dragSample(element);
 });
 
 // function for dragging samples
@@ -126,15 +145,97 @@ function dragElement(elmnt) {
   }
 }
 
-function currently_hovered_track() {
-  t = null;
-  tracklist.forEach(track => {
-    if (track.matches(":hover")) {
-      t = track;
+// sidebar sample drag function
+function dragSample(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  var startX = 0, startY = 0;
+  var clone = null;
+
+  if (document.getElementById(elmnt.id + "header")) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    startX = elmnt.offsetLeft;
+    startY = elmnt.offsetTop;
+    document.addEventListener("mouseup", closeDragElement);
+    // call a function whenever the cursor moves:
+    document.addEventListener("mousemove", elementDrag);
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+
+    // hide the sample object and show the preview of the track sample object
+    var t = currently_hovered_track();
+    if (t === null) {
+      elmnt.style.opacity = "1.0";
+      return;
     }
-  });
-  return t;
+    elmnt.style.opacity = "0.0";
+    var clone_was_null = clone === null;
+    if (clone === null) {
+      // clone and spawn element
+      var template = document.getElementById("track_sample_object");
+      clone = template.content.cloneNode(true);
+    }
+    var content = t.querySelector(".track_content");
+    content.appendChild(clone);
+    dragElement(content.lastElementChild);
+    if (clone_was_null) {
+      content.lastElementChild.onmousedown(e);
+    }
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.removeEventListener("mouseup", closeDragElement);
+    document.removeEventListener("mousemove", elementDrag);
+    clone = null;
+    resetSamplePos(elmnt, startX, startY);
+  }
 }
+
+// sample object position reset animation
+var steps = 50;
+var interval_id = null;
+function resetSamplePos(elmnt, toX, toY) {
+  var top = elmnt.offsetTop;
+  var left = elmnt.offsetLeft;
+  var xstep = (toX - left)/steps, ystep = (toY - top)/steps;
+  clearInterval(interval_id);
+  id = setInterval(frame, 1);
+  function frame() {
+    if (Math.abs(top-toY) < 1 && Math.abs(left-toX) < 1) {
+      clearInterval(id);
+    } else {
+      top += ystep;
+      left += xstep;
+      elmnt.style.top = top + "px";
+      elmnt.style.left = left + "px";
+    }
+  }
+}
+
+
 
 // add slider functionality
 var handling_slider = null;
