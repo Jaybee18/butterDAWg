@@ -36,8 +36,11 @@ html {
 
 header {
     background-color: var(--bg-light);
-    min-height: 100px;
-    height: fit-content;
+    height: min-content;
+}
+
+.header_top, .header_bottom {
+    width: 100%;
     display: flex;
     flex-direction: row;
 }
@@ -53,7 +56,7 @@ body {
 #content {
     display: flex;
     flex-direction: row;
-    height: inherit;
+    height: 100%;
     background-color: var(--bg-medium);
 }
 
@@ -70,7 +73,7 @@ body {
 .main_content {
     flex-grow: 20;
     min-width: 0;
-    border: 1px solid var(--border-color);
+    height: inherit;
 }
 
 .sidebar_resize {
@@ -88,11 +91,63 @@ body {
 
 
 
-.tracks {
-    overflow-x: scroll;
-    overflow-y: scroll;
+
+
+.tracks_wrapper {
+    height: inherit;
+    padding: 0px 5px 0px 5px;
+    background-color: var(--bg-dark);
+    box-shadow: inset 0 0 0 1px var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.tracks_top_bar {
+    height: 42px;
+    width: inherit;
+    background-color: var(--bg-dark);
+    display: flex;
+    flex-direction: row;
+}
+
+.tracks_top_bar_scrollbar {
+    width: inherit;
+    height: 50%;
+    background-color: var(--bg-dark);
+    box-shadow: inset 0px 0px 6px 5px rgba(0,0,0,0.3);
+}
+
+.tracks_top_bar_scrollbar_left, .tracks_top_bar_scrollbar_right {
+    background-color: var(--bg-light);
+    width: 20px;
     height: 100%;
+    margin: 0px;
+    box-shadow: inset 0 0 0 1px var(--border-color);
+}
+
+.tracks_top_bar_scrollbar_handle {
+    width: 100px;
+    height: 100%;
+    background-color: var(--bg-light);
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px #000000aa;
+    position: relative;
+    left: 20px;
+}
+
+.tracks_top_bar_bars {
+    width: inherit;
+    height: 50%;
+    background-color: #050316;
+    display: flex;
+    flex-direction: row;
+}
+
+.tracks {
+    overflow-x: hidden;
+    overflow-y: scroll;
     max-width: 100%;
+    flex-grow: 1;
 }
 
 main::-webkit-scrollbar {
@@ -200,10 +255,14 @@ main::-webkit-scrollbar {
 
 
 
+
+
+
+
 .header_panel {
     width: fit-content;
     padding: 5px 5px 5px 0px;
-    height: fit-content; /*60*/
+    height: 40px;
     background-color: var(--bg-light);
     border-color: var(--bg-medium);
     border-style: solid;
@@ -225,6 +284,130 @@ main::-webkit-scrollbar {
     background-color: var(--bg-dark);
     clip-path: url(#handle_path);
 }
+
+
+
+
+
+
+
+#button_minimize, #button_maximize, #button_close {
+    width: 10px!important;
+    height: 10px!important;
+}
+
+#button_minimize > i, #button_maximize > i, #button_close > i {
+    transform: scale(1.0);
+}
+
+.header_menu {
+    display: flex;
+    flex-direction: row;
+    width: 400px;
+    height: inherit;
+    margin-left: 5px;
+    background-color: #536949;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--bg-medium);
+}
+
+.header_menu > div {
+    margin-left: 3px;
+    display: flex;
+    align-items: center;
+}
+
+.header_menu > div > p {
+    font-size: 15px;
+    color: white;
+    transform: scaleY(1.2);
+}
+
+
+
+
+
+
+.header_time {
+    height: 40px;
+    width: 100px;
+    background-color: #405735;
+    margin-left: 4px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--bg-medium);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header_time > label {
+    color: white;
+    font-size: 25px;
+    user-select: none;
+    transform: scaleY(1.2);
+}
+
+
+
+
+
+.header_waveview {
+    width: 150px;
+    height: inherit;
+    background-color: var(--bg-medium);
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--bg-dark);
+}
+
+#header_waveview {
+    width: inherit;
+    height: inherit;
+}
+
+.header_levelmeter {
+    height: 60%;
+    width: 80px;
+    margin-bottom: 7%;
+    margin-left: 3px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--bg-dark);
+}
+
+.header_levelmeter_side {
+    height: 50%;
+    width: 100%;
+    background-color: var(--bg-medium);
+    margin: 0px;
+}
+
+
+
+
+
+
+
+.header_help {
+    width: 300px;
+    height: inherit;
+    background-color: var(--bg-medium);
+}
+
+.header_help > p {
+    color: white;
+    display: flex;
+    align-items: center;
+    height: 50%;
+    margin: 0px;
+    padding-left: 3px;
+}
+
+
+
+
 
 
 
@@ -310,11 +493,12 @@ main::-webkit-scrollbar {
     border-style: solid;
     border-radius: 2px;
     padding: 3px;
+    margin-left: 4px;
     cursor: default;
     display: flex;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
 }
 
 .unclicked {
@@ -329,7 +513,7 @@ main::-webkit-scrollbar {
     box-shadow: inset 0 0 15px #f76708;
 }
 
-.header_button > .fa-solid {
+.header_button > i {
     margin: auto;
     color: rgb(225, 225, 225); /* clicked : rgb(80, 19, 0) */
     opacity: 0.9;
@@ -446,6 +630,7 @@ main::-webkit-scrollbar {
     align-items: center;
     user-select: none;
     border-radius: 3px;
+    z-index: 0;
 }
 
 .sidebar_sample > div {

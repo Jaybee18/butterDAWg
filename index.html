@@ -10,47 +10,101 @@
     <svg height="0" width="0" viewbox="0 0 10 50">
       <defs>
           <clipPath id="handle_path">
-              <path fill="#FFFFFF" stroke="#000000" stroke-width="1.5794" stroke-miterlimit="10" d="M 0 4 l 2 1 c 2 1 2 1 2 2 l 0 38 c 0 1 0 1 -2 2 l -2 1 l 0 -17z"/>
+            <path fill="#FFFFFF" stroke="#000000" stroke-width="1.5794" stroke-miterlimit="10" d="M 0 4 l 2 1 c 2 1 2 1 2 2 l 0 38 c 0 1 0 1 -2 2 l -2 1 l 0 -17z"/>
+          </clipPath>
+          <clipPath id="top_bar_path">
+            <path fill="#FFFFFF" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="m 0 10 l 0 0 c 0 -2 0 -2 3 -5 l 2 -2 c 3 -3 3 -3 7 -3 l 13.5 0 l 0 10 z"/>
           </clipPath>
       </defs>
   </svg>
   </head>
   <header>
-    <div class="header_panel">
-      <div class="header_panel_handle_wrapper">
-        <div class="header_panel_handle"></div>
-      </div>
-
-      <div class="player_controls">
-        <div class="player_scope"></div>
-        <div class="play"><i class="fa-solid fa-play"></i></div>
-        <div class="reset"><i class="fa-solid fa-square"></i></div>
-      </div>
-
-      <div class="record">
-        <div class="record_red"></div>
-      </div>
-
-      <div class="bpm">
-        <div id="bpm_counter">
-          <p id="bpm_count">150</p><p style="font-size: 10px;">.000</p>
+    <div class="header_top">
+      <div class="header_panel">
+        <div class="header_panel_handle_wrapper">
+          <div class="header_panel_handle"></div>
         </div>
-        <div id="bpm_arrows">
-          <i class="fa-solid fa-caret-up" id="bpm_add"></i>
-          <i class="fa-solid fa-caret-down" id="bpm_sub"></i>
+
+        <div class="header_button" id="button_minimize"><i class="fa-solid fa-window-minimize"></i></div>
+        <div class="header_button" id="button_maximize"><i class="fa-regular fa-window-maximize"></i></div>
+        <div class="header_button" id="button_close"><i class="fa-solid fa-xmark"></i></div>
+        <div class="header_menu">
+          <div id="header_menu_file"><p>FILE</p></div>
+          <div id="header_menu_edit"><p>EDIT</p></div>
+          <div id="header_menu_add"><p>ADD</p></div>
+          <div id="header_menu_patterns"><p>PATTERNS</p></div>
+          <div id="header_menu_view"><p>VIEW</p></div>
+          <div id="header_menu_options"><p>OPTIONS</p></div>
+          <div id="header_menu_tools"><p>TOOLS</p></div>
+          <div id="header_menu_help"><p>HELP</p></div>
+        </div>
+      </div>
+
+      <div class="header_panel">
+        <div class="header_panel_handle_wrapper">
+          <div class="header_panel_handle"></div>
+        </div>
+
+        <div class="player_controls">
+          <div class="player_scope"></div>
+          <div class="play"><i class="fa-solid fa-play"></i></div>
+          <div class="reset"><i class="fa-solid fa-square"></i></div>
+        </div>
+
+        <div class="record">
+          <div class="record_red"></div>
+        </div>
+
+        <div class="bpm">
+          <div id="bpm_counter">
+            <p id="bpm_count">150</p><p style="font-size: 10px;">.000</p>
+          </div>
+          <div id="bpm_arrows">
+            <i class="fa-solid fa-caret-up" id="bpm_add"></i>
+            <i class="fa-solid fa-caret-down" id="bpm_sub"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="header_panel">
+        <div class="header_panel_handle_wrapper">
+          <div class="header_panel_handle"></div>
+        </div>
+
+        <div class="header_button"><i class="fa-solid fa-floppy-disk"></i></div>
+        <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
+        <div class="header_time"><label>0:00:00</label></div>
+      </div>
+
+      <div class="header_panel">
+        <div class="header_panel_handle_wrapper">
+          <div class="header_panel_handle"></div>
+        </div>
+
+        <div class="header_waveview">
+          <canvas id="header_waveview" width="200" height="100"></canvas>
+        </div>
+        <div class="header_levelmeter">
+          <div class="header_levelmeter_side"></div>
+          <div class="header_levelmeter_side"></div>
         </div>
       </div>
     </div>
+    <div class="header_bottom">
+      <div class="header_panel">
+        <div class="header_panel_handle_wrapper">
+          <div class="header_panel_handle"></div>
+        </div>
 
-    <div class="header_panel">
-      <div class="header_panel_handle_wrapper">
-        <div class="header_panel_handle"></div>
+        <div class="header_help">
+          <p>Workspace.flp</p>
+          <p>View current help here</p>
+        </div>
       </div>
 
-      <div class="header_button"><i class="fa-solid fa-floppy-disk"></i></div>
-      <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
     </div>
 
+    <!--
     <div class="header_panel">
       <div class="header_panel_handle_wrapper">
         <div class="header_panel_handle"></div>
@@ -61,7 +115,7 @@
           <div class="handle_color"></div>
         </div>
       </div>
-    </div>
+    </div>-->
   </header>
   <body>
     <div id="content">
@@ -82,39 +136,57 @@
       </div>
       <div class="sidebar_resize" id="sidebar_resize"></div>
       <div class="main_content" id="main_content">
-        <div class="tracks" id="tracks">
-          
-          <!-- track template -->
-          <template id="track_template">
-            <div class="track">
-              <div id="track_wrap">
-                <div class="description">
-                  Piano </br>
-                </div>
-                <div class="track_content">
-                  <div class="track_background">
-                    <canvas id="track_canvas" width="2000" height="500"></canvas>
-                  </div>
-                </div>
+        <div class="tracks_wrapper">
+          <div class="tracks_top_bar">
+            <svg width="104" height="42" style="margin-left: -1px;">
+              <path fill="#505b61" stroke-width="1" stroke="#000000aa" d="m 1 41 l 0 0 c 0 -8 0 -8 12 -20 l 8 -8 c 12 -12 12 -12 28 -12 l 54 0 l 0 40 z" />
+            </svg>
+            <div style="height: inherit; flex-grow: 1;">
+              <div class="tracks_top_bar_scrollbar">
+                <div class="tracks_top_bar_scrollbar_left" style="float: left;"><i class="fa-solid fa-chevron-left"></i></div>
+                <div class="tracks_top_bar_scrollbar_handle"></div>
+                <div class="tracks_top_bar_scrollbar_right" style="float: right;"><i class="fa-solid fa-chevron-right"></i></div>
               </div>
-              <div id="track_resize"></div>
-            </div>
-          </template>
-
-          <!-- track sample object template -->
-          <template id="track_sample_object">
-            <div class="track_object">
-              <div class="track_object_label">
-                <p>5th Symphony</p>
+              <div class="tracks_top_bar_bars">
+                <p style="color: white; margin: 0px 0px 0px 0px; font-size: 20px;">1</p>
+                <p style="color: white; margin: 0px 0px 0px 28px; font-size: 20px;">2</p>
               </div>
-            </div>
-          </template>
-              
-              <div class="track_add" id="track_add"><label id="track_add_label">+ Add Track</label></div>
-              
             </div>
           </div>
+          <div class="tracks" id="tracks">
+              
+            <!-- track template -->
+            <template id="track_template">
+              <div class="track">
+                <div id="track_wrap">
+                  <div class="description">
+                    Piano </br>
+                  </div>
+                  <div class="track_content">
+                    <div class="track_background">
+                      <canvas id="track_canvas" width="2000" height="500"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div id="track_resize"></div>
+              </div>
+            </template>
+
+            <!-- track sample object template -->
+            <template id="track_sample_object">
+              <div class="track_object" id="change_this">
+                <div class="track_object_label">
+                  <p>5th Symphony</p>
+                </div>
+              </div>
+            </template>
+            
+            <div class="track_add" id="track_add"><label id="track_add_label">+ Add Track</label></div>
+            
+          </div>
         </div>
+      </div>
+    </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="./renderer.js"></script>
   </body>

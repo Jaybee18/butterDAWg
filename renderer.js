@@ -83,7 +83,7 @@ document.getElementById("sample_add_label").addEventListener("click", () => {
 // from https://www.w3schools.com/howto/howto_js_draggable.asp
 var xsnap = 20;
 function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  var deltaX = 0, pos2 = 0, oldX = 0, oldY = 0;
   if (document.getElementById(elmnt.id + "header")) {
     // if present, the header is where you move the DIV from:
     document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
@@ -96,8 +96,8 @@ function dragElement(elmnt) {
     e = e || window.event;
     e.preventDefault();
     // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
+    oldX = e.clientX;
+    oldY = e.clientY;
     document.addEventListener("mouseup", closeDragElement);
     // call a function whenever the cursor moves:
     document.addEventListener("mousemove", elementDrag);
@@ -117,20 +117,22 @@ function dragElement(elmnt) {
 
     // calculate the new cursor position:
     var mouseX = e.clientX;
-    pos1 = pos3 - mouseX;
-    if (Math.abs(pos1) < xsnap) {
+    deltaX = oldX - mouseX;
+    if (Math.abs(deltaX) < xsnap) {
       return;
     }
-    pos1 = pos1 - pos1%xsnap;
+    deltaX -= deltaX%xsnap;
 
-    pos4 = e.clientY;
+    oldY = e.clientY;
     if (e.clientX < content.getBoundingClientRect().left) {
-      pos3 = content.getBoundingClientRect().left;
+      oldX = content.getBoundingClientRect().left;
     } else {
-      pos3 = e.clientX;
+      oldX = e.clientX;
     }
     // set the element's new position:
-    var newX = (elmnt.offsetLeft - pos1);
+    var newX = (elmnt.offsetLeft - deltaX);
+    newX = e.clientX - t.querySelector(".track_content").offsetLeft - t.offsetLeft - elmnt.clientWidth/2; // new tracking system !doesnt snap well to track_content grid
+    newX -= newX%xsnap; // nvm; new system now officially better than old system, since it works on absolute cursor positions and not on movement deltas
     if (newX < 0) {
       newX = 0;
     }
@@ -150,6 +152,7 @@ function dragSample(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   var startX = 0, startY = 0;
   var clone = null;
+  var clone_id = null;
 
   if (document.getElementById(elmnt.id + "header")) {
     // if present, the header is where you move the DIV from:
@@ -170,6 +173,7 @@ function dragSample(elmnt) {
     document.addEventListener("mouseup", closeDragElement);
     // call a function whenever the cursor moves:
     document.addEventListener("mousemove", elementDrag);
+    elmnt.style.zIndex = "0";
   }
 
   function elementDrag(e) {
@@ -188,20 +192,27 @@ function dragSample(elmnt) {
     var t = currently_hovered_track();
     if (t === null) {
       elmnt.style.opacity = "1.0";
+      if (clone !== null) {
+        document.getElementById(clone_id).remove();
+        clone = null;
+        clone_id = null;
+      }
       return;
     }
-    elmnt.style.opacity = "0.0";
-    var clone_was_null = clone === null;
+    // spawn clone if necessary
     if (clone === null) {
+      elmnt.style.opacity = "0.0";
       // clone and spawn element
       var template = document.getElementById("track_sample_object");
       clone = template.content.cloneNode(true);
-    }
-    var content = t.querySelector(".track_content");
-    content.appendChild(clone);
-    dragElement(content.lastElementChild);
-    if (clone_was_null) {
-      content.lastElementChild.onmousedown(e);
+      var content = t.querySelector(".track_content");
+      content.appendChild(clone);
+      console.log("added child");
+      var c = content.lastElementChild;
+      dragElement(c);
+      c.onmousedown(e);
+      clone_id = Date.now().toString();
+      c.id = clone_id;
     }
   }
 
@@ -226,6 +237,10 @@ function resetSamplePos(elmnt, toX, toY) {
   function frame() {
     if (Math.abs(top-toY) < 1 && Math.abs(left-toX) < 1) {
       clearInterval(id);
+      elmnt.style.top = toY;
+      elmnt.style.left = toX;
+      elmnt.style.zIndex = "0";
+      elmnt.style.opacity = "1.0";
     } else {
       top += ystep;
       left += xstep;
@@ -316,3 +331,24 @@ var resizing_sidebar = false;
     resizing_sidebar = false;
   });
 })();
+
+// canvas size = 200, 100
+function updateHeaderWaveview() {
+  var canvas = document.getElementById("header_waveview");
+  var ctx = canvas.getContext("2d");
+
+  ctx.strokeStyle = "white";
+  ctx.moveTo(0, 50);
+  ctx.lineTo(200, 50);
+  ctx.stroke();
+}
+updateHeaderWaveview();
+
+
+// initialize a testing ui
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("sample_add_label").click();
+document.getElementById("sample_add_label").click();
+document.getElementById("sample_add_label").click();
+document.getElementById("sample_add_label").click();
