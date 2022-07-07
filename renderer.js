@@ -56,6 +56,9 @@ document.getElementById("track_add_label").addEventListener('click', () => {
   element.addEventListener("mouseenter", () => {
     currently_hoverd_track = element;
   });
+
+  // add description radio button functionality
+  addRadioEventListener(element.querySelector(".radio_btn"));
 });
 
 document.addEventListener("mouseup", () => {
@@ -358,10 +361,51 @@ function drawBarLabels() {
 }
 drawBarLabels();
 
+// add event listeners to all toggle buttons
+var green = "rgb(50, 255, 32)"; // #32ff17
+var grey = "rgb(126, 135, 125)"; // #7e877d
+function addRadioEventListener(btn) {
+  var light = btn.querySelector(".radio_btn_green");
+  btn.addEventListener("click", () => {
+    var bg = light.style.backgroundColor;
+    // the 'or' is bc the property is "" at first, but since the button
+    // gets initialized with a green background, it gets treated as "green"
+    light.style.backgroundColor = (bg === green || bg === "") ? grey : green;
+  });
+}
+document.querySelectorAll(".radio_btn").forEach(btn => addRadioEventListener(btn)); // probably works, but idk
+
+var cumulativeOffset = function(element) {
+  var top = 0, left = 0;
+  do {
+      top += element.offsetTop  || 0;
+      left += element.offsetLeft || 0;
+      element = element.offsetParent;
+  } while(element);
+
+  return {
+      top: top,
+      left: left
+  };
+};
+
+// add event listeners to bars-bar
+var cursor_pos = 0;
+var cursor = document.getElementById("bars_cursor");
+var top_bar = document.getElementById("tracks_top_bar_inner");
+var top_bar_bars = document.querySelector(".tracks_top_bar_bars");
+function bars_cursor_move_listener(e) {
+  if (e.clientX - cumulativeOffset(top_bar).left <= 0) {cursor.style.left = -10; return;}
+  cursor.style.left = e.clientX - cumulativeOffset(top_bar).left - 10;
+}
+top_bar_bars.addEventListener("mousedown", (e) => {
+  cursor.style.left = e.clientX - cumulativeOffset(top_bar).left - 10;
+  document.addEventListener("mousemove", bars_cursor_move_listener);
+});
+document.addEventListener("mouseup", () => {
+  document.removeEventListener("mousemove", bars_cursor_move_listener);
+});
+
 // initialize a testing ui
 document.getElementById("track_add_label").click();
 document.getElementById("track_add_label").click();
-document.getElementById("sample_add_label").click();
-document.getElementById("sample_add_label").click();
-document.getElementById("sample_add_label").click();
-document.getElementById("sample_add_label").click();

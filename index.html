@@ -120,6 +120,14 @@
   <body>
     <div id="content">
       <div class="sidebar" id="sidebar">
+        <div class="sidebar_header">
+          <div class="sidebar_header_scope"></div>
+          <div class="sidebar_header_type">
+            <i class="fa-solid fa-wave-square"></i>
+            <i class="fa-solid fa-file"></i>
+            <i class="fa-solid fa-plug"></i>
+          </div>
+        </div>
 
         <!-- sidebar sample template -->
         <template id="sample_template">
@@ -142,13 +150,53 @@
               <path fill="#505b61" stroke-width="1" stroke="#000000aa" d="m 1 41 l 0 0 c 0 -8 0 -8 12 -20 l 8 -8 c 12 -12 12 -12 28 -12 l 54 0 l 0 40 z" />
               <path fill="none" stroke-width="1" stroke="#69757c" d="m 2 40 l 0 0 c 0 -7 0 -7 12 -19 l 8 -8 c 11 -11 11 -11 27 -11 l 53 0 l 0 38 z" />
             </svg>
-            <div style="height: inherit; flex-grow: 1;">
+            <div id="tracks_top_bar_inner" style="height: inherit; flex-grow: 1;">
               <div class="tracks_top_bar_scrollbar">
                 <div class="tracks_top_bar_scrollbar_left" style="float: left;"><i class="fa-solid fa-chevron-left"></i></div>
                 <div class="tracks_top_bar_scrollbar_handle"></div>
                 <div class="tracks_top_bar_scrollbar_right" style="float: right;"><i class="fa-solid fa-chevron-right"></i></div>
               </div>
               <div class="tracks_top_bar_bars">
+                <svg width="20" height="20" viewBox="0 0 20 20" id="bars_cursor">
+                  <filter id='inset-shadow'>
+                    <!-- Shadow offset -->
+                    <feOffset
+                            dx='0'
+                            dy='2'
+                          />
+                    <!-- Shadow blur -->
+                  <feGaussianBlur
+                            stdDeviation='2'
+                            result='offset-blur'
+                          />
+                    <!-- Invert drop shadow to make an inset shadow-->
+                    <feComposite
+                            operator='out'
+                            in='SourceGraphic'
+                            in2='offset-blur'
+                            result='inverse'
+                          />
+                    <!-- Cut colour inside shadow -->
+                    <feFlood
+                            flood-color='#ffffffaa'
+                            flood-opacity='.35'
+                            result='color'
+                          />
+                    <feComposite
+                            operator='in'
+                            in='color'
+                            in2='inverse'
+                            result='shadow'
+                          />
+                    <!-- Placing shadow over element -->
+                    <feComposite
+                            operator='over'
+                            in='shadow'
+                            in2='SourceGraphic'
+                          /> 
+                  </filter>
+                  <path fill="#32ff17" d="M 0 0 L 0 3 L 10 13 L 20 3 L 20 0 Z" filter="url(#inset-shadow)"></path>
+                </svg>
               </div>
             </div>
           </div>
@@ -177,7 +225,7 @@
             <template id="track_sample_object">
               <div class="track_object" id="change_this">
                 <div class="track_object_label">
-                  <p>5th Symphony</p>
+                  <p>909 Kick</p>
                 </div>
               </div>
             </template>

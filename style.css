@@ -62,13 +62,38 @@ body {
 }
 
 .sidebar {
-    background-color: var(--bg-medium);
-    overflow-y: scroll;
+    background-color: #13181b;
+    overflow-y: hidden;
     margin-right: -4px;
     flex-grow: 1;
-    max-width: 150px;
     min-width: 100px;
-    width: 150px;
+    width: 180px;
+    position: relative;
+}
+
+.sidebar_header {
+    width: 100%;
+    height: 50px;
+    background-color: var(--bg-dark);
+    box-shadow: inset 0 0 0 1px #00000050;
+}
+
+.sidebar_header_scope {
+    width: 100%;
+    height: 40%;
+}
+
+.sidebar_header_type {
+    width: 100%;
+    height: 60%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.sidebar_header_type > i {
+    color: var(--bg-light);
+    transform: scale(1.2);
 }
 
 .main_content {
@@ -152,6 +177,8 @@ body {
     /*display: flex;
     flex-direction: row;*/
     overflow: hidden;
+    user-select: none;
+    position: relative;
 }
 
 .bars_labels {
@@ -256,7 +283,7 @@ main::-webkit-scrollbar {
     width: 10px;
     height: 10px;
     border-radius: 20px;
-    background-color: #32ff17;
+    background-color: rgb(50, 255, 32);
     box-shadow: inset 0 -1px 2px 2px #ffffffaa;
 }
 
@@ -302,6 +329,19 @@ main::-webkit-scrollbar {
     font-size: 10px;
     padding: 2px;
     margin: 0px;
+}
+
+
+
+
+
+
+
+#bars_cursor {
+    position: absolute;
+    left: -10px;
+    margin-top: 1px;
+    cursor: grab;
 }
 
 
@@ -674,7 +714,7 @@ main::-webkit-scrollbar {
 .sidebar_sample {
     position: absolute;
     height: 30px;
-    width: inherit;
+    width: 100%;
     background-color: #17b4db;
     /*margin: 4px 2px 4px 2px;*/
     display: flex;
@@ -702,5 +742,5 @@ main::-webkit-scrollbar {
 
 .sample_wrapper {
     height: 30px;
-    width: inherit;
+    width: 100%;
 }
