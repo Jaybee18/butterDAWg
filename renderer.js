@@ -344,6 +344,19 @@ function updateHeaderWaveview() {
 }
 updateHeaderWaveview();
 
+// generate bar labels
+function drawBarLabels() {
+  var bars = document.querySelector(".tracks_top_bar_bars");
+  
+  for (let i = 0; i < 50; i++) {
+    var label = document.createElement("p");
+    var font_size = (i%4==0) ? 15 : 10;
+    label.style.cssText += "color: rgb(160, 160, 160); margin: 0px; font-size: " + font_size + "px; float: left; width: 40px; height: 100%; display: flex; align-items: self-end;";
+    label.innerHTML = i + 1;
+    bars.appendChild(label);
+  }
+}
+drawBarLabels();
 
 // initialize a testing ui
 document.getElementById("track_add_label").click();
