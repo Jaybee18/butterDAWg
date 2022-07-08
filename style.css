@@ -11,6 +11,10 @@
     --text-color: aliceblue;
 }
 
+* {
+    user-select: none;
+}
+
 ::-webkit-scrollbar {
     background-color: var(--bg-dark);
     box-shadow: inset 0px 0px 6px 5px rgba(0,0,0,0.3);
@@ -81,6 +85,8 @@ body {
 .sidebar_header_scope {
     width: 100%;
     height: 40%;
+    color: var(--bg-light);
+    display: flex;
 }
 
 .sidebar_header_type {
@@ -141,6 +147,7 @@ body {
 .tracks_top_bar_scrollbar {
     width: inherit;
     height: 50%;
+    position: relative;
     background-color: var(--bg-dark);
     box-shadow: inset 0px 0px 6px 5px rgba(0,0,0,0.3);
 }
@@ -166,8 +173,9 @@ body {
     background-color: var(--bg-light);
     border-radius: 2px;
     box-shadow: inset 0 0 0 1px #000000aa, inset 0 0 0 2px #69757c;
-    position: relative;
+    position: absolute;
     float: left;
+    left: 20px;
 }
 
 .tracks_top_bar_bars {
@@ -342,6 +350,28 @@ main::-webkit-scrollbar {
     left: -10px;
     margin-top: 1px;
     cursor: grab;
+}
+
+
+
+
+
+
+
+.sidebar_item_lvl1 {
+    margin: 0px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar_item_lvl1 > i {
+    margin: 0px 4px 0px 5px;
+}
+
+.sidebar_item_lvl1_text {
+    margin: 0px;
+    font-size: 16px;
 }
 
 
@@ -635,10 +665,10 @@ main::-webkit-scrollbar {
 }
 
 .play {
-    width: 34px;
+    width: 45px;
     height: inherit;
     background-color: var(--bg-dark);
-    box-shadow: inset 0px -2px 6px black;
+    box-shadow: inset 0px -14px 9px -10px black;
 
     display: flex;
     justify-content: center;
@@ -646,11 +676,11 @@ main::-webkit-scrollbar {
 }
 
 .reset {
-    width: 34px;
+    width: 45px;
     height: inherit;
     border-radius: 0px 20px 20px 0px;
     background-color: var(--bg-dark);
-    box-shadow: inset 0px -2px 6px black;
+    box-shadow: inset 0px -14px 9px -10px black;
 
     display: flex;
     justify-content: center;

@@ -121,7 +121,13 @@
     <div id="content">
       <div class="sidebar" id="sidebar">
         <div class="sidebar_header">
-          <div class="sidebar_header_scope"></div>
+          <div class="sidebar_header_scope">
+            <i class="fa-solid fa-caret-right" style="margin-top: auto; margin-bottom: auto; margin-left: 3px;"></i>
+            <i class="fa-solid fa-up-long" style="margin-left: 5px; transform: scaleY(0.8); margin-top: auto; margin-bottom: auto;"></i>
+            <i class="fa-solid fa-reply" style="margin: auto 0px auto 5px; transform: scaleX(0.9);"></i>
+            <i class="fa-solid fa-magnifying-glass" style="margin: auto 0px auto 5px;"></i>
+            <p style="margin: auto 0px auto 5px; color: var(--bg-light);">Browser - All</p>
+          </div>
           <div class="sidebar_header_type">
             <i class="fa-solid fa-wave-square"></i>
             <i class="fa-solid fa-file"></i>
@@ -139,6 +145,37 @@
           </div>
         </template>
 
+        <div class="sidebar_item_lvl1" style="color: #71ab71;">
+          <i class="fa-solid fa-folder-plus"></i>
+          <p class="sidebar_item_lvl1_text">
+            My projects
+          </p>
+        </div>
+        <div class="sidebar_item_lvl1" style="color: #ad905c;">
+          <i class="fa-solid fa-folder-plus"></i>
+          <p class="sidebar_item_lvl1_text">
+            Project bones
+          </p>
+        </div>
+        <div class="sidebar_item_lvl1" style="color: #6d6d9f;">
+          <i class="fa-solid fa-wave-square"></i>
+          <p class="sidebar_item_lvl1_text">
+            Recorded
+          </p>
+        </div>
+        <div class="sidebar_item_lvl1" style="color: #6d6d9f;">
+          <i class="fa-solid fa-wave-square"></i>
+          <p class="sidebar_item_lvl1_text">
+            Rendered
+          </p>
+        </div>
+        <div class="sidebar_item_lvl1" style="color: #6d6d9f;">
+          <i class="fa-solid fa-wave-square"></i>
+          <p class="sidebar_item_lvl1_text">
+            Sliced audio
+          </p>
+        </div>
+
         <div class="track_add" id="sample_add"><label id="sample_add_label">+ Add Sample</label></div>
 
       </div>
@@ -153,7 +190,7 @@
             <div id="tracks_top_bar_inner" style="height: inherit; flex-grow: 1;">
               <div class="tracks_top_bar_scrollbar">
                 <div class="tracks_top_bar_scrollbar_left" style="float: left;"><i class="fa-solid fa-chevron-left"></i></div>
-                <div class="tracks_top_bar_scrollbar_handle"></div>
+                <div class="tracks_top_bar_scrollbar_handle" id="tracks_top_bar_scrollbar_handle"></div>
                 <div class="tracks_top_bar_scrollbar_right" style="float: right;"><i class="fa-solid fa-chevron-right"></i></div>
               </div>
               <div class="tracks_top_bar_bars">

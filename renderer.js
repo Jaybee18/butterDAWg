@@ -354,7 +354,7 @@ function drawBarLabels() {
   for (let i = 0; i < 50; i++) {
     var label = document.createElement("p");
     var font_size = (i%4==0) ? 15 : 10;
-    label.style.cssText += "color: rgb(160, 160, 160); margin: 0px; font-size: " + font_size + "px; float: left; width: 40px; height: 100%; display: flex; align-items: self-end;";
+    label.style.cssText += "color: rgb(160, 160, 160); margin: 0px; font-size: " + font_size + "px; float: left; width: 40px; height: 100%; display: flex; align-items: self-end; user-select: none;";
     label.innerHTML = i + 1;
     bars.appendChild(label);
   }
@@ -404,6 +404,29 @@ top_bar_bars.addEventListener("mousedown", (e) => {
 });
 document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", bars_cursor_move_listener);
+});
+
+// add event listener to bars scrollbar handle
+// TODO make a function that can handle scrollbars (bars_cursor, horizontal scrollbars, ...)
+var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
+var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
+var initial_handle_offset = 0;
+function bars_scrollbar_handle_listener(e) {
+  var newX = e.clientX - cumulativeOffset(bars_scrollbar_wrapper).left - initial_handle_offset;
+  if (newX <= 20) {newX = 20;}
+  if (newX >= 1438) { // ik this is hardcoded, but the wrapper_width just kinda dissappears, so fuck you
+    newX = 1438;
+  }
+  bars_scrollbar_handle.style.left = newX + "px";
+}
+bars_scrollbar_handle.addEventListener("mousedown", (e) => {
+  initial_handle_offset = e.clientX - cumulativeOffset(bars_scrollbar_handle).left;
+  console.log(bars_scrollbar_wrapper.clientWidth);
+  bars_scrollbar_handle.style.left = (e.clientX - cumulativeOffset(bars_scrollbar_wrapper).left - initial_handle_offset) + "px";
+  document.addEventListener("mousemove", bars_scrollbar_handle_listener);
+});
+document.addEventListener("mouseup", () => {
+  document.removeEventListener("mousemove", bars_scrollbar_handle_listener);
 });
 
 // initialize a testing ui
