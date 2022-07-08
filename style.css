@@ -626,7 +626,7 @@ main::-webkit-scrollbar {
 .unclicked {
     border-color: #141414;
     background: rgb(36,47,53);
-    box-shadow: inset 0 0 5px #000000;
+    box-shadow: inset 0 0 3px #000000;
 }
 
 .clicked {
@@ -639,7 +639,7 @@ main::-webkit-scrollbar {
     margin: auto;
     color: rgb(225, 225, 225); /* clicked : rgb(80, 19, 0) */
     opacity: 0.9;
-    transform: scale(1.15);
+    transform: scale(1.6);
 }
 
 
@@ -657,18 +657,50 @@ main::-webkit-scrollbar {
 }
 
 .player_scope {
-    width: 40px;
+    width: 55px;
     height: inherit;
     border-radius: 20px 0px 0px 20px;
-    background-color: var(--bg-dark);
-    box-shadow: inset 0px -2px 6px black;
+    box-shadow: inset 0 0 0 1px #00000090;
+    background: linear-gradient(0deg, #000000b0, var(--bg-medium));
+}
+
+.scope_pat {
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--bg-light);
+}
+
+.scope_pat_clicked {
+    box-shadow: inset 0 0 15px #f76708;
+    background-color: #ffffffc0;
+    border-radius: 20px 0 0 0;
+    color: black;
+    transform: scaleX(0.93) scaleY(0.83);
+}
+
+.scope_song {
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--bg-light);
+    transform: scaleX(0.93) scaleY(0.83);
+}
+
+.scope_song_clicked {
+    box-shadow: inset 0 0 15px #4ef708;
+    background-color: #ffffffc0;
+    border-radius: 0 0 0 20px;
+    color: black;
 }
 
 .play {
     width: 45px;
     height: inherit;
-    background-color: var(--bg-dark);
-    box-shadow: inset 0px -14px 9px -10px black;
+    box-shadow: inset 0 0 0 0.5px #00000090; /* it looks good, when only .play has a 0.5 border-width*/
+    background: linear-gradient(0deg, #000000b0, var(--bg-medium));
 
     display: flex;
     justify-content: center;
@@ -679,8 +711,8 @@ main::-webkit-scrollbar {
     width: 45px;
     height: inherit;
     border-radius: 0px 20px 20px 0px;
-    background-color: var(--bg-dark);
-    box-shadow: inset 0px -14px 9px -10px black;
+    box-shadow: inset 0 0 0 1px #00000090;
+    background: linear-gradient(0deg, #000000b0, var(--bg-medium));
 
     display: flex;
     justify-content: center;
@@ -737,6 +769,46 @@ main::-webkit-scrollbar {
     box-shadow: inset 0 0 2px black;
 }
 
+.slider_h {
+    width: 200px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    margin: 2px;
+}
+
+.bar_h {
+    background-color: var(--bg-dark);
+    height: 6px;
+    width: inherit;
+    border-radius: 10px;
+    z-index: 0;
+}
+
+.handle_h {
+    width: 15px;
+    height: 25px;
+    border-radius: 10px;
+    background-color: #2a2a2a;
+    position: absolute;
+    z-index: 1;
+    cursor: grab;
+
+    box-shadow: rgba(0, 0, 0, 0.17) 0px -3px 3px 0px inset, rgba(0, 0, 0, 0.15) 0px -3px 3px 0px inset, rgba(0, 0, 0, 0.1) 0px -5px 4px 0px inset;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.handle_color_h {
+    position: absolute;
+    background-color: #9aff40;
+    width: 3px;
+    height: 12px;
+    border-radius: 2px;
+    box-shadow: inset 0 0 2px black;
+}
 
 
 

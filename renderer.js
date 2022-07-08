@@ -294,13 +294,30 @@ document.querySelectorAll(".header_button").forEach(button => {
     }
   });
   button.addEventListener("mousedown", () => {
-    icon.style.transform = 'scale(0.8)';
+    icon.style.transform = 'scale(1.5)';
   });
   button.addEventListener("mouseup", () => {
     // scale(1.1) because the icon is scaled up by default
-    icon.style.transform = 'scale(1.1)'; 
+    icon.style.transform = 'scale(1.6)'; 
   });
 });
+
+// header controls scope buttons
+var scope_pat = document.querySelector(".scope_pat");
+var scope_song = document.querySelector(".scope_song");
+scope_pat.addEventListener("click", () => {
+  if (!scope_pat.classList.contains("scope_pat_clicked")){
+    scope_pat.classList.add("scope_pat_clicked");
+    scope_song.classList.remove("scope_song_clicked");
+  }
+});
+scope_song.addEventListener("click", () => {
+  if (!scope_song.classList.contains("scope_song_clicked")){
+    scope_song.classList.add("scope_song_clicked");
+    scope_pat.classList.remove("scope_pat_clicked");
+  }
+});
+scope_pat.click();
 
 // sidebar resizing 
 var resizing_sidebar = false;
