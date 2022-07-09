@@ -438,12 +438,60 @@ function bars_scrollbar_handle_listener(e) {
 }
 bars_scrollbar_handle.addEventListener("mousedown", (e) => {
   initial_handle_offset = e.clientX - cumulativeOffset(bars_scrollbar_handle).left;
-  console.log(bars_scrollbar_wrapper.clientWidth);
   bars_scrollbar_handle.style.left = (e.clientX - cumulativeOffset(bars_scrollbar_wrapper).left - initial_handle_offset) + "px";
   document.addEventListener("mousemove", bars_scrollbar_handle_listener);
 });
 document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", bars_scrollbar_handle_listener);
+});
+
+// bpm count drag functionality
+var bpm_count = document.querySelector(".bpm");
+var bpm_count_text = document.getElementById("bpm_count");
+var bpm = 150;
+function bpm_drag(e) {
+  bpm -= e.movementY/4;
+  bpm_count_text.innerHTML = Math.round(bpm);
+}
+bpm_count.addEventListener("mousedown", () => {
+  document.addEventListener("mousemove", bpm_drag);
+});
+document.addEventListener("mouseup", () => {
+  document.removeEventListener("mousemove", bpm_drag);
+});
+
+// add sidebar tree functionality
+// make a class for sidebar_items that holds which indent level they have
+var hirachy = {"My projects": ["test1", "test2", "test3"]};
+document.querySelectorAll(".sidebar_item_lvl1").forEach(item => {
+  item.addEventListener("click", () => {
+    var content = hirachy[item.querySelector(".sidebar_item_lvl1_text").innerText.toString()];
+    content.forEach(element => {
+      var new_item = document.createElement("div");
+      new_item.classList.add("sidebar_item_lvl1");
+      new_item.style.color = item.style.color;
+      var inner_text = document.createElement("div");
+      inner_text.classList.add("sidebar_item_lvl1_text");
+      new_item.appendChild(inner_text);
+      inner_text.innerHTML = element;
+      sidebar.insertBefore(new_item, item);
+    });
+  });
+});
+
+// song pos slider functionality
+// TODO make more general slider classes, that have onmove functions etc.
+var pos_slider_handle = document.querySelector(".handle_h");
+function pos_slider_handle_listener(e) {
+  var newX = (e.clientX - cumulativeOffset(pos_slider_handle.parentElement).left);
+  newX = Math.min(Math.max(newX, 0), pos_slider_handle.parentElement.clientWidth - pos_slider_handle.clientWidth);
+  pos_slider_handle.style.left = newX + "px";
+}
+pos_slider_handle.addEventListener("mousedown", (e) => {
+  document.addEventListener("mousemove", pos_slider_handle_listener);
+});
+document.addEventListener("mouseup", () => {
+  document.removeEventListener("mousemove", pos_slider_handle_listener);
 });
 
 // initialize a testing ui

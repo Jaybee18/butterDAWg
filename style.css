@@ -775,6 +775,7 @@ main::-webkit-scrollbar {
     display: flex;
     align-items: center;
     margin: 2px;
+    position: relative;
 }
 
 .bar_h {
