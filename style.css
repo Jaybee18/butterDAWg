@@ -367,6 +367,10 @@ main::-webkit-scrollbar {
     color: var(--bg-light);
     border-radius: 5px;
     padding: 4px;
+    /* the objects in the document need to be able to recieve move events, to 
+    determine if they want to display sth special, when hovered with an item, 
+    so pass every event right through the object */
+    pointer-events: none;
 }
 
 

@@ -114,6 +114,14 @@ class Track {
     this.element.addEventListener("mouseenter", (e) => {
       // help
       header_help_text.innerHTML = "Track " + this.id;
+
+    });
+    
+    this.content.addEventListener("mousemove", () => {
+      // sample preview
+      if (current_drag_element !== null) {
+        this.sampleHover(current_drag_element);
+      }
     });
     
     this.element.addEventListener("mousemove", (e) => {
@@ -153,25 +161,6 @@ class Track {
     if (this.temp_samples.length >= 1) {return;}
     this.content.appendChild(t.element);
     this.temp_samples.push(t);
-  }
-}
-
-class SidebarItem {
-  constructor (title) {
-    // construct own element
-    var template = document.getElementById("sample_template");
-    var clone = template.content.cloneNode(true);
-    this.title = title;
-
-    // add to sidebar
-    var sidebar = document.getElementById("sidebar");
-    sidebar.insertBefore(clone, document.getElementById("sample_add"));
-    this.element = sidebar.children[sidebar.childElementCount-2].firstElementChild;
-    this.id = Date.now().toString();
-    this.element.id = this.id;
-
-    // add functionality
-    dragSample(this);
   }
 }
 
@@ -279,87 +268,6 @@ function dragElement(elmnt) {
     document.removeEventListener("mousemove", elementDrag);
   }
 }
-
-// sidebar sample drag function
-function dragSample(sample) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  var startX = 0, startY = 0;
-
-  if (document.getElementById(sample.element.id + "header")) {
-    // if present, the header is where you move the DIV from:
-    document.getElementById(sample.element.id + "header").onmousedown = dragMouseDown;
-  } else {
-    // otherwise, move the DIV from anywhere inside the DIV:
-    sample.element.onmousedown = dragMouseDown;
-  }
-
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    startX = sample.element.offsetLeft;
-    startY = sample.element.offsetTop;
-    document.addEventListener("mouseup", closeDragElement);
-    // call a function whenever the cursor moves:
-    document.addEventListener("mousemove", elementDrag);
-    sample.element.style.zIndex = "0";
-  }
-
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    // set the element's new position:
-    sample.element.style.top = (sample.element.offsetTop - pos2) + "px";
-    sample.element.style.left = (sample.element.offsetLeft - pos1) + "px";
-
-    // hide the sample object and show the preview of the track sample object
-    var t = currently_hovered_track();
-    if (t === null) {sample.element.style["opacity"] = "1"; return;}
-    sample.element.style["opacity"] = "0";
-    t.sampleHover(sample);
-  }
-
-  function closeDragElement() {
-    // stop moving when mouse button is released:
-    document.removeEventListener("mouseup", closeDragElement);
-    document.removeEventListener("mousemove", elementDrag);
-    resetSamplePos(sample.element, startX, startY);
-  }
-}
-
-// sample object position reset animation
-var steps = 50;
-var interval_id = null;
-function resetSamplePos(elmnt, toX, toY) {
-  var top = elmnt.offsetTop;
-  var left = elmnt.offsetLeft;
-  var xstep = (toX - left)/steps, ystep = (toY - top)/steps;
-  clearInterval(interval_id);
-  id = setInterval(frame, 1);
-  function frame() {
-    if (Math.abs(top-toY) < 1 && Math.abs(left-toX) < 1) {
-      clearInterval(id);
-      elmnt.style.top = toY;
-      elmnt.style.left = toX;
-      elmnt.style.zIndex = "0";
-      elmnt.style.opacity = "1.0";
-    } else {
-      top += ystep;
-      left += xstep;
-      elmnt.style.top = top + "px";
-      elmnt.style.left = left + "px";
-    }
-  }
-}
-
-
 
 // add slider functionality
 var handling_slider = null;
