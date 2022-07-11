@@ -1,90 +1,218 @@
-//const { app } = require("electron");
+var fs = require("fs");
+
+var help_text = document.getElementById("header_help_text");
+var xsnap = 20;
+
+// contains the currently dragged element
+var current_drag_element = null;
 
 function currently_hovered_track() {
   t = null;
-  tracklist.forEach(track => {
-    if (track.matches(":hover")) {
+  tracks.forEach(track => {
+    if (track.element.matches(":hover")) {
       t = track;
     }
   });
   return t;
 }
 
-// add track-button functionality
-var resizing_track = null;
-var tracklist = [];
-document.getElementById("track_add_label").addEventListener('click', () => {
-  // clone and spawn element
-  var template = document.getElementById("track_template");
-  var clone = template.content.cloneNode(true);
-  var tracks = document.getElementById("tracks");
-  tracks.insertBefore(clone, document.getElementById("track_add"));
-
-  // draw canvas
-  var element = tracks.children[tracks.childElementCount-2];
-  tracklist.push(element);
-  var c = element.querySelector("#track_canvas");
-  var ctx = c.getContext("2d");
-  ctx.fillStyle = 'rgb(58, 74, 84)';
-  for (let i = 0; i < 100; i+=8) {
-      ctx.fillRect(i*20, 0, 20*4, 500);
+// event listener for dragging
+var drag_container = document.getElementById("drag_container");
+document.addEventListener("mousemove", (e) => {
+  if (current_drag_element === null) {return;}
+  if (!drag_container.hasChildNodes()) {
+    var clone = current_drag_element.getDragElement().cloneNode(true);
+    drag_container.appendChild(clone);
+    drag_container.style.display = "block";
   }
-  ctx.strokeStyle = 'rgb(0, 0, 0, 0.3)';
-  for (let i = 0; i < 100; i++) {
-      ctx.moveTo(i*20, 0);
-      ctx.lineTo(i*20, 500);
-  }
-  ctx.stroke();
+  drag_container.style.left = (e.clientX - drag_container.clientWidth/2) + "px";
+  drag_container.style.top = e.clientY + "px";
 
-  // add resizing functionality
-  var resize_handle = element.querySelector("#track_resize");
-  resize_handle.onmousedown = function(e) {
-    resizing_track = element;
-    return false;
-  };
-
-  document.getElementById("tracks").onmousemove = function(e) {
-    if (resizing_track === null) {
-      return false;
-    }
-
-    var new_height = e.clientY - resizing_track.offsetTop;
-    resizing_track.style.height = new_height + "px";
-  };
-
-  // drag and drop preview selection
-  element.addEventListener("mouseenter", () => {
-    currently_hoverd_track = element;
-  });
-
-  // add description radio button functionality
-  addRadioEventListener(element.querySelector(".radio_btn"));
+  // angle container for visual appeal
+  drag_container.style.transform = "rotateZ(" + e.movementX/2 + "deg)";
 });
+document.addEventListener("mouseup", () => {
+  if (current_drag_element !== null) {
+    drag_container.style.display = "none";
+    drag_container.firstChild.remove();
+    current_drag_element = null;
+  }
+});
+
+var tracks = [];
+var resizing_track = null;
+class Track {
+  constructor () {
+    this.samples = [];
+    this.temp_samples = [];
+
+    // construct own element
+    var template = document.getElementById("track_template");
+    var clone = template.content.cloneNode(true);
+    
+    // add self to track view
+    var track_view = document.getElementById("tracks");
+    track_view.insertBefore(clone, document.getElementById("track_add"));
+    this.element = track_view.children[track_view.childElementCount-2];
+    this.id = Date.now().toString();
+    this.element.id = this.id;
+    
+    this.content = this.element.querySelector(".track_content");
+    
+    // add self to track-list
+    tracks.push(this);
+    
+    this.setTitle("Track " + tracks.length);
+    this.setColor(80, 91, 97);
+    this.updateCanvas();
+    this.initializeResizing();
+    this.initializeEventListeners();
+  }
+
+  updateCanvas() {
+    var c = this.element.querySelector("#track_canvas");
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = 'rgb(58, 74, 84)';
+    for (let i = 0; i < 100; i+=8) {
+        ctx.fillRect(i*20, 0, 20*4, 500);
+    }
+    ctx.strokeStyle = 'rgb(0, 0, 0, 0.3)';
+    for (let i = 0; i < 100; i++) {
+        ctx.moveTo(i*20, 0);
+        ctx.lineTo(i*20, 500);
+    }
+    ctx.stroke();
+  }
+
+  initializeResizing() {
+    // TODO maybe optimize this
+    var resize_handle = this.element.querySelector("#track_resize");
+    var l = this.element;
+    resize_handle.onmousedown = function(e) {
+      resizing_track = l;
+      return false;
+    };
+
+    document.getElementById("tracks").onmousemove = function(e) {
+      if (resizing_track === null) {
+        return false;
+      }
+
+      var new_height = e.clientY - resizing_track.offsetTop;
+      resizing_track.style.height = new_height + "px";
+    };
+
+    this.element.addEventListener("mouseleave", () => {
+      this.temp_samples.forEach(elmnt => {
+        elmnt.element.remove();
+      });
+      this.temp_samples = [];
+    });
+  }
+
+  initializeEventListeners() {
+    this.element.addEventListener("mouseenter", (e) => {
+      // help
+      header_help_text.innerHTML = "Track " + this.id;
+    });
+    
+    this.element.addEventListener("mousemove", (e) => {
+      // move all the objects in this.temp_samples
+      this.temp_samples.forEach(s => {
+        var newX = e.clientX - cumulativeOffset(s.element.parentElement).left - s.element.clientWidth/2;
+        newX = Math.min(Math.max(newX, 0), this.content.clientWidth);
+        s.element.style["left"] = newX-newX%xsnap + "px";
+      });
+    });
+
+    // radio button on click
+    addRadioEventListener(this.element.querySelector(".radio_btn"));
+  }
+
+  setTitle(title) {
+    this.element.querySelector("#track_title").innerHTML = title;
+  }
+
+  setColor(r, g, b) {
+    var description = this.element.querySelector(".description");
+    description.style.backgroundColor = "rgb(" + r + ", " + g + ", " + b + ")";
+    description.style.borderColor = "rgb(" + Math.max(r-10, 0) + ", " + Math.max(g-10, 0) + ", " + Math.max(b-10, 0) + ")";
+  }
+
+  addSample(sample) {
+    // parameter is of type TrackSample
+    this.content.appendChild(sample.element);
+    this.samples.push(sample);
+  }
+
+  sampleHover(sample) {
+    // call this function of a track, when currently dragging a sample
+    // from the sidebar, to display a track_sample representation of
+    // the sample on the track at the current position of the mouse
+    var t = new TrackSample(sample);
+    if (this.temp_samples.length >= 1) {return;}
+    this.content.appendChild(t.element);
+    this.temp_samples.push(t);
+  }
+}
+
+class SidebarItem {
+  constructor (title) {
+    // construct own element
+    var template = document.getElementById("sample_template");
+    var clone = template.content.cloneNode(true);
+    this.title = title;
+
+    // add to sidebar
+    var sidebar = document.getElementById("sidebar");
+    sidebar.insertBefore(clone, document.getElementById("sample_add"));
+    this.element = sidebar.children[sidebar.childElementCount-2].firstElementChild;
+    this.id = Date.now().toString();
+    this.element.id = this.id;
+
+    // add functionality
+    dragSample(this);
+  }
+}
+
+class TrackSample {
+  constructor () {
+    this.width = 200;
+    this.title = "Sample";
+    this.data = [1, 2, 3, 4, 5];
+
+    // construct own element
+    var template = document.getElementById("track_sample_object");
+    var clone = template.content.cloneNode(true);
+    this.element = clone.querySelector(".track_object");
+    this.element.querySelector(".track_object_label > p").innerText = this.title;
+    this.element.style.width = this.width + "px";
+    this.id = Date.now().toString();
+    this.element.id = this.id;
+
+    dragElement(this.element);
+    this.initializeEventListeners();
+  }
+
+  initializeEventListeners() {
+    this.element.addEventListener("mouseenter", () => {
+      // help
+      header_help_text.innerHTML = "Sample " + this.id;
+    });
+  }
+}
+
+// add track-button functionality
+document.getElementById("track_add_label").addEventListener('click', () => {new Track();});
 
 document.addEventListener("mouseup", () => {
   resizing_track = null;
 });
 
-document.getElementById("tracks").addEventListener("mouseleave", () => {
-  // no track is hovered, when the mouse leaves the tracks-area
-  currently_hoverd_track = null;
-});
-
-// function for adding samples
-document.getElementById("sample_add_label").addEventListener("click", () => {
-  // clone and spawn element
-  var template = document.getElementById("sample_template");
-  var clone = template.content.cloneNode(true);
-  var sidebar = document.getElementById("sidebar");
-  sidebar.insertBefore(clone, document.getElementById("sample_add"));
-
-  var element = sidebar.children[sidebar.childElementCount-2].firstElementChild;
-  dragSample(element);
-});
+//document.getElementById("sample_add_label").addEventListener("click", () => {new SidebarItem();});
 
 // function for dragging samples
 // from https://www.w3schools.com/howto/howto_js_draggable.asp
-var xsnap = 20;
 function dragElement(elmnt) {
   var deltaX = 0, pos2 = 0, oldX = 0, oldY = 0;
   if (document.getElementById(elmnt.id + "header")) {
@@ -116,7 +244,9 @@ function dragElement(elmnt) {
       // snap to currently hovered track, if present
       var content = t.querySelector(".track_content");
       content.appendChild(elmnt);
-    } else {return;}
+    } else {
+      return;
+    }
 
     // calculate the new cursor position:
     var mouseX = e.clientX;
@@ -151,18 +281,16 @@ function dragElement(elmnt) {
 }
 
 // sidebar sample drag function
-function dragSample(elmnt) {
+function dragSample(sample) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   var startX = 0, startY = 0;
-  var clone = null;
-  var clone_id = null;
 
-  if (document.getElementById(elmnt.id + "header")) {
+  if (document.getElementById(sample.element.id + "header")) {
     // if present, the header is where you move the DIV from:
-    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+    document.getElementById(sample.element.id + "header").onmousedown = dragMouseDown;
   } else {
     // otherwise, move the DIV from anywhere inside the DIV:
-    elmnt.onmousedown = dragMouseDown;
+    sample.element.onmousedown = dragMouseDown;
   }
 
   function dragMouseDown(e) {
@@ -171,12 +299,12 @@ function dragSample(elmnt) {
     // get the mouse cursor position at startup:
     pos3 = e.clientX;
     pos4 = e.clientY;
-    startX = elmnt.offsetLeft;
-    startY = elmnt.offsetTop;
+    startX = sample.element.offsetLeft;
+    startY = sample.element.offsetTop;
     document.addEventListener("mouseup", closeDragElement);
     // call a function whenever the cursor moves:
     document.addEventListener("mousemove", elementDrag);
-    elmnt.style.zIndex = "0";
+    sample.element.style.zIndex = "0";
   }
 
   function elementDrag(e) {
@@ -188,43 +316,21 @@ function dragSample(elmnt) {
     pos3 = e.clientX;
     pos4 = e.clientY;
     // set the element's new position:
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    sample.element.style.top = (sample.element.offsetTop - pos2) + "px";
+    sample.element.style.left = (sample.element.offsetLeft - pos1) + "px";
 
     // hide the sample object and show the preview of the track sample object
     var t = currently_hovered_track();
-    if (t === null) {
-      elmnt.style.opacity = "1.0";
-      if (clone !== null) {
-        document.getElementById(clone_id).remove();
-        clone = null;
-        clone_id = null;
-      }
-      return;
-    }
-    // spawn clone if necessary
-    if (clone === null) {
-      elmnt.style.opacity = "0.0";
-      // clone and spawn element
-      var template = document.getElementById("track_sample_object");
-      clone = template.content.cloneNode(true);
-      var content = t.querySelector(".track_content");
-      content.appendChild(clone);
-      console.log("added child");
-      var c = content.lastElementChild;
-      dragElement(c);
-      c.onmousedown(e);
-      clone_id = Date.now().toString();
-      c.id = clone_id;
-    }
+    if (t === null) {sample.element.style["opacity"] = "1"; return;}
+    sample.element.style["opacity"] = "0";
+    t.sampleHover(sample);
   }
 
   function closeDragElement() {
     // stop moving when mouse button is released:
     document.removeEventListener("mouseup", closeDragElement);
     document.removeEventListener("mousemove", elementDrag);
-    clone = null;
-    resetSamplePos(elmnt, startX, startY);
+    resetSamplePos(sample.element, startX, startY);
   }
 }
 
@@ -451,6 +557,7 @@ var bpm_count_text = document.getElementById("bpm_count");
 var bpm = 150;
 function bpm_drag(e) {
   bpm -= e.movementY/4;
+  bpm = Math.max(bpm, 0);
   bpm_count_text.innerHTML = Math.round(bpm);
 }
 bpm_count.addEventListener("mousedown", () => {
@@ -460,23 +567,144 @@ document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", bpm_drag);
 });
 
+// draggable class for objects that will be draggable
+class Draggable {
+  initializeDragListener() {
+    this.element.addEventListener("mousedown", () => {
+      current_drag_element = this;
+    });
+  }
+
+  getDragElement() {
+    throw "Abstract function of Draggable is not implemented";
+  }
+}
+
 // add sidebar tree functionality
 // make a class for sidebar_items that holds which indent level they have
-var hirachy = {"My projects": ["test1", "test2", "test3"]};
-document.querySelectorAll(".sidebar_item_lvl1").forEach(item => {
-  item.addEventListener("click", () => {
-    var content = hirachy[item.querySelector(".sidebar_item_lvl1_text").innerText.toString()];
-    content.forEach(element => {
-      var new_item = document.createElement("div");
-      new_item.classList.add("sidebar_item_lvl1");
-      new_item.style.color = item.style.color;
-      var inner_text = document.createElement("div");
-      inner_text.classList.add("sidebar_item_lvl1_text");
-      new_item.appendChild(inner_text);
-      inner_text.innerHTML = element;
-      sidebar.insertBefore(new_item, item);
-    });
+var indent_width = 25;
+var sidebar = document.getElementById("sidebar");
+function insertAfter(newNode, existingNode) {
+  existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+}
+// fill the sidebartree data
+function mapFolder(folder) {
+  if (!fs.existsSync(folder)) {return null;}
+  // if 'folder' is a file, only return the file
+  if (fs.lstatSync(folder).isFile()) {
+    if (folder[0] === ".") {return null;}
+    return undefined;
+  }
+  // 'folder' is a folder, recursively map the remaining contents
+  let res = new Map();
+  var filenames = fs.readdirSync(folder);
+  filenames.forEach(file => {
+    let content = mapFolder(folder + "/" + file);
+    if (content !== null) {
+      res.set(file, content);
+    }
   });
+  return res;
+}
+let hirachy = mapFolder(__dirname + "/files");
+
+var sidebar_folder_colors = { "My projects": "#759b75", 
+                              "Project bones": "#ab845b",
+                              "Recorded": "#5f748f",
+                              "Rendered": "#5f748f",
+                              "Sliced audio": "#5f748f" };
+class Item extends Draggable{
+  constructor (title, contents, indent=0) {
+    super();
+    // construct container
+    var a = document.createElement("div");
+    a.classList.add("sidebar_item_lvl1");
+    var dedicated_color = sidebar_folder_colors[title];
+    a.style.color = dedicated_color === undefined ? "var(--bg-light)" : dedicated_color;
+    a.style.marginLeft = indent * indent_width + "px";
+    this.element = a;
+    // add icon
+    var type_icon = document.createElement("i");
+    type_icon.classList.add("fa-solid");
+    var ending = title.split(".").pop();
+    if (ending === "wav") {
+      type_icon.classList.add("fa-wave-square");
+      this.initializeDragListener();
+    } else if (title === ending) {
+      type_icon.classList.add("fa-folder");
+    } else {
+      type_icon.classList.add("fa-file");
+    }
+    a.appendChild(type_icon);
+    // add text object
+    var b = document.createElement("div");
+    b.classList.add("sidebar_item_lvl1_text");
+    b.innerHTML = title;
+    a.appendChild(b);
+
+    this.contents = contents;
+    this.active = false;
+    this.indent = indent;
+    this.children = [];
+
+    this.initializeEventListeners();
+  }
+
+  initializeEventListeners() {
+    this.element.addEventListener("click", () => {
+      if (this.contents === undefined) {return;}
+      if (this.active) {
+        this.active = false;
+        this.close();
+      } else {
+        this.active = true;
+        this.open();
+      }
+    });
+  }
+
+  getDragElement() {
+    return this.element.children[1];
+  }
+
+  close() {
+    if (this.contents === undefined) {
+      this.element.remove(); 
+      return;
+    }
+    this.children.forEach(item => {
+      item.close();
+      item.remove();
+    });
+    this.children = [];
+  }
+
+  open() {
+    if (this.contents === undefined) {return;}
+    this.contents.forEach((element, key) => {
+      var a = new Item(key, element, this.indent+1);
+      a.appendAfter(this.element);
+      this.children.push(a);
+    });
+  }
+
+  remove() {
+    this.element.remove();
+  }
+
+  appendToSidebar() {
+    sidebar.appendChild(this.element);
+  }
+
+  appendAfter(element) {
+    this.element.style.color = element.style.color;
+    insertAfter(this.element, element);
+  }
+}
+
+hirachy.forEach((element, key) => {
+  var a = new Item(key, element);
+  a.appendToSidebar();
 });
 
 // song pos slider functionality

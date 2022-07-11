@@ -15,6 +15,9 @@
           <clipPath id="top_bar_path">
             <path fill="#FFFFFF" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="m 0 10 l 0 0 c 0 -2 0 -2 3 -5 l 2 -2 c 3 -3 3 -3 7 -3 l 13.5 0 l 0 10 z"/>
           </clipPath>
+          <clipPath id="bpm_count_background">
+            <path d="M 21 0 L 41 0 C 61 0 61 0 62 15 C 61 30 61 30 41 30 L 41 30 L 21 30 C 1 30 1 30 0 15 C 1 0 1 0 21 0"></path>
+          </clipPath>
       </defs>
   </svg>
   </head>
@@ -60,6 +63,7 @@
 
         <div class="bpm">
           <div id="bpm_counter">
+            <!-- M 10 0 L 40 0 C 50 0 50 0 50 10 C 50 20 50 20 40 20 L 40 20 L 10 20 C 0 20 0 20 0 10 C 0 0 0 0 10 0 -->
             <p id="bpm_count">150</p><p style="font-size: 10px;">.000</p>
           </div>
           <div id="bpm_arrows">
@@ -101,7 +105,7 @@
 
         <div class="header_help">
           <p>Workspace.flp</p>
-          <p>View current help here</p>
+          <p id="header_help_text">View current help here</p>
         </div>
       </div>
 
@@ -134,6 +138,7 @@
     </div>-->
   </header>
   <body>
+    <div id="drag_container"></div>
     <div id="content">
       <div class="sidebar" id="sidebar">
         <div class="sidebar_header">
@@ -161,38 +166,14 @@
           </div>
         </template>
 
-        <div class="sidebar_item_lvl1" style="color: #71ab71;">
-          <i class="fa-solid fa-folder-plus"></i>
-          <p class="sidebar_item_lvl1_text">
-            My projects
-          </p>
-        </div>
-        <div class="sidebar_item_lvl1" style="color: #ad905c;">
-          <i class="fa-solid fa-folder-plus"></i>
-          <p class="sidebar_item_lvl1_text">
-            Project bones
-          </p>
-        </div>
-        <div class="sidebar_item_lvl1" style="color: #6d6d9f;">
-          <i class="fa-solid fa-wave-square"></i>
-          <p class="sidebar_item_lvl1_text">
-            Recorded
-          </p>
-        </div>
-        <div class="sidebar_item_lvl1" style="color: #6d6d9f;">
-          <i class="fa-solid fa-wave-square"></i>
-          <p class="sidebar_item_lvl1_text">
-            Rendered
-          </p>
-        </div>
-        <div class="sidebar_item_lvl1" style="color: #6d6d9f;">
-          <i class="fa-solid fa-wave-square"></i>
-          <p class="sidebar_item_lvl1_text">
-            Sliced audio
-          </p>
-        </div>
+        <!-- sidebar hirachy svg template -->
+        <template id="sidebar_hirachy_template">
+          <svg width="10" height="22" style="margin: 0 5px 0 10px;">
+            <path fill="var(--bg-medium)" d="M 0.5 0 C 0 0 0 0 0 1 L 0 11 C 0 12 0 12 1 12 L 9 12 C 10 12 10 12 10 11.5 C 10 11 10 11 9 11 L 1 11 L 1 1 C 1 0 1 0 0.5 0 Z"></path>
+          </svg>
+        </template>
 
-        <div class="track_add" id="sample_add"><label id="sample_add_label">+ Add Sample</label></div>
+        <div id="data" class="demo"></div>
 
       </div>
       <div class="sidebar_resize" id="sidebar_resize"></div>
@@ -257,10 +238,10 @@
               
             <!-- track template -->
             <template id="track_template">
-              <div class="track">
+              <div class="track" id="replace_this_id">
                 <div id="track_wrap">
                   <div class="description">
-                    <p style="margin: 0px;">Piano</p>
+                    <p style="margin: 0px;" id="track_title">track_name</p>
                       <i class="fa-solid fa-ellipsis"></i>
                       <div class="radio_btn"><div class="radio_btn_green"></div></div>
                   </div>
@@ -276,7 +257,7 @@
 
             <!-- track sample object template -->
             <template id="track_sample_object">
-              <div class="track_object" id="change_this">
+              <div class="track_object" id="new_track_sample_object">
                 <div class="track_object_label">
                   <p>909 Kick</p>
                 </div>

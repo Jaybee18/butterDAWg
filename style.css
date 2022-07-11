@@ -2,6 +2,7 @@
     --bg-light: #505b61;
     --bg-medium: #2d3a40;
     --bg-dark: #242f35;
+    --bg-darker: #181e22;
 
     --track-light: #40505a;
     --track-dark: #3a4a54;
@@ -67,7 +68,6 @@ body {
 
 .sidebar {
     background-color: #13181b;
-    overflow-y: hidden;
     margin-right: -4px;
     flex-grow: 1;
     min-width: 100px;
@@ -357,6 +357,24 @@ main::-webkit-scrollbar {
 
 
 
+#drag_container {
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
+    background-color: var(--bg-darker);
+    color: var(--bg-light);
+    border-radius: 5px;
+    padding: 4px;
+}
+
+
+
+
+
+
+
 
 .sidebar_item_lvl1 {
     margin: 0px;
@@ -372,6 +390,9 @@ main::-webkit-scrollbar {
 .sidebar_item_lvl1_text {
     margin: 0px;
     font-size: 16px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 
@@ -564,18 +585,20 @@ main::-webkit-scrollbar {
 
 .bpm {
     background-color: rgb(200, 240, 240);
-    border-radius: 25% 25% 25% 25% / 80% 80% 80% 80%; /*30% 30% 30% 30% / 75% 75% 75% 75% ;*/
-    height: 20px;
+    /*border-radius: 25% 25% 25% 25% / 80% 80% 80% 80%; /*30% 30% 30% 30% / 75% 75% 75% 75% ;*/
+    clip-path: url(#bpm_count_background);
+    height: 30px;
     margin: 4px;
-    padding: 3px 4px 3px 4px;
+    padding: 1px 4px 3px 4px;
     display: flex;
     flex-direction: row;
 }
 
 #bpm_counter {
+    width: 41px;
     display: flex;
     flex-direction: row;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
 }
 
