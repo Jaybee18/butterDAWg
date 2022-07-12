@@ -1,7 +1,10 @@
 var fs = require("fs");
+var wavefile = require("wavefile");
 
 var help_text = document.getElementById("header_help_text");
 var xsnap = 20;
+var framerate = 44100;
+const int16max = 32767;
 
 // contains the currently dragged element
 var current_drag_element = null;
@@ -129,13 +132,6 @@ class Track {
     });
     
     this.element.addEventListener("mousemove", (e) => {
-      // move all the objects in this.temp_samples
-      /*this.temp_samples.forEach(s => {
-        var newX = e.clientX - cumulativeOffset(s.element.parentElement).left - s.element.clientWidth/2;
-        newX = Math.min(Math.max(newX, 0), this.content.clientWidth);
-        s.element.style["left"] = newX-newX%xsnap + "px";
-      });*/
-
       if (this.hover_buffer !== null) {
         var newX = e.clientX - cumulativeOffset(this.hover_buffer.element.parentElement).left - this.hover_buffer.element.clientWidth/2;
         newX = Math.min(Math.max(newX, 0), this.content.clientWidth);
@@ -148,13 +144,6 @@ class Track {
       if (current_drag_element !== null) {
         this.addSample(this.hover_buffer);
         this.hover_buffer = null;
-        //this.hover_buffer.element.remove();
-        //this.hover_buffer = null;
-
-        /*this.temp_samples.forEach(elmnt => {
-          elmnt.element.remove();
-        });
-        this.temp_samples = [];*/
       }
     });
 
@@ -182,8 +171,8 @@ class Track {
     // call this function of a track, when currently dragging a sample
     // from the sidebar, to display a track_sample representation of
     // the sample on the track at the current position of the mouse
-    var t = new TrackSample(item);
     if (this.hover_buffer !== null) {return;}
+    var t = new TrackSample(item);
     this.content.appendChild(t.element);
     this.hover_buffer = t;
   }
@@ -191,9 +180,9 @@ class Track {
 
 class TrackSample {
   constructor (item) {
-    this.width = 200;
+    this.width = item.getWidth()/200; // arbitrary number; change later TODO !!
     this.title = item.title;
-    this.data = [1, 2, 3, 4, 5];
+    this.data = item.getData();
 
     // construct own element
     var template = document.getElementById("track_sample_object");
@@ -205,7 +194,27 @@ class TrackSample {
     this.element.id = this.id;
 
     dragElement(this.element);
+    this.drawCanvas();
     this.initializeEventListeners();
+  }
+
+  drawCanvas() {
+    var canvas = this.element.querySelector("canvas");
+    canvas.width = this.width*2;
+    canvas.height = 200;
+    canvas.style.width = this.width + "px";
+    canvas.style.height = 100 + "px";
+    const dpi = window.devicePixelRatio;
+    var c = canvas.getContext("2d");
+    c.scale(dpi, dpi);
+    c.translate(0.5, 0.5);
+    c.strokeStyle = "rgb(255, 255, 255)";
+    c.lineWidth = "2";
+    c.moveTo(0, 100);
+    for (let i = 0; i < this.data.length-100; i+=20) {
+      c.lineTo(i/50, this.data[i]/int16max*100+110);
+    }
+    c.stroke();
   }
 
   initializeEventListeners() {
@@ -525,7 +534,7 @@ function mapFolder(folder) {
   // if 'folder' is a file, only return the file
   if (fs.lstatSync(folder).isFile()) {
     if (folder[0] === ".") {return null;}
-    return undefined;
+    return folder;
   }
   // 'folder' is a folder, recursively map the remaining contents
   let res = new Map();
@@ -548,6 +557,13 @@ var sidebar_folder_colors = { "My projects": "#759b75",
 class Item extends Draggable{
   constructor (title, contents, indent=0) {
     super();
+    this.file = null;
+    this.contents = contents;
+    this.active = false;
+    this.indent = indent;
+    this.children = [];
+    this.title = title;
+
     // construct container
     var a = document.createElement("div");
     a.classList.add("sidebar_item_lvl1");
@@ -561,6 +577,7 @@ class Item extends Draggable{
     var ending = title.split(".").pop();
     if (ending === "wav") {
       type_icon.classList.add("fa-wave-square");
+      this.loadData();
       this.initializeDragListener();
     } else if (title === ending) {
       type_icon.classList.add("fa-folder");
@@ -574,13 +591,21 @@ class Item extends Draggable{
     b.innerHTML = title;
     a.appendChild(b);
 
-    this.contents = contents;
-    this.active = false;
-    this.indent = indent;
-    this.children = [];
-    this.title = title;
-
     this.initializeEventListeners();
+  }
+
+  loadData() {
+    // Load a wav file buffer as a WaveFile object
+    this.file = new wavefile.WaveFile(fs.readFileSync(this.contents));
+  }
+
+  getData() {
+    return this.file.getSamples(true, Int16Array);
+  }
+
+  getWidth() {
+    // returns the sample size in frames as an integer
+    return this.file.chunkSize;
   }
 
   initializeEventListeners() {

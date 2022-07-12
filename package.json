@@ -13,6 +13,9 @@
     "electron": "^19.0.7"
   },
   "dependencies": {
-    "requirejs": "^2.3.6"
+    "requirejs": "^2.3.6",
+    "speaker": "^0.5.4",
+    "wav": "^1.0.2",
+    "wavefile": "^11.0.0"
   }
 }
