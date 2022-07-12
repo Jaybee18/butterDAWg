@@ -193,7 +193,6 @@ class TrackSample {
     this.id = Date.now().toString();
     this.element.id = this.id;
 
-    dragElement(this.element);
     this.drawCanvas();
     this.initializeEventListeners();
   }
@@ -206,6 +205,7 @@ class TrackSample {
     canvas.style.height = 100 + "px";
     const dpi = window.devicePixelRatio;
     var c = canvas.getContext("2d");
+    c.clearRect(0, 0, canvas.width, canvas.height);
     c.scale(dpi, dpi);
     c.translate(0.5, 0.5);
     c.strokeStyle = "rgb(255, 255, 255)";
@@ -218,9 +218,58 @@ class TrackSample {
   }
 
   initializeEventListeners() {
+    var a = this.element;
     this.element.addEventListener("mouseenter", () => {
       // help
       header_help_text.innerHTML = "Sample " + this.id;
+    });
+
+    var oldX = 0;
+    var initial_grab_offset = 0
+    function elementDrag(e) {
+      e.preventDefault();
+      var t = currently_hovered_track();
+      if (t !== null) {
+        t.content.appendChild(a);
+      } else {
+        return;
+      }
+      var deltaX = oldX - e.clientX;
+      if (Math.abs(deltaX) < xsnap) {
+        return;
+      }
+      deltaX -= deltaX%xsnap;
+      oldX = e.clientX;
+      var newX = e.clientX - t.content.offsetLeft - t.element.offsetLeft - a.clientWidth/2 - initial_grab_offset;
+      newX -= newX%xsnap;
+      newX = Math.max(newX, 0);
+      a.style.top = "0px";
+      a.style.left = newX + "px";
+    }
+    this.element.addEventListener("mousedown", (e) => {
+      oldX = e.clientX;
+      initial_grab_offset = e.clientX - cumulativeOffset(a).left;
+      document.addEventListener("mousemove", elementDrag);
+    });
+    document.addEventListener("mouseup", () => {
+      document.removeEventListener("mousemove", elementDrag);
+    });
+
+    var left_resize = this.element.querySelector(".track_object_resize_left");
+    var mouse_down_position = 0;
+    var mouse_down_width = 0;
+    function left_resize_listener(e) {
+      e.preventDefault();
+      a.style.width = mouse_down_width - (e.clientX - mouse_down_position) + "px";
+    }
+    left_resize.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      mouse_down_position = e.clientX;
+      mouse_down_width = this.element.clientWidth;
+      document.addEventListener("mousemove", left_resize_listener);
+    });
+    document.addEventListener("mouseup", () => {
+      document.removeEventListener("mousemove", left_resize_listener);
     });
   }
 }
@@ -231,76 +280,6 @@ document.getElementById("track_add_label").addEventListener('click', () => {new 
 document.addEventListener("mouseup", () => {
   resizing_track = null;
 });
-
-//document.getElementById("sample_add_label").addEventListener("click", () => {new SidebarItem();});
-
-// function for dragging samples
-// from https://www.w3schools.com/howto/howto_js_draggable.asp
-function dragElement(elmnt) {
-  var deltaX = 0, pos2 = 0, oldX = 0, oldY = 0;
-  if (document.getElementById(elmnt.id + "header")) {
-    // if present, the header is where you move the DIV from:
-    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-  } else {
-    // otherwise, move the DIV from anywhere inside the DIV:
-    elmnt.onmousedown = dragMouseDown;
-  }
-
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    oldX = e.clientX;
-    oldY = e.clientY;
-    document.addEventListener("mouseup", closeDragElement);
-    // call a function whenever the cursor moves:
-    document.addEventListener("mousemove", elementDrag);
-  }
-
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-
-    // determine the track the current object should be a child of
-    t = currently_hovered_track();
-    if (t !== null) {
-      // snap to currently hovered track, if present
-      t.content.appendChild(elmnt);
-    } else {
-      return;
-    }
-
-    // calculate the new cursor position:
-    var mouseX = e.clientX;
-    deltaX = oldX - mouseX;
-    if (Math.abs(deltaX) < xsnap) {
-      return;
-    }
-    deltaX -= deltaX%xsnap;
-
-    oldY = e.clientY;
-    if (e.clientX < content.getBoundingClientRect().left) {
-      oldX = content.getBoundingClientRect().left;
-    } else {
-      oldX = e.clientX;
-    }
-    // set the element's new position:
-    var newX = (elmnt.offsetLeft - deltaX);
-    newX = e.clientX - t.content.offsetLeft - t.element.offsetLeft - elmnt.clientWidth/2; // new tracking system !doesnt snap well to track_content grid
-    newX -= newX%xsnap; // nvm; new system now officially better than old system, since it works on absolute cursor positions and not on movement deltas
-    if (newX < 0) {
-      newX = 0;
-    }
-    elmnt.style.top = "0px";
-    elmnt.style.left = newX + "px";
-  }
-
-  function closeDragElement() {
-    // stop moving when mouse button is released:
-    document.removeEventListener("mouseup", closeDragElement);
-    document.removeEventListener("mousemove", elementDrag);
-  }
-}
 
 // add slider functionality
 var handling_slider = null;
@@ -678,6 +657,37 @@ pos_slider_handle.addEventListener("mousedown", (e) => {
 });
 document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", pos_slider_handle_listener);
+});
+
+var is_playing = false;
+var interval = null;
+var progress = 0;
+// cursor is defined above as the bars_cursor
+var track_bar_cursor = document.querySelector(".line_cursor");
+var play_button = document.querySelector(".play");
+function play() {
+  if (is_playing) {
+    is_playing = false;
+    play_button.innerHTML = "<i class='fa-solid fa-play'></i>";
+    clearInterval(interval);
+  } else {
+    is_playing = true;
+    play_button.innerHTML = "<i class='fa-solid fa-pause'></i>";
+    // play
+    clearInterval(interval);
+    interval = setInterval(move_cursor, xsnap);
+    function move_cursor() {
+      progress++;
+      cursor.style.left = progress + "px";
+      track_bar_cursor.style.left = progress + 82 + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
+    }
+  }
+}
+
+document.addEventListener("keypress", (e) => {
+  if (e.code === "Space") {
+    play();
+  }
 });
 
 // initialize a testing ui

@@ -324,6 +324,7 @@ main::-webkit-scrollbar {
     background-color: rgba(255, 0, 0, 0.3);
     width: 160px;
     height: 100%;
+    overflow: hidden;
 }
 
 .track_object_label {
@@ -347,6 +348,25 @@ main::-webkit-scrollbar {
     /*width: inherit;
     height: inherit;*/
     margin-top: -15px;
+}
+
+.track_object_resize_left {
+    width: 6px;
+    height: inherit;
+    position: absolute;
+    cursor: e-resize;
+    z-index: 4;
+}
+
+.track_object_resize_right {
+    width: 6px;
+    height: inherit;
+    position: absolute;
+    cursor: e-resize;
+    margin-right: -6px;
+    top: 0px;
+    right: 0px;
+    z-index: 4;
 }
 
 
