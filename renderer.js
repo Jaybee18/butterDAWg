@@ -45,6 +45,7 @@ class Track {
   constructor () {
     this.samples = [];
     this.temp_samples = [];
+    this.hover_buffer = null;
 
     // construct own element
     var template = document.getElementById("track_template");
@@ -102,35 +103,59 @@ class Track {
       resizing_track.style.height = new_height + "px";
     };
 
-    this.element.addEventListener("mouseleave", () => {
-      this.temp_samples.forEach(elmnt => {
-        elmnt.element.remove();
-      });
-      this.temp_samples = [];
-    });
   }
-
+  
   initializeEventListeners() {
     this.element.addEventListener("mouseenter", (e) => {
       // help
       header_help_text.innerHTML = "Track " + this.id;
+      
+    });
 
+    this.element.addEventListener("mouseleave", () => {
+      if (this.hover_buffer !== null) {
+        this.hover_buffer.element.remove();
+        this.hover_buffer = null;
+        drag_container.style.display = "block";
+      }
     });
     
     this.content.addEventListener("mousemove", () => {
       // sample preview
       if (current_drag_element !== null) {
         this.sampleHover(current_drag_element);
+        drag_container.style.display = "none";
       }
     });
     
     this.element.addEventListener("mousemove", (e) => {
       // move all the objects in this.temp_samples
-      this.temp_samples.forEach(s => {
+      /*this.temp_samples.forEach(s => {
         var newX = e.clientX - cumulativeOffset(s.element.parentElement).left - s.element.clientWidth/2;
         newX = Math.min(Math.max(newX, 0), this.content.clientWidth);
         s.element.style["left"] = newX-newX%xsnap + "px";
-      });
+      });*/
+
+      if (this.hover_buffer !== null) {
+        var newX = e.clientX - cumulativeOffset(this.hover_buffer.element.parentElement).left - this.hover_buffer.element.clientWidth/2;
+        newX = Math.min(Math.max(newX, 0), this.content.clientWidth);
+        this.hover_buffer.element.style["left"] = newX-newX%xsnap + "px";
+      }
+    });
+
+    this.element.addEventListener("mouseup", (e) => {
+      // if a sample was dragged, add it to this track
+      if (current_drag_element !== null) {
+        this.addSample(this.hover_buffer);
+        this.hover_buffer = null;
+        //this.hover_buffer.element.remove();
+        //this.hover_buffer = null;
+
+        /*this.temp_samples.forEach(elmnt => {
+          elmnt.element.remove();
+        });
+        this.temp_samples = [];*/
+      }
     });
 
     // radio button on click
@@ -153,21 +178,21 @@ class Track {
     this.samples.push(sample);
   }
 
-  sampleHover(sample) {
+  sampleHover(item) {
     // call this function of a track, when currently dragging a sample
     // from the sidebar, to display a track_sample representation of
     // the sample on the track at the current position of the mouse
-    var t = new TrackSample(sample);
-    if (this.temp_samples.length >= 1) {return;}
+    var t = new TrackSample(item);
+    if (this.hover_buffer !== null) {return;}
     this.content.appendChild(t.element);
-    this.temp_samples.push(t);
+    this.hover_buffer = t;
   }
 }
 
 class TrackSample {
-  constructor () {
+  constructor (item) {
     this.width = 200;
-    this.title = "Sample";
+    this.title = item.title;
     this.data = [1, 2, 3, 4, 5];
 
     // construct own element
@@ -231,8 +256,7 @@ function dragElement(elmnt) {
     t = currently_hovered_track();
     if (t !== null) {
       // snap to currently hovered track, if present
-      var content = t.querySelector(".track_content");
-      content.appendChild(elmnt);
+      t.content.appendChild(elmnt);
     } else {
       return;
     }
@@ -253,7 +277,7 @@ function dragElement(elmnt) {
     }
     // set the element's new position:
     var newX = (elmnt.offsetLeft - deltaX);
-    newX = e.clientX - t.querySelector(".track_content").offsetLeft - t.offsetLeft - elmnt.clientWidth/2; // new tracking system !doesnt snap well to track_content grid
+    newX = e.clientX - t.content.offsetLeft - t.element.offsetLeft - elmnt.clientWidth/2; // new tracking system !doesnt snap well to track_content grid
     newX -= newX%xsnap; // nvm; new system now officially better than old system, since it works on absolute cursor positions and not on movement deltas
     if (newX < 0) {
       newX = 0;
@@ -554,6 +578,7 @@ class Item extends Draggable{
     this.active = false;
     this.indent = indent;
     this.children = [];
+    this.title = title;
 
     this.initializeEventListeners();
   }
