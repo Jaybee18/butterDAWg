@@ -180,7 +180,7 @@ class Track {
 
 class TrackSample {
   constructor (item) {
-    this.width = item.getWidth()/200; // arbitrary number; change later TODO !!
+    this.width = item.getDuration()*(bpm/60*xsnap); // arbitrary number; change later TODO !!
     this.title = item.title;
     this.data = item.getData();
 
@@ -193,26 +193,34 @@ class TrackSample {
     this.id = Date.now().toString();
     this.element.id = this.id;
 
+    this.resizeCanvas(this.width, 200);
     this.drawCanvas();
     this.initializeEventListeners();
   }
 
+  resizeCanvas(width, height) {
+    var canvas = this.element.querySelector("canvas");
+    canvas.width = width*2;
+    canvas.height = 200;
+    canvas.style.width = width + "px";
+    canvas.style.height = 100 + "px";
+  }
+  
   drawCanvas() {
     var canvas = this.element.querySelector("canvas");
-    canvas.width = this.width*2;
-    canvas.height = 200;
-    canvas.style.width = this.width + "px";
-    canvas.style.height = 100 + "px";
-    const dpi = window.devicePixelRatio;
+
     var c = canvas.getContext("2d");
     c.clearRect(0, 0, canvas.width, canvas.height);
+    const dpi = window.devicePixelRatio;
     c.scale(dpi, dpi);
     c.translate(0.5, 0.5);
     c.strokeStyle = "rgb(255, 255, 255)";
     c.lineWidth = "2";
     c.moveTo(0, 100);
-    for (let i = 0; i < this.data.length-100; i+=20) {
-      c.lineTo(i/50, this.data[i]/int16max*100+110);
+    var factor = canvas.width / this.data.length;
+    var res = 20;
+    for (let i = 0; i < this.data.length; i+=res) {
+      c.lineTo(i*factor, this.data[i]/int16max*80+110);
     }
     c.stroke();
   }
@@ -225,7 +233,7 @@ class TrackSample {
     });
 
     var oldX = 0;
-    var initial_grab_offset = 0
+    var initial_grab_offset = 0;
     function elementDrag(e) {
       e.preventDefault();
       var t = currently_hovered_track();
@@ -240,13 +248,13 @@ class TrackSample {
       }
       deltaX -= deltaX%xsnap;
       oldX = e.clientX;
-      var newX = e.clientX - t.content.offsetLeft - t.element.offsetLeft - a.clientWidth/2 - initial_grab_offset;
+      var newX = e.clientX - cumulativeOffset(t.content).left - initial_grab_offset;
       newX -= newX%xsnap;
       newX = Math.max(newX, 0);
       a.style.top = "0px";
       a.style.left = newX + "px";
     }
-    this.element.addEventListener("mousedown", (e) => {
+    this.element.querySelector("canvas").addEventListener("mousedown", (e) => {
       oldX = e.clientX;
       initial_grab_offset = e.clientX - cumulativeOffset(a).left;
       document.addEventListener("mousemove", elementDrag);
@@ -258,19 +266,42 @@ class TrackSample {
     var left_resize = this.element.querySelector(".track_object_resize_left");
     var mouse_down_position = 0;
     var mouse_down_width = 0;
+    var mouse_down_offset = 0;
     function left_resize_listener(e) {
       e.preventDefault();
-      a.style.width = mouse_down_width - (e.clientX - mouse_down_position) + "px";
+      var newWidth = mouse_down_width - (e.clientX - mouse_down_position);
+      a.style.width = newWidth + "px";
+      a.style.left = mouse_down_offset - (newWidth - mouse_down_width) + "px";
     }
     left_resize.addEventListener("mousedown", (e) => {
       e.preventDefault();
       mouse_down_position = e.clientX;
       mouse_down_width = this.element.clientWidth;
+      mouse_down_offset = this.element.offsetLeft;
       document.addEventListener("mousemove", left_resize_listener);
     });
     document.addEventListener("mouseup", () => {
       document.removeEventListener("mousemove", left_resize_listener);
+  });
+
+    var right_resize = this.element.querySelector(".track_object_resize_right");
+    var temp = this;
+    function right_resize_listener(e) {
+      e.preventDefault();
+      var newWidth = mouse_down_width - (mouse_down_position - e.clientX);
+      a.style.width = newWidth + "px";
+      var canvas = a.querySelector("canvas");
+      canvas.style.width = newWidth + "px";
+  }
+    right_resize.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      mouse_down_position = e.clientX;
+      mouse_down_width = this.element.clientWidth;
+      document.addEventListener("mousemove", right_resize_listener);
     });
+    document.addEventListener("mouseup", () => {
+      document.removeEventListener("mousemove", right_resize_listener);
+  });
   }
 }
 
@@ -585,6 +616,11 @@ class Item extends Draggable{
   getWidth() {
     // returns the sample size in frames as an integer
     return this.file.chunkSize;
+  }
+
+  getDuration() {
+    // returns duration in seconds
+    return this.getWidth() / framerate;
   }
 
   initializeEventListeners() {

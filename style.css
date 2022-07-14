@@ -324,7 +324,6 @@ main::-webkit-scrollbar {
     background-color: rgba(255, 0, 0, 0.3);
     width: 160px;
     height: 100%;
-    overflow: hidden;
 }
 
 .track_object_label {
