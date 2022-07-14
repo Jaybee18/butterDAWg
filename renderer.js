@@ -350,13 +350,6 @@ document.querySelectorAll(".header_button").forEach(button => {
       icon.style.color = 'rgb(80, 19, 0)';
     }
   });
-  button.addEventListener("mousedown", () => {
-    icon.style.transform = 'scale(1.5)';
-  });
-  button.addEventListener("mouseup", () => {
-    // scale(1.1) because the icon is scaled up by default
-    icon.style.transform = 'scale(1.6)'; 
-  });
 });
 
 // header controls scope buttons
@@ -715,7 +708,7 @@ function play() {
     function move_cursor() {
       progress++;
       cursor.style.left = progress + "px";
-      track_bar_cursor.style.left = progress + 82 + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
+      track_bar_cursor.style.left = progress + 97 + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
     }
   }
 }
