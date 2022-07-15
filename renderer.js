@@ -32,7 +32,7 @@ document.addEventListener("mousemove", (e) => {
   drag_container.style.top = e.clientY + "px";
 
   // angle container for visual appeal
-  drag_container.style.transform = "rotateZ(" + e.movementX/2 + "deg)";
+  drag_container.style.transform = "rotateZ(" + e.movementX + "deg)";
 });
 document.addEventListener("mouseup", () => {
   if (current_drag_element !== null) {
@@ -67,7 +67,7 @@ class Track {
     tracks.push(this);
     
     this.setTitle("Track " + tracks.length);
-    this.setColor(80, 91, 97);
+    this.setColor(100, 110, 115);
     this.updateCanvas();
     this.initializeResizing();
     this.initializeEventListeners();
@@ -102,7 +102,7 @@ class Track {
         return false;
       }
 
-      var new_height = e.clientY - resizing_track.offsetTop;
+      var new_height = e.clientY - cumulativeOffset(resizing_track).top; //resizing_track.offsetTop;
       resizing_track.style.height = new_height + "px";
     };
 
@@ -713,6 +713,7 @@ function play() {
   }
 }
 
+// add key event listeners
 document.addEventListener("keypress", (e) => {
   if (e.code === "Space") {
     play();

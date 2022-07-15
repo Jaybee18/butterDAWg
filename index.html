@@ -5,6 +5,7 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">-->
     <script src="https://kit.fontawesome.com/a95d7f2b70.js" crossorigin="anonymous"></script>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <title>butterDAWg</title>
     <link rel="stylesheet" href="style.css">
     <svg height="0" width="0" viewbox="0 0 10 50">
@@ -145,16 +146,30 @@
       <div class="sidebar" id="sidebar">
         <div class="sidebar_header">
           <div class="sidebar_header_scope">
-            <i class="fa-solid fa-caret-right" style="margin-top: auto; margin-bottom: auto; margin-left: 3px;"></i>
-            <i class="fa-solid fa-up-long" style="margin-left: 5px; transform: scaleY(0.8); margin-top: auto; margin-bottom: auto;"></i>
-            <i class="fa-solid fa-reply" style="margin: auto 0px auto 5px; transform: scaleX(0.9);"></i>
-            <i class="fa-solid fa-magnifying-glass" style="margin: auto 0px auto 5px;"></i>
-            <p style="margin: auto 0px auto 5px; color: var(--bg-light);">Browser - All</p>
+            <div class="tool_button" id="sidebar_caret_right">
+              <i class="fa-solid fa-caret-right" style="margin-top: auto; margin-bottom: auto; margin-left: 3px;"></i>
+            </div>
+            <div class="tool_button" id="sidebar_up_arrow">
+              <i class="fa-solid fa-up-long" style="margin-left: 5px; transform: scaleY(0.8); margin-top: auto; margin-bottom: auto;"></i>
+            </div>
+            <div class="tool_button" id="sidebar_reply">
+              <i class="fa-solid fa-reply" style="margin: auto 0px auto 5px; transform: scaleX(0.9);"></i>
+            </div>
+            <div class="tool_button" id="sidebar_search">
+              <i class="fa-solid fa-magnifying-glass" style="margin: auto 0px auto 5px;"></i>
+            </div>
+            <p style="margin: auto 0px auto 5px; color: #7d8486; font-size: 0.8em;">Browser - All</p>
           </div>
           <div class="sidebar_header_type">
-            <i class="fa-solid fa-wave-square"></i>
-            <i class="fa-solid fa-file"></i>
-            <i class="fa-solid fa-plug"></i>
+            <div class="tool_button" id="sidebar_wave">
+              <i class="fa-solid fa-wave-square"></i>
+            </div>
+            <div class="tool_button" id="sidebar_file">
+              <i class="fa-solid fa-file"></i>
+            </div>
+            <div class="tool_button" id="sidebar_plugin">
+              <i class="fa-solid fa-plug"></i>
+            </div>
           </div>
         </div>
 
@@ -181,6 +196,44 @@
       <div class="sidebar_resize" id="sidebar_resize"></div>
       <div class="main_content" id="main_content">
         <div class="tracks_wrapper">
+
+          <div class="tracks_tool_bar">
+            <div class="tool_button" id="tool_caret_right">
+              <i class="fa-solid fa-caret-right"></i>
+            </div>
+            <div class="tool_button" id="tool_magnet">
+              <i class="fa-solid fa-magnet" style="transform: scale(1, -1);"></i>
+            </div>
+            <div class="tool_button" id="tool_pencil">
+              <i class="fa-solid fa-pencil"></i>
+            </div>
+            <div class="tool_button" id="tool_brush">
+              <i class="fa-solid fa-brush" style="transform: rotateZ(-45deg);"></i>
+            </div>
+            <div class="tool_button" id="tool_delete">
+              <i class="fa-solid fa-ban"></i>
+            </div>
+            <div class="tool_button" id="tool_mute">
+              <i class="fa-solid fa-volume-xmark"></i>
+            </div>
+            <div class="tool_button" id="tool_resize">
+              <i class="fa-solid fa-arrows-left-right"></i>
+            </div>
+            <div class="tool_button" id="tool_slice">
+              <i class="fa-solid fa-spoon"></i>
+            </div>
+            <div class="tool_button" id="tool_expand">
+              <i class="fa-solid fa-expand"></i>
+            </div>
+            <div class="tool_button" id="tool_search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <div class="tool_button" id="tool_volume">
+              <i class="fa-solid fa-volume-high"></i>
+            </div>
+            <p>Playlist - Arrangement ></p>
+          </div>
+
           <div class="tracks_top_bar">
             <svg width="104" height="42" style="margin-left: -1px; flex-shrink: 0;">
               <path fill="#505b61" stroke-width="1" stroke="#000000aa" d="m 1 41 l 0 0 c 0 -8 0 -8 12 -20 l 8 -8 c 12 -12 12 -12 28 -12 l 54 0 l 0 40 z" />

@@ -37,6 +37,7 @@
 html {
     height: 100%;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    /*font-family: 'Open Sans', sans-serif;*/
     font-size: smaller;
 }
 
@@ -67,7 +68,7 @@ body {
 }
 
 .sidebar {
-    background-color: #13181b;
+    background-color: #161f24;
     margin-right: -4px;
     flex-grow: 1;
     min-width: 100px;
@@ -78,15 +79,56 @@ body {
 .sidebar_header {
     width: 100%;
     height: 50px;
-    background-color: var(--bg-dark);
+    padding-top: 5px;
+    background-color: #434c51;
     box-shadow: inset 0 0 0 1px #00000050;
 }
 
 .sidebar_header_scope {
     width: 100%;
     height: 40%;
-    color: var(--bg-light);
+    color: #7d8486;
     display: flex;
+    padding-left: 2px;
+}
+
+.sidebar_header_scope > .tool_button {   
+    color: #7d8486;
+    width: 12px;
+    height: 17px;
+    margin: 0 2px 0 2px;
+    border-radius: 4px;
+}
+#sidebar_caret_right > i {
+    margin: 0 0 0 -1px!important;
+}
+#sidebar_caret_right:hover > i {
+    transform: rotateZ(90deg);
+}
+#sidebar_caret_right:hover {
+    outline: solid 2px #f69238;
+    color: #f69238;
+    outline-offset: 0px;
+}
+#sidebar_up_arrow:hover, #sidebar_reply:hover, #sidebar_search:hover {
+    outline: solid 2px #9bef7d;
+    color: #9bef7d;
+    outline-offset: 0px;
+}
+#sidebar_up_arrow > i {
+    margin-left: 0px!important;
+}
+#sidebar_reply {
+    width: 14px!important;
+}
+#sidebar_reply > i {
+    margin-left: -1px!important;
+}
+#sidebar_search {
+    width: 16px!important;
+}
+#sidebar_search > i {
+    margin-left: 0px!important;
 }
 
 .sidebar_header_type {
@@ -97,9 +139,23 @@ body {
     align-items: center;
 }
 
-.sidebar_header_type > i {
-    color: var(--bg-light);
-    transform: scale(1.2);
+.sidebar_header_type > .tool_button {
+    color: #7d8486;
+    transform: scale(1.0);
+    width: 2.7vw;
+    height: inherit;
+    border-radius: 7px;
+}
+
+#sidebar_wave:hover, #sidebar_file:hover {
+    outline: solid 2px #ffc43f;
+    color: #ffc43f;
+    outline-offset: 0px;
+}
+#sidebar_plugin:hover {
+    outline: solid 2px #7ec6ff;
+    color: #7ec6ff;
+    outline-offset: 0px;
 }
 
 .main_content {
@@ -129,7 +185,7 @@ body {
 .tracks_wrapper {
     height: inherit;
     padding: 0px 5px 0px 5px;
-    background-color: var(--bg-dark);
+    background-color: #3f484d;
     box-shadow: inset 0 0 0 1px var(--border-color);
     display: flex;
     flex-direction: column;
@@ -139,7 +195,7 @@ body {
 .tracks_top_bar {
     height: 42px;
     width: inherit;
-    background-color: var(--bg-dark);
+    background-color: #3f484d;
     display: flex;
     flex-direction: row;
 }
@@ -373,6 +429,119 @@ main::-webkit-scrollbar {
 
 
 
+.tracks_tool_bar {
+    display: flex;
+    flex-direction: row;
+    height: 22px;
+    margin-top: 7px;
+    margin-bottom: 3px;
+}
+
+.tracks_tool_bar > p {
+    margin: 0 0 0 15px;
+    color: #b2d0d3;
+}
+
+.tracks_tool_bar > .tool_button {
+    width: 17px;
+    height: 17px;
+    margin: 0 2px 0 2px;
+}
+.tool_button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #b2d0d3;
+    outline: solid 2px transparent;
+    outline-offset: 2px;
+    border-radius: 5px;
+    transition: outline-color 0.3s 0.05s, color 0.35s, outline-offset 0.4s;
+}
+.tool_button > i {
+    transition: transform 0.3s, color 0.1s;
+}
+
+#tool_caret_right > i {
+    margin: 1px 0 0 -1px;
+}
+#tool_caret_right:hover {
+    outline: solid 2px #f69238;
+    color: #f69238;
+    outline-offset: 0px;
+}
+#tool_caret_right:hover > i {
+    transform: rotateZ(90deg);
+    transition: transform 0.3s;
+}
+#tool_magnet > i {
+    margin: -1px 0 0 0;
+}
+#tool_magnet:hover {
+    outline: solid 2px #7eefa9;
+    color: #7eefa9;
+    outline-offset: 0px;
+}
+#tool_pencil {
+    margin-left: 10px;
+}
+#tool_pencil:hover {
+    outline: solid 2px #fcba40;
+    color: #fcba40;
+    outline-offset: 0px;
+}
+#tool_brush > i {
+    margin: 3px 0 0 2px;
+}
+#tool_brush:hover {
+    outline: solid 2px #7bcefd;
+    color: #7bcefd;
+    outline-offset: 0px;
+}
+#tool_delete:hover {
+    outline: solid 2px #ff5b53;
+    color: #ff5b53;
+    outline-offset: 0px;
+}
+#tool_mute > i{
+    margin: 1px 0 0 0;
+}
+#tool_mute:hover {
+    outline: solid 2px #ff54b0;
+    color: #ff54b0;
+    outline-offset: 0px;
+}
+#tool_resize:hover {
+    outline: solid 2px #ffa64a;
+    color: #ffa64a;
+    outline-offset: 0px;
+}
+#tool_slice:hover {
+    outline: solid 2px #85b3ff;
+    color: #85b3ff;
+    outline-offset: 0px;
+}
+#tool_expand:hover {
+    outline: solid 2px #ffab60;
+    color: #ffab60;
+    outline-offset: 0px;
+}
+#tool_search:hover {
+    outline: solid 2px #85b3ff;
+    color: #85b3ff;
+    outline-offset: 0px;
+}
+#tool_volume:hover {
+    outline: solid 2px #ffa64a;
+    color: #ffa64a;
+    outline-offset: 0px;
+}
+
+
+
+
+
+
+
 
 #bars_cursor {
     position: absolute;
@@ -412,6 +581,7 @@ main::-webkit-scrollbar {
     determine if they want to display sth special, when hovered with an item, 
     so pass every event right through the object */
     pointer-events: none;
+    transition: transform 0.1s;
 }
 
 
@@ -510,7 +680,7 @@ main::-webkit-scrollbar {
 .header_menu > div > p {
     font-size: 0.88em;
     color: white;
-    transform: scaleY(1.7);
+    /*transform: scaleY(1.7);*/
 }
 
 
@@ -644,7 +814,7 @@ main::-webkit-scrollbar {
 
 
 .bpm {
-    background-color: rgb(200, 240, 240);
+    background-color: #c8d7de;
     /*border-radius: 25% 25% 25% 25% / 80% 80% 80% 80%; /*30% 30% 30% 30% / 75% 75% 75% 75% ;*/
     clip-path: url(#bpm_count_background);
     height: 30px;
