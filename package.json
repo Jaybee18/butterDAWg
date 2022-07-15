@@ -23,5 +23,13 @@
   "dependencies": {
     "wav": "^1.0.2",
     "wavefile": "^11.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jaybee18/butterDAWg.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jaybee18/butterDAWg/issues"
+  },
+  "homepage": "https://github.com/Jaybee18/butterDAWg#readme"
 }

@@ -1,11 +1,11 @@
 :root {
-    --bg-light: #505b61;
-    --bg-medium: #2d3a40;
+    --bg-light: #646b73;
+    --bg-medium: #434c51;
     --bg-dark: #242f35;
     --bg-darker: #181e22;
 
-    --track-light: #40505a;
-    --track-dark: #3a4a54;
+    --track-light: #34444e;
+    --track-dark: #2e3e48;
 
     --border-color: #010102aa;
 
@@ -37,11 +37,12 @@
 html {
     height: 100%;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    /*font-family: 'Open Sans', sans-serif;*/
     font-size: smaller;
 }
 
 header {
-    background-color: var(--bg-light);
+    background-color: #596267;
     height: min-content;
 }
 
@@ -67,7 +68,7 @@ body {
 }
 
 .sidebar {
-    background-color: #13181b;
+    background-color: #161f24;
     margin-right: -4px;
     flex-grow: 1;
     min-width: 100px;
@@ -78,15 +79,56 @@ body {
 .sidebar_header {
     width: 100%;
     height: 50px;
-    background-color: var(--bg-dark);
+    padding-top: 5px;
+    background-color: #434c51;
     box-shadow: inset 0 0 0 1px #00000050;
 }
 
 .sidebar_header_scope {
     width: 100%;
     height: 40%;
-    color: var(--bg-light);
+    color: #7d8486;
     display: flex;
+    padding-left: 2px;
+}
+
+.sidebar_header_scope > .tool_button {   
+    color: #7d8486;
+    width: 12px;
+    height: 17px;
+    margin: 0 2px 0 2px;
+    border-radius: 4px;
+}
+#sidebar_caret_right > i {
+    margin: 0 0 0 -1px!important;
+}
+#sidebar_caret_right:hover > i {
+    transform: rotateZ(90deg);
+}
+#sidebar_caret_right:hover {
+    outline: solid 2px #f69238;
+    color: #f69238;
+    outline-offset: 0px;
+}
+#sidebar_up_arrow:hover, #sidebar_reply:hover, #sidebar_search:hover {
+    outline: solid 2px #9bef7d;
+    color: #9bef7d;
+    outline-offset: 0px;
+}
+#sidebar_up_arrow > i {
+    margin-left: 0px!important;
+}
+#sidebar_reply {
+    width: 14px!important;
+}
+#sidebar_reply > i {
+    margin-left: -1px!important;
+}
+#sidebar_search {
+    width: 16px!important;
+}
+#sidebar_search > i {
+    margin-left: 0px!important;
 }
 
 .sidebar_header_type {
@@ -97,9 +139,23 @@ body {
     align-items: center;
 }
 
-.sidebar_header_type > i {
-    color: var(--bg-light);
-    transform: scale(1.2);
+.sidebar_header_type > .tool_button {
+    color: #7d8486;
+    transform: scale(1.0);
+    width: 2.7vw;
+    height: inherit;
+    border-radius: 7px;
+}
+
+#sidebar_wave:hover, #sidebar_file:hover {
+    outline: solid 2px #ffc43f;
+    color: #ffc43f;
+    outline-offset: 0px;
+}
+#sidebar_plugin:hover {
+    outline: solid 2px #7ec6ff;
+    color: #7ec6ff;
+    outline-offset: 0px;
 }
 
 .main_content {
@@ -129,7 +185,7 @@ body {
 .tracks_wrapper {
     height: inherit;
     padding: 0px 5px 0px 5px;
-    background-color: var(--bg-dark);
+    background-color: #3f484d;
     box-shadow: inset 0 0 0 1px var(--border-color);
     display: flex;
     flex-direction: column;
@@ -139,7 +195,7 @@ body {
 .tracks_top_bar {
     height: 42px;
     width: inherit;
-    background-color: var(--bg-dark);
+    background-color: #3f484d;
     display: flex;
     flex-direction: row;
 }
@@ -181,7 +237,7 @@ body {
 .tracks_top_bar_bars {
     width: inherit;
     height: 50%;
-    background-color: #101016;
+    background-color: #192328;
     /*display: flex;
     flex-direction: row;*/
     overflow: hidden;
@@ -373,6 +429,119 @@ main::-webkit-scrollbar {
 
 
 
+.tracks_tool_bar {
+    display: flex;
+    flex-direction: row;
+    height: 22px;
+    margin-top: 7px;
+    margin-bottom: 3px;
+}
+
+.tracks_tool_bar > p {
+    margin: 0 0 0 15px;
+    color: #b2d0d3;
+}
+
+.tracks_tool_bar > .tool_button {
+    width: 17px;
+    height: 17px;
+    margin: 0 2px 0 2px;
+}
+.tool_button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #b2d0d3;
+    outline: solid 2px transparent;
+    outline-offset: 2px;
+    border-radius: 5px;
+    transition: outline-color 0.3s 0.05s, color 0.35s, outline-offset 0.4s;
+}
+.tool_button > i {
+    transition: transform 0.3s, color 0.1s;
+}
+
+#tool_caret_right > i {
+    margin: 1px 0 0 -1px;
+}
+#tool_caret_right:hover {
+    outline: solid 2px #f69238;
+    color: #f69238;
+    outline-offset: 0px;
+}
+#tool_caret_right:hover > i {
+    transform: rotateZ(90deg);
+    transition: transform 0.3s;
+}
+#tool_magnet > i {
+    margin: -1px 0 0 0;
+}
+#tool_magnet:hover {
+    outline: solid 2px #7eefa9;
+    color: #7eefa9;
+    outline-offset: 0px;
+}
+#tool_pencil {
+    margin-left: 10px;
+}
+#tool_pencil:hover {
+    outline: solid 2px #fcba40;
+    color: #fcba40;
+    outline-offset: 0px;
+}
+#tool_brush > i {
+    margin: 3px 0 0 2px;
+}
+#tool_brush:hover {
+    outline: solid 2px #7bcefd;
+    color: #7bcefd;
+    outline-offset: 0px;
+}
+#tool_delete:hover {
+    outline: solid 2px #ff5b53;
+    color: #ff5b53;
+    outline-offset: 0px;
+}
+#tool_mute > i{
+    margin: 1px 0 0 0;
+}
+#tool_mute:hover {
+    outline: solid 2px #ff54b0;
+    color: #ff54b0;
+    outline-offset: 0px;
+}
+#tool_resize:hover {
+    outline: solid 2px #ffa64a;
+    color: #ffa64a;
+    outline-offset: 0px;
+}
+#tool_slice:hover {
+    outline: solid 2px #85b3ff;
+    color: #85b3ff;
+    outline-offset: 0px;
+}
+#tool_expand:hover {
+    outline: solid 2px #ffab60;
+    color: #ffab60;
+    outline-offset: 0px;
+}
+#tool_search:hover {
+    outline: solid 2px #85b3ff;
+    color: #85b3ff;
+    outline-offset: 0px;
+}
+#tool_volume:hover {
+    outline: solid 2px #ffa64a;
+    color: #ffa64a;
+    outline-offset: 0px;
+}
+
+
+
+
+
+
+
 
 #bars_cursor {
     position: absolute;
@@ -382,7 +551,7 @@ main::-webkit-scrollbar {
 }
 
 .line_cursor {
-    width: 30px;
+    width: 15px;
     height: inherit;
     position: absolute;
     z-index: 3;
@@ -412,6 +581,7 @@ main::-webkit-scrollbar {
     determine if they want to display sth special, when hovered with an item, 
     so pass every event right through the object */
     pointer-events: none;
+    transition: transform 0.1s;
 }
 
 
@@ -449,9 +619,9 @@ main::-webkit-scrollbar {
 
 .header_panel {
     width: fit-content;
-    padding: 5px 5px 5px 0px;
-    height: 40px;
-    background-color: var(--bg-light);
+    padding: 3px 2px 3px 0px;
+    height: 34px;
+    background-color: #596267;
     border-color: var(--bg-medium);
     border-style: solid;
     border-width: 1px;
@@ -471,6 +641,7 @@ main::-webkit-scrollbar {
     height: 50px;
     background-color: var(--bg-dark);
     clip-path: url(#handle_path);
+    transform: scaleY(0.7) scaleX(0.9);
 }
 
 
@@ -491,13 +662,13 @@ main::-webkit-scrollbar {
 .header_menu {
     display: flex;
     flex-direction: row;
-    width: 400px;
+    width: 300px;
     height: inherit;
-    margin-left: 5px;
-    background-color: #536949;
+    background-color: #5f7374;
     border-style: solid;
     border-width: 1px;
     border-color: var(--bg-medium);
+    padding-right: 3px;
 }
 
 .header_menu > div {
@@ -507,9 +678,9 @@ main::-webkit-scrollbar {
 }
 
 .header_menu > div > p {
-    font-size: 15px;
+    font-size: 0.88em;
     color: white;
-    transform: scaleY(1.2);
+    /*transform: scaleY(1.7);*/
 }
 
 
@@ -518,9 +689,9 @@ main::-webkit-scrollbar {
 
 
 .header_time {
-    height: 40px;
+    height: 34px;
     width: 100px;
-    background-color: #405735;
+    background-color: #536566;
     margin-left: 4px;
     border-style: solid;
     border-width: 1px;
@@ -544,7 +715,7 @@ main::-webkit-scrollbar {
 .header_waveview {
     width: 150px;
     height: inherit;
-    background-color: var(--bg-medium);
+    background-color: #3e464b;
     border-style: solid;
     border-width: 1px;
     border-color: var(--bg-dark);
@@ -558,8 +729,7 @@ main::-webkit-scrollbar {
 .header_levelmeter {
     height: 60%;
     width: 80px;
-    margin-bottom: 7%;
-    margin-left: 3px;
+    margin: 3px 1px 7% 2px;
     border-style: solid;
     border-width: 1px;
     border-color: var(--bg-dark);
@@ -568,7 +738,7 @@ main::-webkit-scrollbar {
 .header_levelmeter_side {
     height: 50%;
     width: 100%;
-    background-color: var(--bg-medium);
+    background-color: #3e464b;
     margin: 0px;
 }
 
@@ -582,10 +752,25 @@ main::-webkit-scrollbar {
     width: 300px;
     height: inherit;
     background-color: var(--bg-medium);
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--bg-dark);
+    padding-right: 3px;
 }
 
-.header_help > p {
-    color: white;
+.header_help > p:nth-of-type(1) {
+    color: #b1b1b1;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    height: 50%;
+    margin: 0px;
+    padding-left: 3px;
+}
+
+.header_help > p:nth-of-type(2) {
+    color: var(--text-color);
+    font-size: 0.8em;
     display: flex;
     align-items: center;
     height: 50%;
@@ -602,25 +787,25 @@ main::-webkit-scrollbar {
 
 
 .record {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     border-radius: 50px;
     border-style: solid;
-    border-color: var(--bg-medium);
+    border-color: #373f43;
     border-width: 2px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: center;
     align-items: center;
     margin-left: 5px;
-    margin-right: 3px;
+    margin-right: 5px;
 }
 
 .record_red {
-    width: 12px;
-    height: 12px;
+    width: 9px;
+    height: 9px;
     border-radius: 50px;
-    background-color: red;
+    background-color: #f8615a;
 }
 
 
@@ -629,14 +814,16 @@ main::-webkit-scrollbar {
 
 
 .bpm {
-    background-color: rgb(200, 240, 240);
+    background-color: #c8d7de;
     /*border-radius: 25% 25% 25% 25% / 80% 80% 80% 80%; /*30% 30% 30% 30% / 75% 75% 75% 75% ;*/
     clip-path: url(#bpm_count_background);
     height: 30px;
-    margin: 4px;
-    padding: 1px 4px 3px 4px;
+    margin-top: 1.5px;
+    margin-right: 1px;
+    padding: 1px 4px 1px 4px;
     display: flex;
     flex-direction: row;
+    cursor: n-resize;
 }
 
 #bpm_counter {
@@ -645,6 +832,7 @@ main::-webkit-scrollbar {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    transform: scaleY(1.5);
 }
 
 #bpm_arrows {
@@ -652,13 +840,14 @@ main::-webkit-scrollbar {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-left: 3px;
+    margin-left: 4px;
     margin-right: 2px;
 }
 
 #bpm_arrows > i {
     color: rgb(119, 172, 172);
     transform: scale(0.8);
+    transition: all 0.3s;
 }
 
 #bpm_arrows > .fa-caret-up {
@@ -673,41 +862,51 @@ main::-webkit-scrollbar {
     margin: 0px 0px 2px 0px;
 }
 
+.bpm :hover + #bpm_arrows > #bpm_add {
+    margin-bottom: 0px;
+}
+
+.bpm :hover + #bpm_arrows > #bpm_sub {
+    margin-top: 0px;
+}
+
 
 
 
 
 
 .header_button {
-    border-width: 2px;
+    /*border-width: 2px;
     border-style: solid;
-    border-radius: 2px;
-    padding: 3px;
+    border-radius: 2px;*/
     margin-left: 4px;
     cursor: default;
     display: flex;
     justify-content: center;
     width: 30px;
     height: 30px;
+    border-radius: 3px;
 }
 
 .unclicked {
-    border-color: #141414;
-    background: rgb(36,47,53);
-    box-shadow: inset 0 0 3px #000000;
+    border: solid 2px #00000069;
+    background: #484e50;
+    box-shadow: inset 0 0 10px 0 #00000050;
+    transition: all 0.3s;
 }
 
 .clicked {
-    border-color: #f87911dd;
+    border: solid 2px #f87911dd;
     background: #ffffff;
     box-shadow: inset 0 0 15px #f76708;
+    transition: all 0.3s;
 }
 
 .header_button > i {
     margin: auto;
     color: rgb(225, 225, 225); /* clicked : rgb(80, 19, 0) */
     opacity: 0.9;
-    transform: scale(1.6);
+    transition: all 0.3s;
 }
 
 
@@ -717,7 +916,7 @@ main::-webkit-scrollbar {
 .player_controls {
     display: flex;
     flex-direction: row;
-    height: 40px;
+    height: 35px;
 }
 
 .player_controls > div > i {
@@ -725,7 +924,7 @@ main::-webkit-scrollbar {
 }
 
 .player_scope {
-    width: 55px;
+    width: 35px;
     height: inherit;
     border-radius: 20px 0px 0px 20px;
     box-shadow: inset 0 0 0 1px #00000090;
@@ -733,22 +932,32 @@ main::-webkit-scrollbar {
 }
 
 .scope_pat {
+    font-size: 0.8em;
     height: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     color: var(--bg-light);
+    transform: scaleX(0.93) scaleY(0.83);
 }
 
 .scope_pat_clicked {
-    box-shadow: inset 0 0 15px #f76708;
+    box-shadow: inset 0 0 11px #f76708;
     background-color: #ffffffc0;
     border-radius: 20px 0 0 0;
     color: black;
-    transform: scaleX(0.93) scaleY(0.83);
+    transition: box-shadow 0.4s, background 0.4s, color 0.4s;
+}
+
+.scope_pat > p {
+    position: absolute;
+    top: 2px;
+    left: 8px;
+    margin: 0px;
 }
 
 .scope_song {
+    font-size: 0.8em;
     height: 50%;
     display: flex;
     justify-content: center;
@@ -757,18 +966,26 @@ main::-webkit-scrollbar {
     transform: scaleX(0.93) scaleY(0.83);
 }
 
+.scope_song > p {
+    position: absolute;
+    left: 4px;
+    font-size: 0.98em;
+    margin: 0px;
+}
+
 .scope_song_clicked {
-    box-shadow: inset 0 0 15px #4ef708;
+    box-shadow: inset 0 0 11px #4ef708;
     background-color: #ffffffc0;
     border-radius: 0 0 0 20px;
     color: black;
+    transition: box-shadow 0.4s, background 0.4s, color 0.4s;
 }
 
 .play {
-    width: 45px;
+    width: 35px;
     height: inherit;
     box-shadow: inset 0 0 0 0.5px #00000090; /* it looks good, when only .play has a 0.5 border-width*/
-    background: linear-gradient(0deg, #000000b0, var(--bg-medium));
+    background: linear-gradient(0deg, #00000090, var(--bg-medium));
 
     display: flex;
     justify-content: center;
@@ -776,11 +993,11 @@ main::-webkit-scrollbar {
 }
 
 .reset {
-    width: 45px;
+    width: 40px;
     height: inherit;
     border-radius: 0px 20px 20px 0px;
     box-shadow: inset 0 0 0 1px #00000090;
-    background: linear-gradient(0deg, #000000b0, var(--bg-medium));
+    background: linear-gradient(0deg, #00000090, var(--bg-medium));
 
     display: flex;
     justify-content: center;
@@ -788,7 +1005,7 @@ main::-webkit-scrollbar {
 }
 
 .player_controls > div > i {
-    transform: scale(0.8);
+    transform: scale(0.7);
 }
 
 
@@ -838,7 +1055,7 @@ main::-webkit-scrollbar {
 }
 
 .slider_h {
-    width: 200px;
+    width: 209px;
     height: 20px;
     display: flex;
     align-items: center;
@@ -847,7 +1064,8 @@ main::-webkit-scrollbar {
 }
 
 .bar_h {
-    background-color: var(--bg-dark);
+    background-color: #6c757a;
+    border: solid 1px #00000050;
     height: 6px;
     width: inherit;
     border-radius: 10px;

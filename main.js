@@ -5,6 +5,8 @@ const createWindow = () => {
     const win = new BrowserWindow({
       width: 800,
       height: 600,
+      autoHideMenuBar: true,
+      fullscreen: true,
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: true,
@@ -14,7 +16,7 @@ const createWindow = () => {
             color: '#2f3241',
             symbolColor: '#74b1be'
         }
-    })
+    });
   
     win.loadFile('index.html')
 }
