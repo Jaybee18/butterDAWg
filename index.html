@@ -80,6 +80,7 @@
         <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
         <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
         <div class="header_button"><i class="fa-solid fa-microphone"></i></div>
+        <div class="header_button"><i class="fa-solid fa-floppy-disk"></i></div>
         <div class="header_time"><label>0:00:00</label></div>
       </div>
 
@@ -135,6 +136,23 @@
           <div class="handle_h">
             <div class="handle_color_h"></div>
           </div>
+        </div>
+      </div>
+
+      <div class="header_panel">
+        <div class="header_panel_handle_wrapper">
+          <div class="header_panel_handle"></div>
+        </div>
+
+        <div class="header_button"><i class="fa-solid fa-arrow-rotate-right" style="transform: scale(-1, 1);"></i></div>
+        <div class="header_button"><i class="fa-solid fa-scissors"></i></div>
+        <div class="header_button"><i class="fa-solid fa-microphone-lines"></i></div>
+        <div class="header_button"><i class="fa-solid fa-question"></i></div>
+        <div class="header_button"><i class="fa-solid fa-floppy-disk"></i></div>
+        <i class="fa-solid fa-magnet" id="header_snap_magnet" style="transform: scale(1, -1);"></i>
+        <div class="header_snap_selector">
+          <p>Line</p>
+          <i class="fa-solid fa-caret-right"></i>
         </div>
       </div>
 
@@ -284,7 +302,7 @@
                             in2='SourceGraphic'
                           /> 
                   </filter>
-                  <path fill="#32ff17" d="M 0 0 L 0 3 L 10 13 L 20 3 L 20 0 Z" filter="url(#inset-shadow)"></path>
+                  <path fill="#b9ea70" d="M 0 0 L 0 3 L 10 13 L 20 3 L 20 0 Z" filter="url(#inset-shadow)"></path>
                 </svg>
               </div>
             </div>
@@ -302,7 +320,7 @@
                   </div>
                   <div class="track_content">
                     <div class="track_background">
-                      <canvas id="track_canvas" width="2000" height="500"></canvas>
+                      <canvas id="track_canvas" width="10000" height="500"></canvas>
                     </div>
                   </div>
                 </div>
