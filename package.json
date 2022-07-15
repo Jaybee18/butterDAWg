@@ -7,14 +7,20 @@
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jaybee18/butterDAWg.git"
+  },
   "author": "Jan Bessler",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Jaybee18/butterDAWg/issues"
+  },
+  "homepage": "https://github.com/Jaybee18/butterDAWg#readme",
   "devDependencies": {
-    "electron": "^19.0.7"
+    "electron": "^19.0.8"
   },
   "dependencies": {
-    "requirejs": "^2.3.6",
-    "speaker": "^0.5.4",
     "wav": "^1.0.2",
     "wavefile": "^11.0.0"
   }
