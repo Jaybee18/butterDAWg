@@ -76,12 +76,16 @@ class Track {
   updateCanvas() {
     var c = this.element.querySelector("#track_canvas");
     var ctx = c.getContext("2d");
-    ctx.fillStyle = 'rgb(58, 74, 84)';
-    for (let i = 0; i < 100; i+=8) {
-        ctx.fillRect(i*20, 0, 20*4, 500);
+    ctx.fillStyle = 'rgb(52, 68, 78)';
+    for (let i = 0; i < 1000; i+=8) {
+        ctx.fillRect(i*xsnap, 0, xsnap*4, 500);
+    }
+    ctx.fillStyle = 'rgb(46, 62, 72)';
+    for (let i = 0; i < 1000; i+=8) {
+        ctx.fillRect(xsnap*4+i*xsnap, 0, xsnap*4, 500);
     }
     ctx.strokeStyle = 'rgb(0, 0, 0, 0.3)';
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 1000; i++) {
         ctx.moveTo(i*20, 0);
         ctx.lineTo(i*20, 500);
     }
@@ -113,6 +117,15 @@ class Track {
       // help
       header_help_text.innerHTML = "Track " + this.id;
       
+    });
+
+    var local_content = this.content;
+    this.content.addEventListener("wheel", (e) => {
+      if (e.shiftKey) {
+        tracks.forEach(t => {
+          t.content.scrollBy({top: 0, left: e.deltaY/2});
+        });
+      }
     });
 
     this.element.addEventListener("mouseleave", () => {
@@ -304,6 +317,12 @@ class TrackSample {
   });
   }
 }
+
+// add scroll functionality to the track_view
+var track_view = document.getElementById("tracks");
+track_view.addEventListener("scroll", (e) => {
+  console.log(e.scrollX);
+});
 
 // add track-button functionality
 document.getElementById("track_add_label").addEventListener('click', () => {new Track();});
@@ -698,10 +717,12 @@ function play() {
   if (is_playing) {
     is_playing = false;
     play_button.innerHTML = "<i class='fa-solid fa-play'></i>";
+    track_bar_cursor.style.display = "none";
     clearInterval(interval);
   } else {
     is_playing = true;
     play_button.innerHTML = "<i class='fa-solid fa-pause'></i>";
+    track_bar_cursor.style.display = "block";
     // play
     clearInterval(interval);
     interval = setInterval(move_cursor, xsnap);
@@ -718,6 +739,22 @@ document.addEventListener("keypress", (e) => {
   if (e.code === "Space") {
     play();
   }
+});
+
+// initialize tools listeners
+var tools = document.querySelectorAll(".tracks_tool_bar > .tool_button");
+var current_active = null;
+tools.forEach(btn => {
+  var icon = btn.querySelector("i");
+  btn.addEventListener("click", () => {
+    icon.style.color = window.getComputedStyle(btn).color;
+    if (current_active === null || current_active === icon) {
+      current_active = icon;
+    } else {
+      current_active.style.color = "";
+      current_active = icon;
+    }
+  });
 });
 
 // initialize a testing ui
