@@ -19,6 +19,14 @@ function currently_hovered_track() {
   return t;
 }
 
+// tracks scrolling
+function tracks_scroll_by(percentX, percentY) {
+  tracks.forEach(t => {
+    t.content.scrollBy({top: percentY, left: percentX*9000});
+  });
+  bars_scrollbar_handle.style.left = Math.min(bars_scrollbar_handle.offsetLeft + (maxX*percentX), maxX) + "px";
+}
+
 // event listener for dragging
 var drag_container = document.getElementById("drag_container");
 document.addEventListener("mousemove", (e) => {
@@ -119,12 +127,9 @@ class Track {
       
     });
 
-    var local_content = this.content;
     this.content.addEventListener("wheel", (e) => {
       if (e.shiftKey) {
-        tracks.forEach(t => {
-          t.content.scrollBy({top: 0, left: e.deltaY/2});
-        });
+        tracks_scroll_by((e.deltaY/2)/10000, 0);
       }
     });
 
@@ -496,14 +501,18 @@ document.addEventListener("mouseup", () => {
 // TODO make a function that can handle scrollbars (bars_cursor, horizontal scrollbars, ...)
 var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
 var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
+var maxX = bars_scrollbar_wrapper.clientWidth - 10 - 10 - bars_scrollbar_handle.clientWidth;
 var initial_handle_offset = 0;
+var tracks_scroll_percent = 0;
 function bars_scrollbar_handle_listener(e) {
   var newX = e.clientX - cumulativeOffset(bars_scrollbar_wrapper).left - initial_handle_offset;
   if (newX <= 20) {newX = 20;}
-  if (newX >= 1438) { // ik this is hardcoded, but the wrapper_width just kinda dissappears, so fuck you
-    newX = 1438;
+  if (newX >= maxX) { // ik this is hardcoded, but the wrapper_width just kinda dissappears, so fuck you
+    newX = maxX;
   }
-  bars_scrollbar_handle.style.left = newX + "px";
+  var percentDelta = ((newX - 20) / maxX) - tracks_scroll_percent;
+  tracks_scroll_percent = (newX - 20) / maxX;
+  tracks_scroll_by(percentDelta, 0);
 }
 bars_scrollbar_handle.addEventListener("mousedown", (e) => {
   initial_handle_offset = e.clientX - cumulativeOffset(bars_scrollbar_handle).left;
