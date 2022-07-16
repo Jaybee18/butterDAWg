@@ -6,7 +6,11 @@
  Audio functionality is not yet implemented
  
  
- current state:
+current state:
+![grafik](https://user-images.githubusercontent.com/64578396/179368655-fbc7182f-d894-48b3-84ed-ef6f8d42b5ce.png)
+
+ 
+version 0.2.0:
  ![image](https://user-images.githubusercontent.com/64578396/178554704-c7bd4468-8edc-4d52-bc17-284d148f41fb.png)
 
  
