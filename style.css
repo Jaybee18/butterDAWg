@@ -63,7 +63,7 @@ body {
 #content {
     display: flex;
     flex-direction: row;
-    height: 100%;
+    height: calc(100vh - 84px); /* 100% of viewport minus the header */
     background-color: var(--bg-medium);
 }
 
@@ -184,12 +184,16 @@ body {
 
 .tracks_wrapper {
     height: inherit;
-    padding: 0px 5px 0px 5px;
+    padding: 0px 5px 0px 0px;
     background-color: #3f484d;
     box-shadow: inset 0 0 0 1px var(--border-color);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
+}
+.tracks_wrapper_wrapper {
+    height: inherit;
 }
 
 .tracks_top_bar {
@@ -204,16 +208,16 @@ body {
     width: inherit;
     height: 50%;
     position: relative;
-    background-color: var(--bg-dark);
-    box-shadow: inset 0px 0px 6px 5px rgba(0,0,0,0.3);
+    background-color: #353e43;
+    box-shadow: inset 0 0 0 1px #1d262b;
 }
 
 .tracks_top_bar_scrollbar_left, .tracks_top_bar_scrollbar_right {
-    background-color: var(--bg-light);
+    background-color: #50595e;
     width: 20px;
     height: 100%;
     margin: 0px;
-    box-shadow: inset 0 0 0 1px var(--border-color), inset 0 0 0 2px #69757c;
+    box-shadow: inset 0 0 0 1px var(--border-color), inset 0 0 0 2px #636c71;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -226,9 +230,9 @@ body {
 .tracks_top_bar_scrollbar_handle {
     width: 100px;
     height: 100%;
-    background-color: var(--bg-light);
+    background-color: #4f5d64;
     border-radius: 2px;
-    box-shadow: inset 0 0 0 1px #000000aa, inset 0 0 0 2px #69757c;
+    box-shadow: inset 0 0 0 1px #000000aa, inset 0 0 0 2px #636c71;
     position: absolute;
     float: left;
     left: 20px;
@@ -435,6 +439,112 @@ main::-webkit-scrollbar {
 
 
 
+.tracks_palette_wrapper {
+    height: inherit;
+    display: flex;
+}
+
+.tracks_palette {
+    height: inherit;
+    width: 250px;
+    margin-top: 15px;
+}
+
+.palette_scope {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 6px;
+}
+
+.palette {
+    height: inherit;
+    flex-grow: 1;
+    background-color: #313c45;
+    padding: 0 3px 0 5px;
+    box-shadow: inset 0 0 0 1px #1d262b;
+}
+.palette_object {
+    display: flex;
+    height: 25px;
+    background-color: #454f54;
+    margin-top: 5px;
+    border-radius: 2px;
+    color: #dbe5ebbf;
+}
+.palette_object > i {
+    margin: auto 5px auto 3px;
+}
+.palette_object > p {
+    height: fit-content;
+    margin: auto 0 auto 0;
+}
+.palette_scrollbar {
+    height: inherit;
+    width: 21px;
+    background-color: #353e43;
+    box-shadow: inset 0 0 0 1px #1d262b, inset 0 0 0 2px #00000010;
+    margin-right: 7px;
+}
+.palette_scope > .tool_button {
+    width: 3.3vw;
+    height: 20px;
+    border-radius: 6px;
+    color: #8f979b;
+}
+.palette_scope > .tool_button:hover {
+    outline: solid 2px #d2d8dc;
+    color: #d2d8dc;
+    outline-offset: 0px;
+}
+.palette_scope > .tool_button:hover > .automation_svg {
+    fill: #d2d8dc;
+    transition: fill 0.3s;
+}
+.palette_scope > .tool_button:hover > .piano_svg {
+    fill: #d2d8dc;
+    transition: fill 0.3s;
+}
+.automation_svg {
+    transform: rotate(45deg);
+    transition: fill 0.3s;
+}
+.piano_svg {
+    transition: fill 0.3s;
+    transform: scale(0.7);
+}
+
+
+
+
+
+
+.tracks_top_bar > div > .piano_svg {
+    position: absolute;
+    right: 1px;
+    top: 2px;
+    transform: scale(0.6);
+}
+
+.tracks_top_bar > div > .fa-wave-square {
+    position: absolute;
+    right: 49px;
+    top: 6px;
+    color: #8f979b;
+}
+
+.tracks_top_bar > div > .automation_svg {
+    position: absolute;
+    right: 33px;
+    top: 1px;
+    transform: scale(0.77) rotate(45deg);
+}
+
+
+
+
+
+
+
 
 .tracks_tool_bar {
     display: flex;
@@ -462,7 +572,7 @@ main::-webkit-scrollbar {
     outline: solid 2px transparent;
     outline-offset: 2px;
     border-radius: 5px;
-    transition: outline-color 0.3s 0.05s, color 0.35s, outline-offset 0.4s;
+    transition: outline-color 0.2s 0.05s, color 0.25s, outline-offset 0.3s;
 }
 .tool_button > i {
     transition: transform 0.3s, color 0.1s;
@@ -565,6 +675,7 @@ main::-webkit-scrollbar {
     position: absolute;
     z-index: 3;
     left: 0px;
+    margin-top: 42px;
     border-style: none solid none none;
     border-width: 1px;
     border-color: #32cd32;
@@ -602,7 +713,7 @@ main::-webkit-scrollbar {
 
 .sidebar_item_lvl1 {
     margin: 0px;
-    height: 22px;
+    height: 24px;
     display: flex;
     align-items: center;
 }
@@ -613,7 +724,7 @@ main::-webkit-scrollbar {
 
 .sidebar_item_lvl1_text {
     margin: 0px;
-    font-size: 16px;
+    font-size: 14px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -750,6 +861,39 @@ main::-webkit-scrollbar {
     margin: 0 5px 0 10px;
     color: #343a3e;
 }
+
+#header_pattern_caret {
+    width: 15px;
+    height: 25px;
+}
+#header_pattern_plus {
+    width: 15px;
+    height: 25px;
+    margin: auto 0 auto 0;
+}
+#header_pattern_caret:hover > i {
+    transform: rotateZ(90deg);
+}
+.header_pattern_selector {
+    display: flex;
+    background-color: #c8d7de;
+    height: 25px;
+    border: solid 1px #7e8d94;
+    cursor: n-resize;
+}
+.header_pattern_selector > p {
+    margin: auto 0 auto 2px;
+}
+.header_pattern_selector > #bpm_arrows {
+    margin-top: 2px;
+}
+.header_pattern_selector:hover > #bpm_arrows > #bpm_add {
+    margin-bottom: 0px;
+}
+.header_pattern_selector:hover > #bpm_arrows > #bpm_sub {
+    margin-top: 0px;
+}
+
 
 
 
@@ -921,9 +1065,6 @@ main::-webkit-scrollbar {
 
 
 .header_button {
-    /*border-width: 2px;
-    border-style: solid;
-    border-radius: 2px;*/
     margin-left: 4px;
     cursor: default;
     display: flex;
@@ -935,7 +1076,7 @@ main::-webkit-scrollbar {
 
 .unclicked {
     border: solid 2px #00000069;
-    background: #484e50;
+    background: #4d585c;
     box-shadow: inset 0 0 10px 0 #00000050;
     transition: all 0.3s;
 }
@@ -952,6 +1093,16 @@ main::-webkit-scrollbar {
     color: rgb(225, 225, 225); /* clicked : rgb(80, 19, 0) */
     opacity: 0.9;
     transition: all 0.3s;
+}
+
+.header_button_hover:hover {
+    border: solid 2px #f87911dd;
+    background: #ffffff;
+    box-shadow: inset 0 0 15px #f76708;
+    transition: all 0.3s;
+}
+.header_button_hover:hover > i {
+    color: rgb(80, 19, 0)!important;
 }
 
 

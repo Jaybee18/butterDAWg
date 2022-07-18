@@ -6,6 +6,14 @@ var xsnap = 20;
 var framerate = 44100;
 const int16max = 32767;
 
+var is_playing = false;
+var bpm = 150;
+var cursor_pos = 0; // in px
+var track_length = 500; // in s
+function length_in_beats() {return track_length/60*bpm;}
+function length_in_px() {return length_in_beats()*xsnap;}
+function progress_in_percent() {return cursor_pos/length_in_px();}
+
 // contains the currently dragged element
 var current_drag_element = null;
 
@@ -17,6 +25,14 @@ function currently_hovered_track() {
     }
   });
   return t;
+}
+
+// tracks scrolling
+function tracks_scroll_by(percentX, percentY) {
+  tracks.forEach(t => {
+    t.content.scrollBy({top: percentY, left: percentX*9000});
+  });
+  bars_scrollbar_handle.style.left = Math.min(bars_scrollbar_handle.offsetLeft + (maxX*percentX), maxX) + "px";
 }
 
 // event listener for dragging
@@ -76,15 +92,21 @@ class Track {
   updateCanvas() {
     var c = this.element.querySelector("#track_canvas");
     var ctx = c.getContext("2d");
-    ctx.fillStyle = 'rgb(52, 68, 78)';
-    for (let i = 0; i < 1000; i+=8) {
-        ctx.fillRect(i*xsnap, 0, xsnap*4, 500);
+    for (let i = 0; i < 1000; i+=32) {
+      ctx.fillStyle = 'rgb(52, 68, 78)';
+      ctx.fillRect(i*xsnap, 0, xsnap*16, 500);
+      ctx.fillStyle = 'rgb(46, 62, 72)';
+      ctx.fillRect(xsnap*16+i*xsnap, 0, xsnap*16, 500);
     }
-    ctx.fillStyle = 'rgb(46, 62, 72)';
-    for (let i = 0; i < 1000; i+=8) {
-        ctx.fillRect(xsnap*4+i*xsnap, 0, xsnap*4, 500);
-    }
-    ctx.strokeStyle = 'rgb(0, 0, 0, 0.3)';
+    
+    ctx.strokeStyle = 'rgb(24, 40, 50)';
+    ctx.lineWidth = '10';
+    ctx.moveTo(0, 5);
+    ctx.lineTo(xsnap*1000, 5);
+    ctx.stroke();
+
+    //ctx.strokeStyle = 'rgb(0, 0, 0, 0.3)';
+    ctx.lineWidth = '1';
     for (let i = 0; i < 1000; i++) {
         ctx.moveTo(i*20, 0);
         ctx.lineTo(i*20, 500);
@@ -119,12 +141,9 @@ class Track {
       
     });
 
-    var local_content = this.content;
     this.content.addEventListener("wheel", (e) => {
       if (e.shiftKey) {
-        tracks.forEach(t => {
-          t.content.scrollBy({top: 0, left: e.deltaY/2});
-        });
+        tracks_scroll_by((e.deltaY/2)/10000, 0);
       }
     });
 
@@ -358,6 +377,7 @@ document.querySelectorAll(".slider").forEach(slider => {
 document.querySelectorAll(".header_button").forEach(button => {
   button.classList.add("unclicked");
   var icon = button.firstChild;
+  if (button.classList.contains("header_button_hover")) return;
   button.addEventListener("click", () => {
     if (button.classList.contains("clicked")){
       button.classList.remove("clicked");
@@ -476,13 +496,14 @@ var cumulativeOffset = function(element) {
 };
 
 // add event listeners to bars-bar
-var cursor_pos = 0;
 var cursor = document.getElementById("bars_cursor");
 var top_bar = document.getElementById("tracks_top_bar_inner");
 var top_bar_bars = document.querySelector(".tracks_top_bar_bars");
 function bars_cursor_move_listener(e) {
   if (e.clientX - cumulativeOffset(top_bar).left <= 0) {cursor.style.left = -10; return;}
-  cursor.style.left = e.clientX - cumulativeOffset(top_bar).left - 10;
+  var newX = e.clientX - cumulativeOffset(top_bar).left - 10
+  cursor.style.left = newX;
+  cursor_pos = newX;
 }
 top_bar_bars.addEventListener("mousedown", (e) => {
   cursor.style.left = e.clientX - cumulativeOffset(top_bar).left - 10;
@@ -496,14 +517,18 @@ document.addEventListener("mouseup", () => {
 // TODO make a function that can handle scrollbars (bars_cursor, horizontal scrollbars, ...)
 var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
 var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
+var maxX = bars_scrollbar_wrapper.clientWidth - 10 - 10 - bars_scrollbar_handle.clientWidth;
 var initial_handle_offset = 0;
+var tracks_scroll_percent = 0;
 function bars_scrollbar_handle_listener(e) {
   var newX = e.clientX - cumulativeOffset(bars_scrollbar_wrapper).left - initial_handle_offset;
   if (newX <= 20) {newX = 20;}
-  if (newX >= 1438) { // ik this is hardcoded, but the wrapper_width just kinda dissappears, so fuck you
-    newX = 1438;
+  if (newX >= maxX) { // ik this is hardcoded, but the wrapper_width just kinda dissappears, so fuck you
+    newX = maxX;
   }
-  bars_scrollbar_handle.style.left = newX + "px";
+  var percentDelta = ((newX - 20) / maxX) - tracks_scroll_percent;
+  tracks_scroll_percent = (newX - 20) / maxX;
+  tracks_scroll_by(percentDelta, 0);
 }
 bars_scrollbar_handle.addEventListener("mousedown", (e) => {
   initial_handle_offset = e.clientX - cumulativeOffset(bars_scrollbar_handle).left;
@@ -517,7 +542,6 @@ document.addEventListener("mouseup", () => {
 // bpm count drag functionality
 var bpm_count = document.querySelector(".bpm");
 var bpm_count_text = document.getElementById("bpm_count");
-var bpm = 150;
 function bpm_drag(e) {
   bpm -= e.movementY/4;
   bpm = Math.max(bpm, 0);
@@ -571,11 +595,31 @@ function mapFolder(folder) {
 }
 let hirachy = mapFolder(__dirname + "/files");
 
-var sidebar_folder_colors = { "My projects": "#759b75", 
-                              "Project bones": "#ab845b",
-                              "Recorded": "#5f748f",
-                              "Rendered": "#5f748f",
-                              "Sliced audio": "#5f748f" };
+var sidebar_folder_colors = { 
+  "0Current project": "#aa8070",
+  "1Recent files": "#7ca366",
+  "2Plugin database": "#6781a4",
+  "3Plugin presets": "#8f6080",
+  "4Channel presets": "#8f6080",
+  "5Mixer presets": "#8f6080",
+  "6Scores": "#8f6080",
+  "Backup": "#7ca366",
+  "Clipboard files": "#6b818d",
+  "Demo projects": "#689880",
+  "Envelopes": "#6b818d",
+  "IL shared data": "#689880",
+  "Impulses": "#6b818d",
+  "Misc": "#6b818d",
+  "My projects": "#689880",
+  "Packs": "#6781a4",
+  "Project bones": "#aa8070",
+  "Recorded": "#6b818d",
+  "Rendered": "#6b818d",
+  "Sliced audio": "#6b818d",
+  "Soundfonts": "#6b818d",
+  "Speech": "#689880",
+  "Templates": "#689880"
+};
 class Item extends Draggable{
   constructor (title, contents, indent=0) {
     super();
@@ -594,16 +638,20 @@ class Item extends Draggable{
     a.style.marginLeft = indent * indent_width + "px";
     this.element = a;
     // add icon
-    var type_icon = document.createElement("i");
-    type_icon.classList.add("fa-solid");
     var ending = title.split(".").pop();
     if (ending === "wav") {
+      var type_icon = document.createElement("i");
+      type_icon.classList.add("fa-solid");
       type_icon.classList.add("fa-wave-square");
       this.loadData();
       this.initializeDragListener();
     } else if (title === ending) {
+      var type_icon = document.createElement("i");
+      type_icon.classList.add("fa-regular");
       type_icon.classList.add("fa-folder");
     } else {
+      var type_icon = document.createElement("i");
+      type_icon.classList.add("fa-solid");
       type_icon.classList.add("fa-file");
     }
     a.appendChild(type_icon);
@@ -707,9 +755,7 @@ document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", pos_slider_handle_listener);
 });
 
-var is_playing = false;
 var interval = null;
-var progress = 0;
 // cursor is defined above as the bars_cursor
 var track_bar_cursor = document.querySelector(".line_cursor");
 var play_button = document.querySelector(".play");
@@ -722,15 +768,15 @@ function play() {
   } else {
     is_playing = true;
     play_button.innerHTML = "<i class='fa-solid fa-pause'></i>";
-    track_bar_cursor.style.display = "block";
     // play
     clearInterval(interval);
     interval = setInterval(move_cursor, xsnap);
     function move_cursor() {
-      progress++;
-      cursor.style.left = progress + "px";
-      track_bar_cursor.style.left = progress + 97 + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
+      cursor_pos++;
+      cursor.style.left = cursor_pos + "px";
+      track_bar_cursor.style.left = cursor_pos + 298 + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
     }
+    track_bar_cursor.style.display = "block";
   }
 }
 
@@ -758,5 +804,16 @@ tools.forEach(btn => {
 });
 
 // initialize a testing ui
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
+document.getElementById("track_add_label").click();
 document.getElementById("track_add_label").click();
 document.getElementById("track_add_label").click();
