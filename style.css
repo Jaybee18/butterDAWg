@@ -63,7 +63,7 @@ body {
 #content {
     display: flex;
     flex-direction: row;
-    height: 100%;
+    height: calc(100vh - 84px); /* 100% of viewport minus the header */
     background-color: var(--bg-medium);
 }
 
@@ -184,12 +184,16 @@ body {
 
 .tracks_wrapper {
     height: inherit;
-    padding: 0px 5px 0px 5px;
+    padding: 0px 5px 0px 0px;
     background-color: #3f484d;
     box-shadow: inset 0 0 0 1px var(--border-color);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
+}
+.tracks_wrapper_wrapper {
+    height: inherit;
 }
 
 .tracks_top_bar {
@@ -435,6 +439,112 @@ main::-webkit-scrollbar {
 
 
 
+.tracks_palette_wrapper {
+    height: inherit;
+    display: flex;
+}
+
+.tracks_palette {
+    height: inherit;
+    width: 250px;
+    margin-top: 15px;
+}
+
+.palette_scope {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 6px;
+}
+
+.palette {
+    height: inherit;
+    flex-grow: 1;
+    background-color: #313c45;
+    padding: 0 3px 0 5px;
+    box-shadow: inset 0 0 0 1px #1d262b;
+}
+.palette_object {
+    display: flex;
+    height: 25px;
+    background-color: #454f54;
+    margin-top: 5px;
+    border-radius: 2px;
+    color: #dbe5ebbf;
+}
+.palette_object > i {
+    margin: auto 5px auto 3px;
+}
+.palette_object > p {
+    height: fit-content;
+    margin: auto 0 auto 0;
+}
+.palette_scrollbar {
+    height: inherit;
+    width: 21px;
+    background-color: #353e43;
+    box-shadow: inset 0 0 0 1px #1d262b, inset 0 0 0 2px #00000010;
+    margin-right: 7px;
+}
+.palette_scope > .tool_button {
+    width: 3.3vw;
+    height: 20px;
+    border-radius: 6px;
+    color: #8f979b;
+}
+.palette_scope > .tool_button:hover {
+    outline: solid 2px #d2d8dc;
+    color: #d2d8dc;
+    outline-offset: 0px;
+}
+.palette_scope > .tool_button:hover > .automation_svg {
+    fill: #d2d8dc;
+    transition: fill 0.3s;
+}
+.palette_scope > .tool_button:hover > .piano_svg {
+    fill: #d2d8dc;
+    transition: fill 0.3s;
+}
+.automation_svg {
+    transform: rotate(45deg);
+    transition: fill 0.3s;
+}
+.piano_svg {
+    transition: fill 0.3s;
+    transform: scale(0.7);
+}
+
+
+
+
+
+
+.tracks_top_bar > div > .piano_svg {
+    position: absolute;
+    right: 1px;
+    top: 2px;
+    transform: scale(0.6);
+}
+
+.tracks_top_bar > div > .fa-wave-square {
+    position: absolute;
+    right: 49px;
+    top: 6px;
+    color: #8f979b;
+}
+
+.tracks_top_bar > div > .automation_svg {
+    position: absolute;
+    right: 33px;
+    top: 1px;
+    transform: scale(0.77) rotate(45deg);
+}
+
+
+
+
+
+
+
 
 .tracks_tool_bar {
     display: flex;
@@ -565,6 +675,7 @@ main::-webkit-scrollbar {
     position: absolute;
     z-index: 3;
     left: 0px;
+    margin-top: 42px;
     border-style: none solid none none;
     border-width: 1px;
     border-color: #32cd32;
@@ -602,7 +713,7 @@ main::-webkit-scrollbar {
 
 .sidebar_item_lvl1 {
     margin: 0px;
-    height: 22px;
+    height: 24px;
     display: flex;
     align-items: center;
 }
@@ -613,7 +724,7 @@ main::-webkit-scrollbar {
 
 .sidebar_item_lvl1_text {
     margin: 0px;
-    font-size: 16px;
+    font-size: 14px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
