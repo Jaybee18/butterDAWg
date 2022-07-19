@@ -275,7 +275,12 @@
             <div class="tool_button" id="tool_volume">
               <i class="fa-solid fa-volume-high"></i>
             </div>
-            <p>Playlist - Arrangement ></p>
+            <div class="tracks_breadcrumbs">
+              <p>Playlist - </p>
+              <div style="margin-left: 3px;">
+                Arrangement <i class="fa-solid fa-caret-right"></i>
+              </div>
+            </div>
           </div>
 
           <div class="tracks_palette_wrapper">
@@ -297,18 +302,7 @@
               </div>
               <div style="display: flex; height: inherit; width: 200px;">
                 <div class="palette">
-                  <div class="palette_object">
-                    <i class="fa-solid fa-wave-square"></i>
-                    <p>High Hat</p>
-                  </div>
-                  <div class="palette_object">
-                    <i class="fa-solid fa-wave-square"></i>
-                    <p>High Hat</p>
-                  </div>
-                  <div class="palette_object">
-                    <i class="fa-solid fa-wave-square"></i>
-                    <p>High Hat</p>
-                  </div>
+                  <!-- will be filled by the code later -->
                 </div>
                 <div class="palette_scrollbar">
                   <div class="palette_scrollbar_top"></div>
@@ -396,7 +390,8 @@
                       </div>
                       <div class="track_content">
                         <div class="track_background">
-                          <canvas id="track_canvas" width="10000" height="500"></canvas>
+                          <!--<canvas id="track_canvas" width="10000" height="500"></canvas>-->
+                          <!-- the tile_divs will be spawned here -->
                         </div>
                       </div>
                     </div>
@@ -407,11 +402,12 @@
                 <!-- track sample object template -->
                 <template id="track_sample_object">
                   <div class="track_object" id="new_track_sample_object">
-                    <div class="track_object_resize_left"></div>
                     <div class="track_object_label">
                       <p>909 Kick</p>
                     </div>
-                    <canvas width="2000", height="200"></canvas>
+                    <div class="track_object_drag_handle">
+                      <canvas width="2000", height="200"></canvas>
+                    </div>
                     <div class="track_object_resize_right"></div>
                   </div>
                 </template>

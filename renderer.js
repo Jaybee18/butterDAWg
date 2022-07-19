@@ -28,12 +28,60 @@ function currently_hovered_track() {
 }
 
 // tracks scrolling
+var track_width = 10000 - 1404; // track_background.width - track_content.width
 function tracks_scroll_by(percentX, percentY) {
   tracks.forEach(t => {
-    t.content.scrollBy({top: percentY, left: percentX*9000});
+    t.content.scrollBy({top: percentY, left: percentX*track_width});
   });
   bars_scrollbar_handle.style.left = Math.min(bars_scrollbar_handle.offsetLeft + (maxX*percentX), maxX) + "px";
 }
+function tracks_scroll_to(percentX, percentY) {
+  tracks.forEach(t => {
+    t.content.scrollTo({top: percentY, left: percentX*track_width});
+  });
+  bars_scrollbar_handle.style.left = (20 + maxX * percentX) + "px";
+}
+
+// palette functionality
+var palette = document.querySelector(".palette");
+var palette_current_scope = 0;
+var palette_content = [[], [], []]; // list of lists of 'Item's
+var scopes = document.querySelectorAll(".palette_scope > .tool_button");
+for (let i = 0; i < scopes.length; i++) {
+  scopes[i].addEventListener("click", () => {
+    palette_current_scope = i;
+    var content = "";
+    palette_content[i].forEach(item => {
+      content += '<div class="palette_object">\
+                    <i class="fa-solid fa-wave-square"></i>\
+                    <p>' + item.title.split(".")[0] + '</p>\
+                  </div>';
+    });
+    palette.innerHTML = content;
+  });
+}
+palette.addEventListener("mouseenter", () => {
+  // sample preview
+  if (current_drag_element !== null) {
+    palette.innerHTML += '<div class="palette_object" style="opacity: 0.3;">\
+                            <i class="fa-solid fa-wave-square"></i>\
+                            <p>' + current_drag_element.title.split(".")[0] + '</p>\
+                          </div>';
+    drag_container.style.display = "none";
+  }
+});
+palette.addEventListener("mouseleave", () => {
+  if (current_drag_element !== null) {
+    palette.lastChild.remove();
+    drag_container.style.display = "block";
+  }
+});
+palette.addEventListener("mouseup", () => {
+  if (current_drag_element !== null) {
+    palette.lastChild.style.opacity = "1";
+    palette_content[palette_current_scope].push(current_drag_element);
+  }
+});
 
 // event listener for dragging
 var drag_container = document.getElementById("drag_container");
@@ -58,6 +106,40 @@ document.addEventListener("mouseup", () => {
   }
 });
 
+class Color {
+  constructor (hex) {
+    this.color = hex;
+  }
+  static fromRGB(r, g, b) {
+    return new Color(r.toString(16), g.toString(16), b.toString(16));
+  }
+  toRGB() {
+    var r = Number.parseInt(this.color.substring(1, 3), 16);
+    var g = Number.parseInt(this.color.substring(3, 5), 16);
+    var b = Number.parseInt(this.color.substring(5, 7), 16);
+    return [r, g, b];
+  }
+  toRGBString() {
+    var values = this.toRGB();
+    return "rgb(" + values[0] + "," + values[1] + "," + values[2] + ")";
+  }
+  darken(magnitude) {
+    // magnitude = value from 0 to 255
+    var values = this.toRGB();
+    var a = values.map((v) => {return Math.max(v - magnitude, 0).toString(16).padStart(2, "0");});
+    return "#" + a[0] + a[1] + a[2];
+  }
+  lighten(magnitude) {
+    // magnitude = value from 0 to 255
+    var values = this.toRGB();
+    var a = values.map((v) => {return Math.min(v + magnitude, 255).toString(16).padStart(2, "0");});
+    return "#" + a[0] + a[1] + a[2];
+  }
+  transparent(magnitude) {
+    return this.color + magnitude.toString(16);
+  }
+}
+
 var tracks = [];
 var resizing_track = null;
 class Track {
@@ -65,6 +147,7 @@ class Track {
     this.samples = [];
     this.temp_samples = [];
     this.hover_buffer = null;
+    this.color = null;
 
     // construct own element
     var template = document.getElementById("track_template");
@@ -83,13 +166,22 @@ class Track {
     tracks.push(this);
     
     this.setTitle("Track " + tracks.length);
-    this.setColor(100, 110, 115);
+    this.setColor(new Color("#646e73"));
     this.updateCanvas();
     this.initializeResizing();
     this.initializeEventListeners();
   }
 
   updateCanvas() {
+    var background = this.content.querySelector(".track_background");
+    var tiles = "";
+    for (let i = 0; i < 500; i++) {
+      tiles += '<div class="tile" style="background-color:' + (i%32<16 ? "rgb(52, 68, 78)" : "rgb(46, 62, 72)") + ';' + (i%4==0?"border-width: 0px 1px 2px 1.5px":"") + '" ></div>';
+    }
+    background.innerHTML = tiles;
+  }
+
+  _updateCanvas() {
     var c = this.element.querySelector("#track_canvas");
     var ctx = c.getContext("2d");
     for (let i = 0; i < 1000; i+=32) {
@@ -187,10 +279,11 @@ class Track {
     this.element.querySelector("#track_title").innerHTML = title;
   }
 
-  setColor(r, g, b) {
+  setColor(color) {
+    this.color = color;
     var description = this.element.querySelector(".description");
-    description.style.backgroundColor = "rgb(" + r + ", " + g + ", " + b + ")";
-    description.style.borderColor = "rgb(" + Math.max(r-10, 0) + ", " + Math.max(g-10, 0) + ", " + Math.max(b-10, 0) + ")";
+    description.style.backgroundColor = this.color.color;
+    description.style.borderColor = this.color.darken(10);
   }
 
   addSample(sample) {
@@ -205,6 +298,7 @@ class Track {
     // the sample on the track at the current position of the mouse
     if (this.hover_buffer !== null) {return;}
     var t = new TrackSample(item);
+    t.setColor(this.color);
     this.content.appendChild(t.element);
     this.hover_buffer = t;
   }
@@ -215,6 +309,7 @@ class TrackSample {
     this.width = item.getDuration()*(bpm/60*xsnap); // arbitrary number; change later TODO !!
     this.title = item.title;
     this.data = item.getData();
+    this.color = null;
 
     // construct own element
     var template = document.getElementById("track_sample_object");
@@ -228,6 +323,12 @@ class TrackSample {
     this.resizeCanvas(this.width, 200);
     this.drawCanvas();
     this.initializeEventListeners();
+  }
+
+  setColor(color) {
+    this.color = color;
+    this.element.style.backgroundColor = this.color.transparent(77);
+    this.element.querySelector(".track_object_label").style.backgroundColor = this.color.color;
   }
 
   resizeCanvas(width, height) {
@@ -286,7 +387,8 @@ class TrackSample {
       a.style.top = "0px";
       a.style.left = newX + "px";
     }
-    this.element.querySelector("canvas").addEventListener("mousedown", (e) => {
+    this.element.querySelector(".track_object_drag_handle").addEventListener("mousedown", (e) => {
+      e.preventDefault();
       oldX = e.clientX;
       initial_grab_offset = e.clientX - cumulativeOffset(a).left;
       document.addEventListener("mousemove", elementDrag);
@@ -295,40 +397,24 @@ class TrackSample {
       document.removeEventListener("mousemove", elementDrag);
     });
 
-    var left_resize = this.element.querySelector(".track_object_resize_left");
     var mouse_down_position = 0;
     var mouse_down_width = 0;
-    var mouse_down_offset = 0;
-    function left_resize_listener(e) {
-      e.preventDefault();
-      var newWidth = mouse_down_width - (e.clientX - mouse_down_position);
-      a.style.width = newWidth + "px";
-      a.style.left = mouse_down_offset - (newWidth - mouse_down_width) + "px";
-    }
-    left_resize.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-      mouse_down_position = e.clientX;
-      mouse_down_width = this.element.clientWidth;
-      mouse_down_offset = this.element.offsetLeft;
-      document.addEventListener("mousemove", left_resize_listener);
-    });
-    document.addEventListener("mouseup", () => {
-      document.removeEventListener("mousemove", left_resize_listener);
-  });
-
     var right_resize = this.element.querySelector(".track_object_resize_right");
-    var temp = this;
     function right_resize_listener(e) {
       e.preventDefault();
-      var newWidth = mouse_down_width - (mouse_down_position - e.clientX);
+      var delta = mouse_down_position - e.clientX;
+      delta -= delta%xsnap;
+      console.log(delta);
+      var newWidth = mouse_down_width - delta;
+      console.log(newWidth, mouse_down_width);
       a.style.width = newWidth + "px";
-      var canvas = a.querySelector("canvas");
-      canvas.style.width = newWidth + "px";
-  }
+    }
+    var local = this;
     right_resize.addEventListener("mousedown", (e) => {
       e.preventDefault();
       mouse_down_position = e.clientX;
-      mouse_down_width = this.element.clientWidth;
+      mouse_down_width = Number.parseFloat(window.getComputedStyle(local.element).width.replace("px", ""));
+      console.log(mouse_down_width);
       document.addEventListener("mousemove", right_resize_listener);
     });
     document.addEventListener("mouseup", () => {
@@ -517,18 +603,16 @@ document.addEventListener("mouseup", () => {
 // TODO make a function that can handle scrollbars (bars_cursor, horizontal scrollbars, ...)
 var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
 var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
-var maxX = bars_scrollbar_wrapper.clientWidth - 10 - 10 - bars_scrollbar_handle.clientWidth;
+var maxX = bars_scrollbar_wrapper.clientWidth - 20 - 20 - 15 - bars_scrollbar_handle.clientWidth;
+maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
 var initial_handle_offset = 0;
 var tracks_scroll_percent = 0;
 function bars_scrollbar_handle_listener(e) {
-  var newX = e.clientX - cumulativeOffset(bars_scrollbar_wrapper).left - initial_handle_offset;
-  if (newX <= 20) {newX = 20;}
-  if (newX >= maxX) { // ik this is hardcoded, but the wrapper_width just kinda dissappears, so fuck you
-    newX = maxX;
-  }
-  var percentDelta = ((newX - 20) / maxX) - tracks_scroll_percent;
-  tracks_scroll_percent = (newX - 20) / maxX;
-  tracks_scroll_by(percentDelta, 0);
+  var newX = e.clientX - cumulativeOffset(bars_scrollbar_wrapper).left - initial_handle_offset - 20;
+  newX = Math.min(Math.max(newX, 0), maxX);
+  console.log(newX)
+  tracks_scroll_percent = (newX) / (maxX);
+  tracks_scroll_to(tracks_scroll_percent, 0);
 }
 bars_scrollbar_handle.addEventListener("mousedown", (e) => {
   initial_handle_offset = e.clientX - cumulativeOffset(bars_scrollbar_handle).left;
