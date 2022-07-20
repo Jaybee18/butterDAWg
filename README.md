@@ -5,8 +5,11 @@
  
  Audio functionality is not yet implemented
  
+current (version 0.3.2):
+![grafik](https://user-images.githubusercontent.com/64578396/179958914-d864f78e-aea7-4405-9f14-c46003c45ade.png)
 
-current (version 0.3.1):
+
+version 0.3.1:
 ![grafik](https://user-images.githubusercontent.com/64578396/179421263-a6d788f2-9b32-45d8-bf33-9c88090629fa.png)
 
  
