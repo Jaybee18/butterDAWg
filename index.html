@@ -287,15 +287,17 @@
             <div class="tracks_palette">
               <div class="palette_scope">
                 <div class="tool_button">
-                  <svg width="25" height="20" viewportWidth="25 20" fill="#8f979b" class="piano_svg">
+                  <svg width="25" height="20" viewportWidth="25 20" class="piano_svg">
                     <path d="M 0 0 H 25 V 20 H 0 V 0 Z M 10 0 H 5 V 15 H 10 V 0 Z M 15 0 V 15 H 20 V 0 H 15 Z"></path>
                   </svg>
                 </div>
                 <div class="tool_button">
-                  <i class="fa-solid fa-wave-square"></i>
+                  <svg width="25" height="24" viewportWidth="25 24" class="wave_svg">
+                    <path d="M 0 12 C 3 5 4 5 7 12 C 12 28 13 28 18 12 C 21 5 22 5 25 12 C 22 19 21 19 18 12 C 13 -4 12 -4 7 12 C 4 19 3 19 0 12 Z"></path>
+                  </svg>
                 </div>
                 <div class="tool_button">
-                  <svg width="6" height="23" fill="#8f979b" class="automation_svg">
+                  <svg width="6" height="23" class="automation_svg">
                     <path d="M 3 20.5 A 0.5 0.5 90 0 0 3 17.5 A 0.5 0.5 90 0 0 3 20.5 Z M 3 16 A 0.5 0.5 90 0 1 3 22 A 0.5 0.5 90 0 1 3 16 Z Z M 3 19 L 3 3 M 3 1.5 A 0.5 0.5 90 0 1 3 4.5 A 0.5 0.5 90 0 1 3 1.5 M 3 0 A 0.5 0.5 90 0 0 3 6 A 0.5 0.5 90 0 0 3 0 Z M 2 15 L 2 7 L 4 7 L 4 15 Z"></path>
                   </svg>
                 </div>
@@ -326,7 +328,9 @@
                   <svg width="6" height="23" fill="#8f979b" class="automation_svg">
                     <path d="M 3 20.5 A 0.5 0.5 90 0 0 3 17.5 A 0.5 0.5 90 0 0 3 20.5 Z M 3 16 A 0.5 0.5 90 0 1 3 22 A 0.5 0.5 90 0 1 3 16 Z Z M 3 19 L 3 3 M 3 1.5 A 0.5 0.5 90 0 1 3 4.5 A 0.5 0.5 90 0 1 3 1.5 M 3 0 A 0.5 0.5 90 0 0 3 6 A 0.5 0.5 90 0 0 3 0 Z M 2 15 L 2 7 L 4 7 L 4 15 Z"></path>
                   </svg>
-                  <i class="fa-solid fa-wave-square"></i>
+                  <svg width="25" height="24" fill="#8f979b" viewportWidth="25 24" class="wave_svg">
+                    <path d="M 0 12 C 3 5 4 5 7 12 C 12 28 13 28 18 12 C 21 5 22 5 25 12 C 22 19 21 19 18 12 C 13 -4 12 -4 7 12 C 4 19 3 19 0 12 Z"></path>
+                  </svg>
                 </div>
                 <div id="tracks_top_bar_inner" style="height: inherit; flex-grow: 1;">
                   <div class="tracks_top_bar_scrollbar">
@@ -387,7 +391,9 @@
                         <p style="margin: 0px;" id="track_title">track_name</p>
                           <i class="fa-solid fa-ellipsis"></i>
                           <div class="radio_btn"><div class="radio_btn_green"></div></div>
+                          <div id="track_resize"></div>
                       </div>
+                      <div class="track_play_indicator"></div>
                       <div class="track_content">
                         <div class="track_background">
                           <!--<canvas id="track_canvas" width="10000" height="500"></canvas>-->
@@ -395,7 +401,6 @@
                         </div>
                       </div>
                     </div>
-                    <div id="track_resize"></div>
                   </div>
                 </template>
 

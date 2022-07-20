@@ -47,6 +47,9 @@ var palette = document.querySelector(".palette");
 var palette_current_scope = 0;
 var palette_content = [[], [], []]; // list of lists of 'Item's
 var scopes = document.querySelectorAll(".palette_scope > .tool_button");
+for (let j = 0; j < 3; j++) {
+  scopes[j].style.fill = "#8f979b";
+}
 for (let i = 0; i < scopes.length; i++) {
   scopes[i].addEventListener("click", () => {
     palette_current_scope = i;
@@ -58,6 +61,10 @@ for (let i = 0; i < scopes.length; i++) {
                   </div>';
     });
     palette.innerHTML = content;
+    for (let j = 0; j < 3; j++) {
+      scopes[j].style.fill = "#8f979b";
+    }
+    scopes[i].style.fill = "#d2d8dc"; /* the wave icon still has to be customzied, then this will work */
   });
 }
 palette.addEventListener("mouseenter", () => {
@@ -148,6 +155,7 @@ class Track {
     this.temp_samples = [];
     this.hover_buffer = null;
     this.color = null;
+    this.data = new Array(400*44100);
 
     // construct own element
     var template = document.getElementById("track_template");
@@ -176,7 +184,7 @@ class Track {
     var background = this.content.querySelector(".track_background");
     var tiles = "";
     for (let i = 0; i < 500; i++) {
-      tiles += '<div class="tile" style="background-color:' + (i%32<16 ? "rgb(52, 68, 78)" : "rgb(46, 62, 72)") + ';' + (i%4==0?"border-width: 0px 1px 2px 1.5px":"") + '" ></div>';
+      tiles += '<div class="tile" style="background-color:' + (i%32<16 ? "rgb(52, 68, 78)" : "rgb(46, 62, 72)") + ';' + (i%4==0?"border-width: 1px 1px 1px 1.5px":"") + '" ></div>';
     }
     background.innerHTML = tiles;
   }
@@ -590,6 +598,7 @@ function bars_cursor_move_listener(e) {
   var newX = e.clientX - cumulativeOffset(top_bar).left - 10
   cursor.style.left = newX;
   cursor_pos = newX;
+  track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
 }
 top_bar_bars.addEventListener("mousedown", (e) => {
   cursor.style.left = e.clientX - cumulativeOffset(top_bar).left - 10;
@@ -610,7 +619,6 @@ var tracks_scroll_percent = 0;
 function bars_scrollbar_handle_listener(e) {
   var newX = e.clientX - cumulativeOffset(bars_scrollbar_wrapper).left - initial_handle_offset - 20;
   newX = Math.min(Math.max(newX, 0), maxX);
-  console.log(newX)
   tracks_scroll_percent = (newX) / (maxX);
   tracks_scroll_to(tracks_scroll_percent, 0);
 }
@@ -854,14 +862,17 @@ function play() {
     play_button.innerHTML = "<i class='fa-solid fa-pause'></i>";
     // play
     clearInterval(interval);
-    interval = setInterval(move_cursor, xsnap);
-    function move_cursor() {
-      cursor_pos++;
-      cursor.style.left = cursor_pos + "px";
-      track_bar_cursor.style.left = cursor_pos + 298 + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
-    }
+    interval = setInterval(step, xsnap);
     track_bar_cursor.style.display = "block";
   }
+}
+
+// MAIN SOUND GENERATING FUNCTION
+// runs once every 'xsnap' ms
+function step() {
+  cursor_pos++;
+  cursor.style.left = cursor_pos + "px";
+  track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
 }
 
 // add key event listeners
@@ -873,17 +884,16 @@ document.addEventListener("keypress", (e) => {
 
 // initialize tools listeners
 var tools = document.querySelectorAll(".tracks_tool_bar > .tool_button");
-var current_active = null;
+var current_active = document.querySelector(".tracks_tool_bar > #tool_pencil > i");
+current_active.style.color = "#fcba40";
 tools.forEach(btn => {
   var icon = btn.querySelector("i");
   btn.addEventListener("click", () => {
     icon.style.color = window.getComputedStyle(btn).color;
-    if (current_active === null || current_active === icon) {
-      current_active = icon;
-    } else {
+    if (current_active !== null && current_active !== icon) {
       current_active.style.color = "";
-      current_active = icon;
     }
+    current_active = icon;
   });
 });
 
