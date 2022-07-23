@@ -184,6 +184,7 @@ class Track {
     this.color = null;
     this.data = new Array(400*44100);
     this.buffer_position = 0;
+    this.enabled = true;
 
     // construct own element
     var template = document.getElementById("track_template");
@@ -197,7 +198,9 @@ class Track {
     this.element.id = this.id;
     
     this.content = this.element.querySelector(".track_content");
+    this.description = this.element.querySelector(".description");
     this.sound_indicator = this.element.querySelector(".track_play_indicator");
+    this.radio_btn = this.description.querySelector(".radio_btn");
     
     // add self to track-list
     tracks.push(this);
@@ -217,6 +220,22 @@ class Track {
     */
     this.buffer_position += size;
     return this.data.slice(this.buffer_position - size, this.buffer_position);
+  }
+
+  enable() {
+    this.enabled = true;
+    this.radio_btn.firstElementChild.style.backgroundColor = green;
+    this.description.style.backgroundColor = this.color.color;
+    this.description.style.color = "";
+    this.description.style.borderRightColor = this.color.lighten(10);
+  }
+
+  disable() {
+    this.enabled = false;
+    this.radio_btn.firstElementChild.style.backgroundColor = grey;
+    this.description.style.backgroundColor = this.color.darken(20);
+    this.description.style.color = "#ffffff45";
+    this.description.style.borderRightColor = this.color.darken(20);
   }
 
   updateData() {
@@ -374,9 +393,8 @@ class Track {
 
   setColor(color) {
     this.color = color;
-    var description = this.element.querySelector(".description");
-    description.style.backgroundColor = this.color.color;
-    description.style.borderColor = this.color.darken(8) + " " + this.color.lighten(10);
+    this.description.style.backgroundColor = this.color.color;
+    this.description.style.borderColor = this.color.darken(8) + " " + this.color.lighten(10);
   }
 
   addSample(sample) {
@@ -665,18 +683,30 @@ var green = "rgb(50, 255, 32)"; // #32ff17
 var grey = "rgb(126, 135, 125)"; // #7e877d
 function addRadioEventListener(btn, track) {
   var light = btn.querySelector(".radio_btn_green");
-  btn.addEventListener("click", () => {
-    var bg = light.style.backgroundColor;
-    // the 'or' is bc the property is "" at first, but since the button
-    // gets initialized with a green background, it gets treated as "green"
-    if (bg === green || bg === "") {
-      light.style.backgroundColor = grey;
-      btn.parentElement.style.backgroundColor = track.color.darken(20);
-      btn.parentElement.style.color = "#ffffff45";
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (e.button === 0) {
+      var bg = light.style.backgroundColor;
+      // the 'or' is bc the property is "" at first, but since the button
+      // gets initialized with a green background, it gets treated as "green"
+      (bg === green || bg === "") ? track.disable() : track.enable();
+    }
+  });
+  btn.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    var all_tracks_disabled = true;
+    tracks.forEach(element => {
+      if (element.enabled && element !== track) {all_tracks_disabled = false;}
+    });
+
+    if (all_tracks_disabled && track.enabled) {
+      for (let i = 0; i < tracks.length; i++) {
+        tracks[i].enable();
+      }
     } else {
-      light.style.backgroundColor = green;
-      btn.parentElement.style.backgroundColor = track.color.color;
-      btn.parentElement.style.color = "";
+      for (let i = 0; i < tracks.length; i++) {
+        (tracks[i] !== track) ? tracks[i].disable() : tracks[i].enable();
+      }
     }
   });
 }
