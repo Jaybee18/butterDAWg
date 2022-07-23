@@ -194,6 +194,8 @@ body {
 }
 .tracks_wrapper_wrapper {
     height: inherit;
+    overflow: hidden;
+    flex-grow: 1;
 }
 
 .tracks_top_bar {
@@ -238,6 +240,10 @@ body {
     left: 20px;
 }
 
+.notransition {
+    transition: none !important;
+}
+
 .tracks_top_bar_bars {
     width: inherit;
     height: 50%;
@@ -247,6 +253,16 @@ body {
     overflow: hidden;
     user-select: none;
     position: relative;
+}
+
+.tracks_top_bar_bars > p {
+    color: rgb(160, 160, 160);
+    margin: 0px;
+    float: left;
+    height: 100%;
+    display: flex;
+    align-items: self-end;
+    user-select: none;
 }
 
 .bars_labels {
@@ -264,8 +280,7 @@ body {
     height: 100%;
     border-style: none none none solid;
     border-width: 1px;
-    border-color: #1d262bad;
-    margin-left: -1px;
+    border-color: #1d262b;
 }
 
 main::-webkit-scrollbar {
@@ -306,9 +321,9 @@ main::-webkit-scrollbar {
 }
 
 #track_resize {
-    width: 100%;
+    width: 70%;
     height: 10px;
-    bottom: -5px;
+    bottom: -6px;
     cursor: n-resize;
     position: absolute;
     z-index: 1;
@@ -318,13 +333,14 @@ main::-webkit-scrollbar {
     width: 93px;
     border-radius: 0px 8px 8px 0px;
     border-width: 1px;
-    border-style: solid;
+    border-style: none solid;
     border-color: rgb(86, 51, 161);
     background-color: #5e39ab;
     user-select: none;
     display: flex;
     flex-direction: column;
     position: relative;
+    background: linear-gradient(0deg, #00000014, transparent);
 }
 
 .description > .fa-ellipsis {
@@ -367,6 +383,7 @@ main::-webkit-scrollbar {
     z-index: 2;
     width: 6px;
     box-shadow: inset 0 0 0 1px #1b272e, 0.5px 0 2px 0 #1b272e;
+    transition: background-color 0.5s;
 }
 
 .track_content {
@@ -405,7 +422,6 @@ main::-webkit-scrollbar {
     background-color: rgba(255, 0, 0, 0.3);
     width: 160px;
     height: 100%;
-    overflow: hidden;
 }
 
 .track_object_label {
@@ -416,25 +432,27 @@ main::-webkit-scrollbar {
     box-shadow: inset 0px -2px 4px 0px rgba(0, 0, 0, 0.45);
     position: relative;
     z-index: 1;
+    padding-bottom: 1px;
 }
 
 .track_object_label > p {
     color: var(--text-color);
     font-size: 10px;
-    padding: 2px;
-    margin: 0px;
+    margin: 0 0 0 2px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .track_object_drag_handle {
-    margin-top: -3px;
+    margin-top: -15px;
+    height: inherit;
+    overflow: hidden;
 }
 
 .track_object_drag_handle > canvas {
     /*width: inherit;
     height: inherit;*/
-    margin-top: -15px;
+    height: inherit!important;
 }
 
 .track_object_resize_right {
@@ -442,7 +460,7 @@ main::-webkit-scrollbar {
     height: inherit;
     position: absolute;
     cursor: e-resize;
-    margin-right: -6px;
+    margin-right: -3px;
     top: 0px;
     right: 0px;
     z-index: 4;
@@ -459,7 +477,7 @@ main::-webkit-scrollbar {
 
 .tracks_palette {
     height: inherit;
-    width: 250px;
+    width: 200px;
     margin-top: 15px;
 }
 
@@ -1132,7 +1150,7 @@ main::-webkit-scrollbar {
 
 .header_button > i {
     margin: auto;
-    color: rgb(225, 225, 225); /* clicked : rgb(80, 19, 0) */
+    color: rgb(217, 225, 229); /*rgb(225, 225, 225); /* clicked : rgb(80, 19, 0) */
     opacity: 0.9;
     transition: all 0.3s;
 }

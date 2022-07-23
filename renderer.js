@@ -1,10 +1,17 @@
-var fs = require("fs");
-var wavefile = require("wavefile");
+const fs = require("fs");
+const wavefile = require("wavefile");
+const Speaker = require("speaker");
+
+const speaker = new Speaker({
+  channels: 1,
+  bitDepth: 16,
+  sampleRate: 44100
+});
+process.stdin.pipe(speaker, {end: false});
 
 var help_text = document.getElementById("header_help_text");
 var xsnap = 20;
 var framerate = 44100;
-const int16max = 32767;
 
 var is_playing = false;
 var bpm = 150;
@@ -28,28 +35,30 @@ function currently_hovered_track() {
 }
 
 // tracks scrolling
-var track_width = 10000 - 1404; // track_background.width - track_content.width
-function tracks_scroll_by(percentX, percentY) {
-  tracks.forEach(t => {
-    t.content.scrollBy({top: percentY, left: percentX*track_width});
-  });
-  bars_scrollbar_handle.style.left = Math.min(bars_scrollbar_handle.offsetLeft + (maxX*percentX), maxX) + "px";
-}
+var track_width = 0;
+var current_track_scroll_percent = 0;
 function tracks_scroll_to(percentX, percentY) {
+  current_track_scroll_percent = percentX;
+  track_width = tracks[0].content.querySelector(".track_background").clientWidth - tracks[0].content.clientWidth;
+  maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
   tracks.forEach(t => {
     t.content.scrollTo({top: percentY, left: percentX*track_width});
   });
+  top_bar_bars.scrollTo({top: percentY, left: percentX*track_width});
   bars_scrollbar_handle.style.left = (20 + maxX * percentX) + "px";
 }
 
 // palette functionality
+// TODO event listeners setup may be a bit inefficient
 var palette = document.querySelector(".palette");
 var palette_current_scope = 0;
+var palette_current_element = null; /* current selected object to paint on tracks */
 var palette_content = [[], [], []]; // list of lists of 'Item's
 var scopes = document.querySelectorAll(".palette_scope > .tool_button");
 for (let j = 0; j < 3; j++) {
   scopes[j].style.fill = "#8f979b";
 }
+scopes[0].style.fill = "#d2d8dc";
 for (let i = 0; i < scopes.length; i++) {
   scopes[i].addEventListener("click", () => {
     palette_current_scope = i;
@@ -61,19 +70,28 @@ for (let i = 0; i < scopes.length; i++) {
                   </div>';
     });
     palette.innerHTML = content;
+    for (let j = 0; j < palette.childElementCount; j++) {
+      palette.children[j].addEventListener("click", () => {
+        for (let k = 0; k < palette.childElementCount; k++) {
+          palette.children[k].style.boxShadow = "";
+        }
+        palette.children[j].style.boxShadow = "inset 0 0 0 1px #a8e44a";
+        palette_current_element = palette_content[i][j];
+      });
+    }
     for (let j = 0; j < 3; j++) {
       scopes[j].style.fill = "#8f979b";
     }
-    scopes[i].style.fill = "#d2d8dc"; /* the wave icon still has to be customzied, then this will work */
+    scopes[i].style.fill = "#d2d8dc";
   });
 }
 palette.addEventListener("mouseenter", () => {
   // sample preview
   if (current_drag_element !== null) {
-    palette.innerHTML += '<div class="palette_object" style="opacity: 0.3;">\
-                            <i class="fa-solid fa-wave-square"></i>\
-                            <p>' + current_drag_element.title.split(".")[0] + '</p>\
-                          </div>';
+    palette.insertAdjacentHTML("beforeend", '<div class="palette_object" style="opacity: 0.3;">\
+                                              <i class="fa-solid fa-wave-square"></i>\
+                                              <p>' + current_drag_element.title.split(".")[0] + '</p>\
+                                            </div>');
     drag_container.style.display = "none";
   }
 });
@@ -85,8 +103,17 @@ palette.addEventListener("mouseleave", () => {
 });
 palette.addEventListener("mouseup", () => {
   if (current_drag_element !== null) {
-    palette.lastChild.style.opacity = "1";
+    var newChild = palette.lastElementChild;
+    newChild.style.opacity = "1";
     palette_content[palette_current_scope].push(current_drag_element);
+    var index = palette_content[palette_current_scope].length-1;
+    newChild.addEventListener("click", () => {
+      for (let i = 0; i < palette.childElementCount; i++) {
+        palette.children[i].style.boxShadow = "";
+      }
+      newChild.style.boxShadow = "inset 0 0 0 1px #a8e44a";
+      palette_current_element = palette_content[palette_current_scope][index];
+    });
   }
 });
 
@@ -156,6 +183,7 @@ class Track {
     this.hover_buffer = null;
     this.color = null;
     this.data = new Array(400*44100);
+    this.buffer_position = 0;
 
     // construct own element
     var template = document.getElementById("track_template");
@@ -169,15 +197,36 @@ class Track {
     this.element.id = this.id;
     
     this.content = this.element.querySelector(".track_content");
+    this.sound_indicator = this.element.querySelector(".track_play_indicator");
     
     // add self to track-list
     tracks.push(this);
     
     this.setTitle("Track " + tracks.length);
-    this.setColor(new Color("#646e73"));
+    this.setColor(new Color("#646e73")); // #646e73 #485155
     this.updateCanvas();
     this.initializeResizing();
     this.initializeEventListeners();
+  }
+
+  getFrames(size) {
+    // == process audio with plugins etc. ==
+    /*
+    if sum(buffer) > 0:
+      this.play_indicator.style.background = white
+    */
+    this.buffer_position += size;
+    return this.data.slice(this.buffer_position - size, this.buffer_position);
+  }
+
+  updateData() {
+    for (let i = 0; i < this.samples.length; i++) {
+      var s = this.samples[i];
+      var d = s.data;
+      for (let j = 0; j < d.length; j++) {
+        this.data[j] = d[j];
+      }
+    }
   }
 
   updateCanvas() {
@@ -233,6 +282,20 @@ class Track {
     };
 
   }
+
+  resizeBackground(event) {
+    var background = this.content.querySelector(".track_background");
+    background.style.width = background.clientWidth - event.deltaY*5 + "px";
+    for (let i = 0; i < this.samples.length; i++) {
+      this.samples[i].resize();
+      var previousXsnap = xsnap + event.deltaY/100; // as of the formula below
+      this.samples[i].move(this.samples[i].element.offsetLeft/previousXsnap * (-event.deltaY/100), 0);
+    }
+  }
+
+  resizeHeight(delta) {
+    this.element.style.height = this.element.clientHeight - delta + "px";
+  }
   
   initializeEventListeners() {
     this.element.addEventListener("mouseenter", (e) => {
@@ -243,7 +306,29 @@ class Track {
 
     this.content.addEventListener("wheel", (e) => {
       if (e.shiftKey) {
-        tracks_scroll_by((e.deltaY/2)/10000, 0);
+        e.preventDefault();
+        // idk how else to do it, this just transfers the scroll event
+        // to the scrollbar_handle
+        var currentOffset = (bars_scrollbar_handle.offsetLeft - 20) / maxX;
+        var newOffset = currentOffset + (e.deltaY/100)/50;
+        newOffset = Math.min(Math.max(newOffset, 0), 1);
+        tracks_scroll_to(newOffset, 0);
+      } else if (control_down) {
+        // delta = x*100
+        if (xsnap - e.deltaY/100 < 6) {return;} // TODO this may cause some issues in the future, but idc
+        xsnap -= e.deltaY/100;
+        var bars = document.querySelectorAll(".tracks_top_bar_bars > p");
+        for (let i = 0; i < bars.length; i++) {
+          bars[i].style.width = xsnap*4 + "px";
+        }
+        for (let i = 0; i < tracks.length; i++) {
+          tracks[i].resizeBackground(e);
+        }
+      } else if (alt_down) {
+        e.preventDefault();
+        for (let i = 0; i < tracks.length; i++) {
+          tracks[i].resizeHeight(e.deltaY/10);
+        }
       }
     });
 
@@ -280,7 +365,7 @@ class Track {
     });
 
     // radio button on click
-    addRadioEventListener(this.element.querySelector(".radio_btn"));
+    addRadioEventListener(this.element.querySelector(".radio_btn"), this);
   }
 
   setTitle(title) {
@@ -291,13 +376,14 @@ class Track {
     this.color = color;
     var description = this.element.querySelector(".description");
     description.style.backgroundColor = this.color.color;
-    description.style.borderColor = this.color.darken(10);
+    description.style.borderColor = this.color.darken(8) + " " + this.color.lighten(10);
   }
 
   addSample(sample) {
     // parameter is of type TrackSample
     this.content.appendChild(sample.element);
     this.samples.push(sample);
+    this.updateData();
   }
 
   sampleHover(item) {
@@ -314,23 +400,35 @@ class Track {
 
 class TrackSample {
   constructor (item) {
-    this.width = item.getDuration()*(bpm/60*xsnap); // arbitrary number; change later TODO !!
     this.title = item.title;
     this.data = item.getData();
+    this.item = item;
     this.color = null;
+    this.depth_max = item.depth_max;
 
     // construct own element
     var template = document.getElementById("track_sample_object");
     var clone = template.content.cloneNode(true);
     this.element = clone.querySelector(".track_object");
     this.element.querySelector(".track_object_label > p").innerText = this.title;
-    this.element.style.width = this.width + "px";
     this.id = Date.now().toString();
     this.element.id = this.id;
 
-    this.resizeCanvas(this.width, 200);
-    this.drawCanvas();
+    this.resize()
+    this.drawCanvas(); 
     this.initializeEventListeners();
+  }
+
+  move(x, y) {
+    this.element.style.left = this.element.offsetLeft + x + "px";
+    this.element.style.top = this.element.offsetTop + y + "px";
+  }
+
+  resize() {
+    // resizes the sample according to the current xsnap value
+    this.width = this.item.getDuration()*(bpm/60*xsnap);
+    this.element.style.width = this.width + "px";
+    this.resizeCanvas(this.width, 200);
   }
 
   setColor(color) {
@@ -345,6 +443,7 @@ class TrackSample {
     canvas.height = 200;
     canvas.style.width = width + "px";
     canvas.style.height = 100 + "px";
+    this.drawCanvas();
   }
   
   drawCanvas() {
@@ -361,7 +460,8 @@ class TrackSample {
     var factor = canvas.width / this.data.length;
     var res = 20;
     for (let i = 0; i < this.data.length; i+=res) {
-      c.lineTo(i*factor, this.data[i]/int16max*80+110);
+      /* datapoint * canvas_height + canvas_viewport_height/2 + offset because of title */
+      c.lineTo(i*factor, this.data[i]/this.depth_max*55+100+15);
     }
     c.stroke();
   }
@@ -412,9 +512,7 @@ class TrackSample {
       e.preventDefault();
       var delta = mouse_down_position - e.clientX;
       delta -= delta%xsnap;
-      console.log(delta);
       var newWidth = mouse_down_width - delta;
-      console.log(newWidth, mouse_down_width);
       a.style.width = newWidth + "px";
     }
     var local = this;
@@ -422,7 +520,6 @@ class TrackSample {
       e.preventDefault();
       mouse_down_position = e.clientX;
       mouse_down_width = Number.parseFloat(window.getComputedStyle(local.element).width.replace("px", ""));
-      console.log(mouse_down_width);
       document.addEventListener("mousemove", right_resize_listener);
     });
     document.addEventListener("mouseup", () => {
@@ -434,7 +531,7 @@ class TrackSample {
 // add scroll functionality to the track_view
 var track_view = document.getElementById("tracks");
 track_view.addEventListener("scroll", (e) => {
-  console.log(e.scrollX);
+  //console.log(e.scrollX);
 });
 
 // add track-button functionality
@@ -527,6 +624,8 @@ var resizing_sidebar = false;
     left.style.width = container.clientWidth - offsetRight + "px";
     right.style.width = offsetRight + "px";
 
+    tracks_scroll_to(current_track_scroll_percent);
+
     return false;
   }
 
@@ -551,10 +650,10 @@ updateHeaderWaveview();
 function drawBarLabels() {
   var bars = document.querySelector(".tracks_top_bar_bars");
   
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 60; i++) {
     var label = document.createElement("p");
     var font_size = (i%4==0) ? 15 : 10;
-    label.style.cssText += "color: rgb(160, 160, 160); margin: 0px; font-size: " + font_size + "px; float: left; width: 40px; height: 100%; display: flex; align-items: self-end; user-select: none;";
+    label.style.cssText += "font-size: " + font_size + "px; width: " + xsnap*4 + "px;";
     label.innerHTML = i + 1;
     bars.appendChild(label);
   }
@@ -564,13 +663,21 @@ drawBarLabels();
 // add event listeners to all toggle buttons
 var green = "rgb(50, 255, 32)"; // #32ff17
 var grey = "rgb(126, 135, 125)"; // #7e877d
-function addRadioEventListener(btn) {
+function addRadioEventListener(btn, track) {
   var light = btn.querySelector(".radio_btn_green");
   btn.addEventListener("click", () => {
     var bg = light.style.backgroundColor;
     // the 'or' is bc the property is "" at first, but since the button
     // gets initialized with a green background, it gets treated as "green"
-    light.style.backgroundColor = (bg === green || bg === "") ? grey : green;
+    if (bg === green || bg === "") {
+      light.style.backgroundColor = grey;
+      btn.parentElement.style.backgroundColor = track.color.darken(20);
+      btn.parentElement.style.color = "#ffffff45";
+    } else {
+      light.style.backgroundColor = green;
+      btn.parentElement.style.backgroundColor = track.color.color;
+      btn.parentElement.style.color = "";
+    }
   });
 }
 document.querySelectorAll(".radio_btn").forEach(btn => addRadioEventListener(btn)); // probably works, but idk
@@ -612,14 +719,13 @@ document.addEventListener("mouseup", () => {
 // TODO make a function that can handle scrollbars (bars_cursor, horizontal scrollbars, ...)
 var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
 var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
-var maxX = bars_scrollbar_wrapper.clientWidth - 20 - 20 - 15 - bars_scrollbar_handle.clientWidth;
-maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
+var maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
 var initial_handle_offset = 0;
 var tracks_scroll_percent = 0;
 function bars_scrollbar_handle_listener(e) {
   var newX = e.clientX - cumulativeOffset(bars_scrollbar_wrapper).left - initial_handle_offset - 20;
   newX = Math.min(Math.max(newX, 0), maxX);
-  tracks_scroll_percent = (newX) / (maxX);
+  tracks_scroll_percent = newX / maxX;
   tracks_scroll_to(tracks_scroll_percent, 0);
 }
 bars_scrollbar_handle.addEventListener("mousedown", (e) => {
@@ -721,6 +827,9 @@ class Item extends Draggable{
     this.indent = indent;
     this.children = [];
     this.title = title;
+    this.depth = null;
+    this.depth_type = null;
+    this.depth_max = null;
 
     // construct container
     var a = document.createElement("div");
@@ -759,10 +868,35 @@ class Item extends Draggable{
   loadData() {
     // Load a wav file buffer as a WaveFile object
     this.file = new wavefile.WaveFile(fs.readFileSync(this.contents));
+    this.depth = this.file.bitDepth;
+    switch (this.depth) {
+      case "16":
+        this.depth_type = Int16Array;
+        this.depth_max = 32767;
+        break;
+      case "32":
+        this.depth_type = Int32Array;
+        this.depth_max = 2147483647;
+        break;
+      case "8":
+        this.depth_type = Int8Array;
+        this.depth_max = 127;
+        break;
+      case "32f":
+        this.depth_type = Float32Array;
+        this.depth_max = 1.0;
+        break;
+      case "64f":
+        this.depth_type = Float64Array;
+        this.depth_max = 1.0;
+        break;
+      default:
+        break;
+    }
   }
 
   getData() {
-    return this.file.getSamples(true, Int16Array);
+    return this.file.getSamples(true, this.depth_type);
   }
 
   getWidth() {
@@ -869,17 +1003,44 @@ function play() {
 
 // MAIN SOUND GENERATING FUNCTION
 // runs once every 'xsnap' ms
+/*
+44100 frames = 1 sec
+882 frames = 0.02 sec = 20 ms
+*/
+var buffer_size = 1000;
 function step() {
+  // move cursor
   cursor_pos++;
   cursor.style.left = cursor_pos + "px";
   track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
+
+  // retrieve sound
+  (buffer = []).length = buffer_size;
+  buffer.fill(0);
+  for (var i = 0; i < tracks.length; i++) {
+    var frames = tracks[i].getFrames(buffer_size);
+    for (var j = 0; j < buffer_size; j++) {
+      buffer[j] += frames[j]===undefined ? 0 : Math.floor(frames[j]/32767*255);
+    }
+  }
+  speaker.write(Buffer.from(buffer), (err) => {console.log(err);});
 }
 
 // add key event listeners
+var control_down = false;
+var alt_down = false;
 document.addEventListener("keypress", (e) => {
   if (e.code === "Space") {
     play();
   }
+});
+document.addEventListener("keydown", (e) => {
+  control_down = e.ctrlKey;
+  alt_down = e.altKey;
+});
+document.addEventListener("keyup", (e) => {
+  control_down = e.ctrlKey;
+  alt_down = e.altKey;
 });
 
 // initialize tools listeners
