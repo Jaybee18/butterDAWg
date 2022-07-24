@@ -37,6 +37,16 @@ function currently_hovered_track() {
 // tracks scrolling
 var track_width = 0;
 var current_track_scroll_percent = 0;
+function tracks_scroll_by_px(pixelX, pixelY) {
+  track_width = tracks[0].content.querySelector(".track_background").clientWidth - tracks[0].content.clientWidth;
+  tracks.forEach(t => {
+    t.content.scrollBy({left: pixelX});
+  });
+  var percent = tracks[0].content.scrollLeft / track_width;
+  bars_scrollbar_handle.style.left = (20 + maxX * percent) + "px";
+
+  document.getElementById("tracks").scrollBy({top: pixelY});
+}
 function tracks_scroll_to(percentX, percentY) {
   current_track_scroll_percent = percentX;
   track_width = tracks[0].content.querySelector(".track_background").clientWidth - tracks[0].content.clientWidth;
@@ -47,6 +57,29 @@ function tracks_scroll_to(percentX, percentY) {
   top_bar_bars.scrollTo({top: percentY, left: percentX*track_width});
   bars_scrollbar_handle.style.left = (20 + maxX * percentX) + "px";
 }
+var drag_mouse_down_pos_x = 0;
+var drag_mouse_down_pos_y = 0;
+var wheel_down = false;
+var delta_delta_x = 0;
+var delta_delta_y = 0;
+document.getElementById("tracks").addEventListener("mousedown", (e) => {
+  e.preventDefault();
+  if (e.button === 1) {
+    drag_mouse_down_pos_x = e.clientX;
+    drag_mouse_down_pos_y = e.clientY;
+    wheel_down = true;
+  }
+});
+document.addEventListener("mouseup", () => {wheel_down = false;delta_delta_x = 0;delta_delta_y = 0;});
+document.getElementById("tracks").addEventListener("mousemove", (e) => {
+  if (wheel_down) {
+    var deltaX = drag_mouse_down_pos_x - e.clientX;
+    var deltaY = drag_mouse_down_pos_y - e.clientY;
+    tracks_scroll_by_px(deltaX - delta_delta_x, deltaY - delta_delta_y);
+    delta_delta_x = deltaX;
+    delta_delta_y = deltaY;
+  }
+});
 
 // palette functionality
 // TODO event listeners setup may be a bit inefficient
@@ -370,7 +403,7 @@ class Track {
     this.element.addEventListener("mousemove", (e) => {
       if (this.hover_buffer !== null) {
         var newX = e.clientX - cumulativeOffset(this.hover_buffer.element.parentElement).left - this.hover_buffer.element.clientWidth/2;
-        newX = Math.min(Math.max(newX, 0), this.content.clientWidth);
+        newX = Math.min(Math.max(newX, 0), this.content.clientWidth) + this.content.scrollLeft;
         this.hover_buffer.element.style["left"] = newX-newX%xsnap + "px";
       }
     });
@@ -412,6 +445,7 @@ class Track {
     var t = new TrackSample(item);
     t.setColor(this.color);
     this.content.appendChild(t.element);
+    //t.move(this.content.scrollLeft, 0);
     this.hover_buffer = t;
   }
 }
@@ -545,12 +579,6 @@ class TrackSample {
   });
   }
 }
-
-// add scroll functionality to the track_view
-var track_view = document.getElementById("tracks");
-track_view.addEventListener("scroll", (e) => {
-  //console.log(e.scrollX);
-});
 
 // add track-button functionality
 document.getElementById("track_add_label").addEventListener('click', () => {new Track();});
