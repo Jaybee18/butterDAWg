@@ -1,13 +1,7 @@
 const fs = require("fs");
 const wavefile = require("wavefile");
-const Speaker = require("speaker");
-
-const speaker = new Speaker({
-  channels: 1,
-  bitDepth: 16,
-  sampleRate: 44100
-});
-process.stdin.pipe(speaker, {end: false});
+//const Speaker = require("speaker");
+const {Howl, Howler} = require('howler');
 
 var help_text = document.getElementById("header_help_text");
 var xsnap = 20;
@@ -37,6 +31,8 @@ function currently_hovered_track() {
 // tracks scrolling
 var track_width = 0;
 var current_track_scroll_percent = 0;
+var bars = document.querySelector(".tracks_top_bar_bars_wrapper");
+var track_view = document.getElementById("tracks");
 function tracks_scroll_by_px(pixelX, pixelY) {
   track_width = tracks[0].content.querySelector(".track_background").clientWidth - tracks[0].content.clientWidth;
   tracks.forEach(t => {
@@ -45,7 +41,9 @@ function tracks_scroll_by_px(pixelX, pixelY) {
   var percent = tracks[0].content.scrollLeft / track_width;
   bars_scrollbar_handle.style.left = (20 + maxX * percent) + "px";
 
-  document.getElementById("tracks").scrollBy({top: pixelY});
+  bars.scrollBy({left: pixelX});
+  bars.scrollLeft = Math.min(bars.scrollLeft, track_width);
+  track_view.scrollBy({top: pixelY});
 }
 function tracks_scroll_to(percentX, percentY) {
   current_track_scroll_percent = percentX;
@@ -54,7 +52,7 @@ function tracks_scroll_to(percentX, percentY) {
   tracks.forEach(t => {
     t.content.scrollTo({top: percentY, left: percentX*track_width});
   });
-  top_bar_bars.scrollTo({top: percentY, left: percentX*track_width});
+  bars.scrollTo({left: percentX*track_width});
   bars_scrollbar_handle.style.left = (20 + maxX * percentX) + "px";
 }
 var drag_mouse_down_pos_x = 0;
@@ -62,7 +60,7 @@ var drag_mouse_down_pos_y = 0;
 var wheel_down = false;
 var delta_delta_x = 0;
 var delta_delta_y = 0;
-document.getElementById("tracks").addEventListener("mousedown", (e) => {
+track_view.addEventListener("mousedown", (e) => {
   e.preventDefault();
   if (e.button === 1) {
     drag_mouse_down_pos_x = e.clientX;
@@ -71,7 +69,7 @@ document.getElementById("tracks").addEventListener("mousedown", (e) => {
   }
 });
 document.addEventListener("mouseup", () => {wheel_down = false;delta_delta_x = 0;delta_delta_y = 0;});
-document.getElementById("tracks").addEventListener("mousemove", (e) => {
+track_view.addEventListener("mousemove", (e) => {
   if (wheel_down) {
     var deltaX = drag_mouse_down_pos_x - e.clientX;
     var deltaY = drag_mouse_down_pos_y - e.clientY;
@@ -696,7 +694,7 @@ updateHeaderWaveview();
 function drawBarLabels() {
   var bars = document.querySelector(".tracks_top_bar_bars");
   
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 126; i++) {
     var label = document.createElement("p");
     var font_size = (i%4==0) ? 15 : 10;
     label.style.cssText += "font-size: " + font_size + "px; width: " + xsnap*4 + "px;";
@@ -760,13 +758,13 @@ var top_bar = document.getElementById("tracks_top_bar_inner");
 var top_bar_bars = document.querySelector(".tracks_top_bar_bars");
 function bars_cursor_move_listener(e) {
   if (e.clientX - cumulativeOffset(top_bar).left <= 0) {cursor.style.left = -10; return;}
-  var newX = e.clientX - cumulativeOffset(top_bar).left - 10
+  var newX = e.clientX - cumulativeOffset(top_bar).left - 10 + bars.scrollLeft;
   cursor.style.left = newX;
   cursor_pos = newX;
-  track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
+  track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + bars.scrollLeft + 97 + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
 }
 top_bar_bars.addEventListener("mousedown", (e) => {
-  cursor.style.left = e.clientX - cumulativeOffset(top_bar).left - 10;
+  cursor.style.left = e.clientX - cumulativeOffset(top_bar).left - 10 + bars.scrollLeft;
   document.addEventListener("mousemove", bars_cursor_move_listener);
 });
 document.addEventListener("mouseup", () => {
@@ -1043,18 +1041,27 @@ var interval = null;
 // cursor is defined above as the bars_cursor
 var track_bar_cursor = document.querySelector(".line_cursor");
 var play_button = document.querySelector(".play");
+var speaker = null;
 function play() {
   if (is_playing) {
     is_playing = false;
+    console.log(test);
+    speaker.destroy();
     play_button.innerHTML = "<i class='fa-solid fa-play'></i>";
     track_bar_cursor.style.display = "none";
     clearInterval(interval);
   } else {
     is_playing = true;
     play_button.innerHTML = "<i class='fa-solid fa-pause'></i>";
+    // create a speaker
+    speaker = new Speaker({
+      channels: 1,
+      sampleRate: 44100
+    });
+    //process.stdin.pipe(speaker);
     // play
     clearInterval(interval);
-    interval = setInterval(step, xsnap);
+    interval = setInterval(step, 441);
     track_bar_cursor.style.display = "block";
   }
 }
@@ -1065,12 +1072,15 @@ function play() {
 44100 frames = 1 sec
 882 frames = 0.02 sec = 20 ms
 */
-var buffer_size = 1000;
+var buffer_size = 44100;
+var test = 0;
 function step() {
   // move cursor
   cursor_pos++;
-  cursor.style.left = cursor_pos + "px";
-  track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
+  /*cursor.style.left = cursor_pos + "px";
+  //track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
+  track_bar_cursor.style.left = cursor_pos - tracks[0].content.scrollLeft + 97 + "px";
+  track_bar_cursor.style.top = track_view.scrollTop + "px";*/
 
   // retrieve sound
   (buffer = []).length = buffer_size;
@@ -1081,7 +1091,15 @@ function step() {
       buffer[j] += frames[j]===undefined ? 0 : Math.floor(frames[j]/32767*255);
     }
   }
-  speaker.write(Buffer.from(buffer), (err) => {console.log(err);});
+  /*for (let i = 0; i < buffer_size; i++) {
+    buffer[i] = Math.floor(Math.random()*255);
+  }*/
+  buffer = Uint8Array.from(buffer);
+  console.log(buffer);
+  test++;
+  
+  speaker.write(buffer, (err) => {console.log(err);});
+  //speaker.end();
 }
 
 // add key event listeners
@@ -1089,6 +1107,7 @@ var control_down = false;
 var alt_down = false;
 document.addEventListener("keypress", (e) => {
   if (e.code === "Space") {
+    e.preventDefault();
     play();
   }
 });

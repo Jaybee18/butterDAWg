@@ -245,7 +245,7 @@ body {
 }
 
 .tracks_top_bar_bars {
-    width: inherit;
+    width: max-content;
     height: 50%;
     background-color: #192328;
     /*display: flex;
@@ -253,6 +253,12 @@ body {
     overflow: hidden;
     user-select: none;
     position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.tracks_top_bar_bars_wrapper {
+    overflow: hidden;
 }
 
 .tracks_top_bar_bars > p {
@@ -260,8 +266,6 @@ body {
     margin: 0px;
     float: left;
     height: 100%;
-    display: flex;
-    align-items: self-end;
     user-select: none;
 }
 
@@ -731,11 +735,11 @@ main::-webkit-scrollbar {
 .line_cursor {
     display: none;
     width: 15px;
-    height: inherit;
+    height: calc(100vh + 500px);
+    margin-top: -250px;
     position: absolute;
     z-index: 3;
     left: 0px;
-    margin-top: 42px;
     border-style: none solid none none;
     border-width: 1px;
     border-color: #32cd32;
