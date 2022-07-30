@@ -1,7 +1,9 @@
 const fs = require("fs");
 const wavefile = require("wavefile");
-//const Speaker = require("speaker");
-const {Howl, Howler} = require('howler');
+const Speaker = require("speaker");
+const stream = require("stream");
+var {Howl, Howler} = require("howler");
+const { WaveFile } = require("wavefile");
 
 var help_text = document.getElementById("header_help_text");
 var xsnap = 20;
@@ -213,6 +215,7 @@ class Track {
     this.temp_samples = [];
     this.hover_buffer = null;
     this.color = null;
+    this.title = "";
     this.data = new Array(400*44100);
     this.buffer_position = 0;
     this.enabled = true;
@@ -350,7 +353,7 @@ class Track {
   initializeEventListeners() {
     this.element.addEventListener("mouseenter", (e) => {
       // help
-      header_help_text.innerHTML = "Track " + this.id;
+      header_help_text.innerHTML = this.title;
       
     });
 
@@ -420,6 +423,7 @@ class Track {
 
   setTitle(title) {
     this.element.querySelector("#track_title").innerHTML = title;
+    //this.title = title;
   }
 
   setColor(color) {
@@ -430,6 +434,7 @@ class Track {
 
   addSample(sample) {
     // parameter is of type TrackSample
+    //sample.x = sample.element.offsetLeft;
     this.content.appendChild(sample.element);
     this.samples.push(sample);
     this.updateData();
@@ -455,6 +460,7 @@ class TrackSample {
     this.item = item;
     this.color = null;
     this.depth_max = item.depth_max;
+    //this.x = 0;
 
     // construct own element
     var template = document.getElementById("track_sample_object");
@@ -472,6 +478,7 @@ class TrackSample {
   move(x, y) {
     this.element.style.left = this.element.offsetLeft + x + "px";
     this.element.style.top = this.element.offsetTop + y + "px";
+    //this.x = this.element.offsetLeft + x;
   }
 
   resize() {
@@ -544,6 +551,7 @@ class TrackSample {
       newX = Math.max(newX, 0);
       a.style.top = "0px";
       a.style.left = newX + "px";
+      //this.x = newX;
     }
     this.element.querySelector(".track_object_drag_handle").addEventListener("mousedown", (e) => {
       e.preventDefault();
@@ -1037,16 +1045,18 @@ document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", pos_slider_handle_listener);
 });
 
+/*
 var interval = null;
 // cursor is defined above as the bars_cursor
 var track_bar_cursor = document.querySelector(".line_cursor");
 var play_button = document.querySelector(".play");
 var speaker = null;
-function play() {
+var stream = null;
+function _play() {
   if (is_playing) {
     is_playing = false;
     console.log(test);
-    speaker.destroy();
+    speaker.stop();
     play_button.innerHTML = "<i class='fa-solid fa-play'></i>";
     track_bar_cursor.style.display = "none";
     clearInterval(interval);
@@ -1054,14 +1064,17 @@ function play() {
     is_playing = true;
     play_button.innerHTML = "<i class='fa-solid fa-pause'></i>";
     // create a speaker
-    speaker = new Speaker({
-      channels: 1,
-      sampleRate: 44100
+    /*speaker = new Howl({
+      src: ["sound.wav"],
+      ext: ['wav'],
+      html5: true,
+      autoplay: true
     });
+    stream = fs.createWriteStream("./sound.wav");
     //process.stdin.pipe(speaker);
     // play
     clearInterval(interval);
-    interval = setInterval(step, 441);
+    interval = setInterval(step, 1000);
     track_bar_cursor.style.display = "block";
   }
 }
@@ -1071,9 +1084,169 @@ function play() {
 /*
 44100 frames = 1 sec
 882 frames = 0.02 sec = 20 ms
-*/
+
 var buffer_size = 44100;
 var test = 0;
+function _step() {
+  // move cursor
+  cursor_pos++;
+  /*cursor.style.left = cursor_pos + "px";
+  //track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
+  track_bar_cursor.style.left = cursor_pos - tracks[0].content.scrollLeft + 97 + "px";
+  track_bar_cursor.style.top = track_view.scrollTop + "px";
+
+  // retrieve sound
+  (buffer = []).length = buffer_size;
+  buffer.fill(0);
+  for (var i = 0; i < tracks.length; i++) {
+    var frames = tracks[i].getFrames(buffer_size);
+    for (var j = 0; j < buffer_size; j++) {
+      buffer[j] += frames[j]===undefined ? 0 : Math.floor(frames[j]);
+    }
+  }
+  /*for (let i = 0; i < buffer_size; i++) {
+    buffer[i] = Math.floor(Math.random()*32767);
+  }
+  //buffer = Uint16Array.from(buffer);
+  //stream.write(buffer, (err) => {console.log(err);});
+  console.log(buffer);
+  test++;
+  let wav = new WaveFile();
+  wav.fromScratch(2, 44100, '16', buffer);
+  console.log(wav.toBuffer());
+  var file = fs.openSync("./sound.wav", 'w');
+  fs.writeFileSync(file, wav.toBuffer());
+  speaker = new Howl({
+    src: ["sound.wav"]
+  });
+  speaker.play();
+}
+
+
+var interval = null;
+// cursor is defined above as the bars_cursor
+var track_bar_cursor = document.querySelector(".line_cursor");
+var play_button = document.querySelector(".play");
+var speaker = null;
+var stream = null;
+function __play() {
+  if (is_playing) {
+    is_playing = false;
+    speaker.stop();
+    stream.close();
+    play_button.innerHTML = "<i class='fa-solid fa-play'></i>";
+    track_bar_cursor.style.display = "none";
+    clearInterval(interval);
+  } else {
+    is_playing = true;
+    play_button.innerHTML = "<i class='fa-solid fa-pause'></i>";
+    // create a speaker
+    speaker = new Howl({
+      src: ["sound.wav"],
+      ext: ['wav'],
+      html5: true,
+      autoplay: true
+    });
+    stream = fs.createWriteStream("sound.wav");
+    // play
+    clearInterval(interval);
+    interval = setInterval(step, 1000);
+    track_bar_cursor.style.display = "block";
+  }
+}
+
+// MAIN SOUND GENERATING FUNCTION
+// runs once every 'xsnap' ms
+44100 frames = 1 sec
+882 frames = 0.02 sec = 20 ms
+
+var buffer_size = 44100;
+var test = 0;
+function __step() {
+  // move cursor
+  cursor_pos++;
+  /*cursor.style.left = cursor_pos + "px";
+  //track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
+  track_bar_cursor.style.left = cursor_pos - tracks[0].content.scrollLeft + 97 + "px";
+  track_bar_cursor.style.top = track_view.scrollTop + "px";
+
+  // retrieve sound
+  (buffer = []).length = buffer_size;
+  buffer.fill(0);
+  for (var i = 0; i < tracks.length; i++) {
+    var frames = tracks[i].getFrames(buffer_size);
+    for (var j = 0; j < buffer_size; j++) {
+      buffer[j] += frames[j]===undefined ? 0 : Math.floor(frames[j]);
+    }
+  }
+  for (let i = 0; i < buffer_size; i++) {
+    buffer[i] = Math.floor(Math.random()*255);
+  }
+  buffer = Uint8Array.from(buffer);
+  //stream.write(buffer, (err) => {console.log(err);});
+  console.log(buffer);
+  test++;
+  //let wav = new WaveFile();
+  //wav.fromScratch(2, 44100, '16', buffer);
+  //console.log(wav.toBuffer());
+  //var file = fs.openSync("./sound.wav", 'w');
+  //fs.writeFileSync(file, wav.toBuffer());
+  stream.write(Buffer.from(buffer));
+}*/
+
+
+
+
+// cursor is defined above as the bars_cursor
+//var track_bar_cursor = document.querySelector(".line_cursor");
+//var play_button = document.querySelector(".play");
+//var speaker = null;
+//(temp = []).length = 44100;
+//for (let i = 0; i < 44100; i++) {temp[i] = Math.floor((Math.random()*2-1)*32767);}
+//let wav = new WaveFile();
+//wav.fromScratch(2, 44100, '16', [temp, temp]);
+//fs.writeFileSync("sound.wav", "");
+//let stream = fs.createWriteStream("sound.wav");
+//stream.write(wav.toBuffer());
+//fs.writeFileSync("sound.wav", wav.toBuffer());
+//speaker = new Howl({
+  //  src: wav.toBuffer(),
+  //  html5: true,
+  //});
+let interval = null;
+const buffer_size = 44100;
+let speaker = new Speaker();
+let wav = new WaveFile();
+let bufferStream = new stream.PassThrough();
+bufferStream.pipe(speaker);
+//fs.writeFileSync("sound.wav", wav.toBuffer());
+function play() {
+  if (is_playing) {
+    /*speaker.stop();
+    stream.end();
+    stream.destroy();
+    play_button.innerHTML = "<i class='fa-solid fa-play'></i>";
+    track_bar_cursor.style.display = "none";*/
+    bufferStream.end();
+    clearInterval(interval);
+  } else {
+    //stream.write(wav.toBuffer(), (err) => {console.log(err)});
+    //play_button.innerHTML = "<i class='fa-solid fa-pause'></i>";
+    // play
+    clearInterval(interval);
+    interval = setInterval(step, 500);
+    //track_bar_cursor.style.display = "block";
+  }
+  is_playing = !is_playing;
+}
+
+// MAIN SOUND GENERATING FUNCTION
+// runs once every 'xsnap' ms
+/*
+44100 frames = 1 sec
+882 frames = 0.02 sec = 20 ms
+*/
+//var test = 0;
 function step() {
   // move cursor
   cursor_pos++;
@@ -1088,19 +1261,17 @@ function step() {
   for (var i = 0; i < tracks.length; i++) {
     var frames = tracks[i].getFrames(buffer_size);
     for (var j = 0; j < buffer_size; j++) {
-      buffer[j] += frames[j]===undefined ? 0 : Math.floor(frames[j]/32767*255);
+      buffer[j] += frames[j]===undefined ? 0 : Math.floor(frames[j]);
     }
   }
-  /*for (let i = 0; i < buffer_size; i++) {
-    buffer[i] = Math.floor(Math.random()*255);
-  }*/
-  buffer = Uint8Array.from(buffer);
   console.log(buffer);
-  test++;
-  
-  speaker.write(buffer, (err) => {console.log(err);});
-  //speaker.end();
+  wav.fromScratch(2, 44100, '16', buffer);
+  bufferStream.write(wav.toBuffer());
 }
+
+
+
+
 
 // add key event listeners
 var control_down = false;
