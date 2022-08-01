@@ -1,7 +1,8 @@
 # butterDAWg
 FL Studio clone with Electron (WIP)
  
-It is not a 100% clone, but has some tweaks made by me
+It is not a 100% clone:
+there are some deviations from the original that I believe improve the UX
  
 Audio functionality partially implemented
  
