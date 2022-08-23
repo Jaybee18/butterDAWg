@@ -185,7 +185,105 @@
     </div>
   </header>
   <body>
+    <div class="color_picker" id="color_picker">
+      <div id="top">
+        <p>Color Selector</p>
+        <div class="tool_button" id="conf_xmark">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+      </div>
+      <div id="color_picker_inner">
+        <div id="color_picker_top">
+          <div class="color_picker_button"></div>
+          <div class="color_picker_button"></div>
+          <div class="color_picker_button"></div>
+          <div class="color_picker_button"></div>
+          <div class="color_picker_button"></div>
+        </div>
+        <div id="color_picker_mid">
+          <canvas width="255" height="255"></canvas>
+          <div id="luminance_slider"></div>
+        </div>
+        <div id="canvas_cursor"></div>
+        <div id="luminance_cursor"></div>
+        <div id="values">
+          <div id="color_picker_preview">
+            <p>#000000</p>
+          </div>
+          <div>
+            <div class="color_slider_wrapper"><p>Hue</p><div class="color_slider"><p>255</p></div></div>
+            <div class="color_slider_wrapper"><p>Saturation</p><div class="color_slider"><p>255</p></div></div>
+            <div class="color_slider_wrapper"><p>Luminance</p><div class="color_slider"><p>255</p></div></div>
+          </div>
+          <div>
+            <div class="color_slider_wrapper"><p>Red</p><div class="color_slider"><p>255</p></div></div>
+            <div class="color_slider_wrapper"><p>Green</p><div class="color_slider"><p>255</p></div></div>
+            <div class="color_slider_wrapper"><p>Blue</p><div class="color_slider"><p>255</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div id="bottom">
+        <div class="btn">
+          Reset
+        </div>
+        <div class="btn">
+          Apply
+        </div>
+      </div>
+    </div>
+    <div class="track_conf" id="track_config_menu">
+      <div style="pointer-events: none;">
+        <div id="conf_top">
+          <div class="tool_button" id="conf_icon">
+            <i class="fa-solid fa-caret-right"></i>
+          </div>
+          <input type="text" id="conf_name_input" class="conf_name">
+        </div>
+        <div id="conf_bottom">
+          <div class="tool_button" id="conf_b_caret">
+            <i class="fa-solid fa-caret-right"></i>
+          </div>
+          <div class="tool_button" id="conf_check">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="tool_button" id="conf_xmark">
+            <i class="fa-solid fa-xmark"></i>
+          </div>
+          <p>Track X name</p>
+        </div>
+      </div>
+      <div id="color_preview"></div>
+    </div>
     <div id="drag_container"></div>
+    <div class="context_menu" id="track_context_menu">
+      <div class="context_item">Rename, color and icon...</div>
+      <div class="context_item">Change color...</div>
+      <div class="context_item">Change icon...</div>
+      <div class="context_item">Auto name</div>
+      <div class="context_item">Auto name clips</div>
+      <div class="context_spacer"></div>
+      <div class="context_item">Track mode</div>
+      <div class="context_item">Performance settings</div>
+      <div class="context_spacer"></div>
+      <div class="context_item">Size</div>
+      <div class="context_item">Lock to this size</div>
+      <div class="context_spacer"></div>
+      <div class="context_item">Group with above track</div>
+      <div class="context_item">Auto color group</div>
+      <div class="context_spacer"></div>
+      <div class="context_item">Current clip source</div>
+      <div class="context_item">Lock to content</div>
+      <div class="context_item">Merge pattern clips</div>
+      <div class="context_item">Consolidate this clip</div>
+      <div class="context_item">Mute all clips</div>
+      <div class="context_item">Unmute all clips</div>
+      <div class="context_spacer"></div>
+      <div class="context_item">Insert one</div>
+      <div class="context_item">Delete one</div>
+      <div class="context_spacer"></div>
+      <div class="context_item">Move up</div>
+      <div class="context_item">Move down</div>
+    </div>
     <div id="content">
       <div class="sidebar" id="sidebar">
         <div class="sidebar_header">

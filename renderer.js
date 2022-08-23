@@ -17,6 +17,8 @@ function length_in_beats() {return track_length/60*bpm;}
 function length_in_px() {return length_in_beats()*xsnap;}
 function progress_in_percent() {return cursor_pos/length_in_px();}
 
+var deactivate_space_to_play = false;
+
 // contains the currently dragged element
 var current_drag_element = null;
 
@@ -79,6 +81,346 @@ track_view.addEventListener("mousemove", (e) => {
     delta_delta_x = deltaX;
     delta_delta_y = deltaY;
   }
+});
+
+// context menu disappear
+let context_menu = document.getElementById("track_context_menu");
+let color_picker_menu = document.getElementById("color_picker");
+let current_context_track = null; // this will be set when the context menu is opened on one track (to the given track)
+let track_context_items = context_menu.querySelectorAll(".context_item");
+function toggle_track_context_menu(e, track) {
+  if (e === undefined) {
+    context_menu.style.display = "none";
+  } else {
+    context_menu.style.left = e.clientX + "px";
+    context_menu.style.top = e.clientY + "px";
+    context_menu.style.display = "block";
+    current_context_track = track;
+  }
+}
+document.querySelector("body").addEventListener("click", (e) => {
+  if (e.target.offsetParent != context_menu) {
+    toggle_track_context_menu();
+  }
+});
+for (let i = 0; i < track_context_items.length; i++) {
+  switch (i) {
+    case 0:
+      track_context_items[i].addEventListener("click", (e) => {
+        showTrackConfig(e);
+      });
+      break;
+    case 1:
+      track_context_items[i].addEventListener("click", (e) => {
+        toggle_track_context_menu();
+        color_picker.style.display = "block";
+      });
+      break;
+  
+    default:
+      break;
+  }
+}
+
+// color picker
+class ColorPicker {
+  constructor(x, y) {
+    this.color = null;
+    color_picker.style.display = "block";
+    /*let temp_wrapper = document.createElement("div");
+    temp_wrapper.innerHTML = '<div class="context_menu" id="color_picker">\
+                                <div style="display: flex; pointer-events: none;">\
+                                  <div id="display_color"></div>\
+                                  <input type="text"></input>\
+                                </div>\
+                                <div style="display: flex; padding: 2px; pointer-events: none;">\
+                                  <div class="tool_button" id="check">\
+                                    <i class="fa-solid fa-check"></i>\
+                                  </div>\
+                                  <div class="tool_button" id="xmark">\
+                                    <i class="fa-solid fa-xmark"></i>\
+                                  </div>\
+                                </div>\
+                              </div>';
+    this.element = temp_wrapper.firstChild;
+    document.body.appendChild(this.element);
+    this.element.style.display = "block";
+
+    this.element.style.left = x + "px";
+    this.element.style.top = y + "px";*/
+
+    this.initializeEventListeners();
+  }
+
+  initializeEventListeners() {
+    /*var temp_this = this;
+    this.element.querySelector("#check").addEventListener("click", () => {
+      let test = this.color.toString();
+      current_context_track.setColor(new Color(test));
+      this.close();
+    });
+    this.element.querySelector("#xmark").addEventListener("click", () => {
+      this.close();
+    });
+    let color_picker_drag_xoffset = 0;
+    let color_picker_drag_yoffset = 0;
+    function color_picker_movement(e) {
+      temp_this.element.style.left = e.clientX - color_picker_drag_xoffset + "px";
+      temp_this.element.style.top = e.clientY - color_picker_drag_yoffset + "px";
+    }
+    this.element.addEventListener("mousedown", (e) => {
+      if (e.target != this.element) return;
+      color_picker_drag_xoffset = e.clientX - this.element.offsetLeft;
+      color_picker_drag_yoffset = e.clientY - this.element.offsetTop;
+      this.element.addEventListener("mousemove", color_picker_movement);
+    });
+    this.element.addEventListener("mouseup", () => {
+      this.element.removeEventListener("mousemove", color_picker_movement);
+    });
+    let color_preview = this.element.querySelector("#display_color");
+    this.element.querySelector("input").addEventListener("change", (e) => {
+      color_preview.style.backgroundColor = e.target.value;
+      this.color = e.target.value;
+    });*/
+  }
+
+  close() {
+    this.element.remove();
+  }
+}
+
+// track config
+let track_config_menu = document.getElementById("track_config_menu");
+let track_config_xoffset = 0;
+let track_config_yoffset = 0;
+function track_config_movement(e) {
+  track_config_menu.style.left = e.clientX - track_config_xoffset + "px";
+  track_config_menu.style.top = e.clientY - track_config_yoffset + "px";
+}
+track_config_menu.addEventListener("mousedown", (e) => {
+  if (e.target != track_config_menu) return;
+  track_config_xoffset = e.clientX - track_config_menu.offsetLeft;
+  track_config_yoffset = e.clientY - track_config_menu.offsetTop;
+  document.addEventListener("mousemove", track_config_movement);
+});
+document.addEventListener("mouseup", () => {
+  document.removeEventListener("mousemove", track_config_movement);
+});
+track_config_menu.querySelector("#conf_check").addEventListener("click", () => {
+  current_context_track.setTitle(track_config_menu.querySelector("#conf_name_input").value);
+  track_config_menu.style.display = "none";
+  deactivate_space_to_play = false;
+});
+track_config_menu.querySelector("#conf_xmark").addEventListener("click", () => {
+  track_config_menu.style.display = "none";
+  deactivate_space_to_play = false;
+});
+function showTrackConfig(e) {
+  toggle_track_context_menu();
+  
+  track_config_menu.querySelector("#conf_bottom p").innerText = current_context_track.title;
+  
+  track_config_menu.style.left = e.clientX + "px";
+  track_config_menu.style.top = e.clientY + "px";
+  track_config_menu.style.display = "flex";
+  
+  deactivate_space_to_play = true;
+  track_config_menu.querySelector("#conf_name_input").value = current_context_track.title;
+}
+
+class Color {
+  constructor (hex, g, b) {
+    if (g === undefined && b === undefined) {
+      this.color = hex;
+    } else {
+      this.color = "#" + hex.toString(16).padStart(2, "0") + g.toString(16).padStart(2, "0") + b.toString(16).padStart(2, "0");
+    }
+  }
+  fromRGB(r, g, b) { // obsolete
+    return new Color(r.toString(16), g.toString(16), b.toString(16));
+  }
+  toRGB() {
+    var r = Number.parseInt(this.color.substring(1, 3), 16);
+    var g = Number.parseInt(this.color.substring(3, 5), 16);
+    var b = Number.parseInt(this.color.substring(5, 7), 16);
+    return [r, g, b];
+  }
+  toRGBString() {
+    var values = this.toRGB();
+    return "rgb(" + values[0] + "," + values[1] + "," + values[2] + ")";
+  }
+  darken(magnitude) {
+    // magnitude = value from 0 to 255
+    var values = this.toRGB();
+    var a = values.map((v) => {return Math.max(v - magnitude, 0).toString(16).padStart(2, "0");});
+    return "#" + a[0] + a[1] + a[2];
+  }
+  lighten(magnitude) {
+    // magnitude = value from 0 to 255
+    var values = this.toRGB();
+    var a = values.map((v) => {return Math.min(v + magnitude, 255).toString(16).padStart(2, "0");});
+    return "#" + a[0] + a[1] + a[2];
+  }
+  transparent(magnitude) {
+    return this.color + magnitude.toString(16);
+  }
+}
+
+// new color picker
+var color_picker = document.getElementById("color_picker");
+let [color_picker_reset, color_picker_confirm] = document.querySelectorAll(".color_picker > #bottom > .btn");
+let color_picker_drag_handle = document.querySelector(".color_picker > #top");
+var color_picker_canvas = document.querySelector(".color_picker canvas");
+var color_picker_cursor = document.getElementById("canvas_cursor");
+var color_picker_preview = document.getElementById("color_picker_preview");
+let color_picker_preview_code = document.querySelector("#color_picker_preview p");
+var luminance_slider = document.getElementById("luminance_slider");
+var luminance_cursor = document.getElementById("luminance_cursor");
+let sliders = document.querySelectorAll(".color_slider > p");
+var ctx = color_picker_canvas.getContext("2d");
+var color_picker_width = 255;
+var color_picker_height = 255;
+var luminance = 125;
+var color_picker_cursor_pos = {"x": 0, "y": 0};
+var current_color = {"r": 255, "g": 0, "b": 0, "a": 255};
+var canvasData = ctx.getImageData(0, 0, color_picker_width, color_picker_height);
+/** https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
+ * Converts an HSL color value to RGB. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+ * Assumes h, s, and l are contained in the set [0, 1] and
+ * returns r, g, and b in the set [0, 255].
+ *
+ * @param   {number}  h       The hue
+ * @param   {number}  s       The saturation
+ * @param   {number}  l       The lightness
+ * @return  {Array}           The RGB representation
+ */
+ function hslToRgb(h, s, l){
+  var r, g, b;
+
+  if(s == 0){
+      r = g = b = l; // achromatic
+  }else{
+      var hue2rgb = function hue2rgb(p, q, t){
+          if(t < 0) t += 1;
+          if(t > 1) t -= 1;
+          if(t < 1/6) return p + (q - p) * 6 * t;
+          if(t < 1/2) return q;
+          if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+      }
+
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      var p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+  }
+
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+// https://stackoverflow.com/questions/7812514/drawing-a-dot-on-html5-canvas
+// That's how you define the value of a pixel
+function drawPixel (x, y, r, g, b, a) {
+  var index = (x + y * color_picker_width) * 4;
+  
+  canvasData.data[index + 0] = r;
+  canvasData.data[index + 1] = g;
+  canvasData.data[index + 2] = b;
+  canvasData.data[index + 3] = a;
+}
+
+// That's how you update the canvas, so that your
+// modification are taken in consideration
+function updateCanvas() {
+  ctx.putImageData(canvasData, 0, 0);
+}
+for (let i = 0; i < color_picker_width; i++) {
+  for (let j = 0; j < color_picker_height; j++) {
+    let h = i / color_picker_width;
+    let s = 1 - (j*(200/240) / color_picker_height);
+    let l = 120 / 240;
+    let [r, g, b] = hslToRgb(h, s, l);
+    drawPixel(i, j, r, g, b, 255);
+  }
+}
+updateCanvas();
+
+function updateColorPickerPreview() {
+  let h = color_picker_cursor_pos.x/color_picker_width;
+  let s = 1 - (color_picker_cursor_pos.y/color_picker_height);
+  let l = 1 - (luminance/255);
+  let [r, g, b] = hslToRgb(h, s, l);
+  current_color.r = r;
+  current_color.g = g;
+  current_color.b = b;
+  color_picker_preview.style.background = "rgb(" + r + "," + g + "," + b + ")";
+  
+  var index = (color_picker_cursor_pos.x + color_picker_cursor_pos.y * color_picker_width) * 4;
+  luminance_slider.style.backgroundColor = "rgba(" + canvasData.data[index + 0] + "," + canvasData.data[index + 1] + "," + canvasData.data[index + 2] + "," + canvasData.data[index + 3] + ")";
+
+  // update the color values below
+  // idfk why these are such weird integer values
+  sliders[0].innerText = Math.round(h * 358);
+  sliders[1].innerText = Math.round(s * 239);
+  sliders[2].innerText = Math.round(l * 240);
+  sliders[3].innerText = Math.round(r);
+  sliders[4].innerText = Math.round(g);
+  sliders[5].innerText = Math.round(b);
+
+  color_picker_preview_code.innerText = new Color("").fromRGB(r, g, b).color;
+}
+updateColorPickerPreview();
+
+color_picker_confirm.addEventListener("click", () => {
+  current_context_track.setColor(new Color(current_color.r, current_color.g, current_color.b));
+  color_picker.style.display = "none";
+});
+
+function color_picker_cursor_movement(e) {
+  color_picker_cursor_pos.x = Math.min(Math.max(0, e.clientX - color_picker.offsetLeft - 26), 250);
+  color_picker_cursor_pos.y = Math.min(Math.max(0, e.clientY - color_picker.offsetTop - 80), 250);
+  color_picker_cursor.style.left = color_picker_cursor_pos.x + 26 + "px";
+  color_picker_cursor.style.top = color_picker_cursor_pos.y + 76 + "px";
+
+  updateColorPickerPreview()
+}
+color_picker_canvas.addEventListener("mousedown", () => {
+  document.addEventListener("mousemove", color_picker_cursor_movement);
+});
+document.addEventListener("mouseup", () => {
+  document.removeEventListener("mousemove", color_picker_cursor_movement);
+});
+
+function color_picker_luminance_movement(e) {
+  luminance = Math.max(Math.min(e.clientY - color_picker.offsetTop - 80, 250), 0);
+  luminance_cursor.style.top = luminance + 79 - 6 + "px";
+  updateColorPickerPreview()
+}
+luminance_slider.addEventListener("mousedown", () => {
+  document.addEventListener("mousemove", color_picker_luminance_movement);
+});
+document.addEventListener("mouseup", () => {
+  document.removeEventListener("mousemove", color_picker_luminance_movement);
+});
+
+let color_picker_offset = {"x": 0, "y": 0};
+function color_picker_movement(e) {
+  color_picker.style.left = e.clientX - color_picker_offset.x + "px";
+  color_picker.style.top = e.clientY - color_picker_offset.y + "px";
+}
+color_picker_drag_handle.addEventListener("mousedown", (e) => {
+  color_picker_offset.x = e.clientX - color_picker.offsetLeft;
+  color_picker_offset.y = e.clientY - color_picker.offsetTop;
+  document.addEventListener("mousemove", color_picker_movement);
+});
+document.addEventListener("mouseup", () => {
+  document.removeEventListener("mousemove", color_picker_movement);
+});
+
+let color_picker_close_button = document.querySelector(".color_picker #conf_xmark");
+color_picker_close_button.addEventListener("mousedown", () => {
+  color_picker.style.display = "none";
 });
 
 // palette functionality
@@ -173,39 +515,6 @@ document.addEventListener("mouseup", () => {
   }
 });
 
-class Color {
-  constructor (hex) {
-    this.color = hex;
-  }
-  static fromRGB(r, g, b) {
-    return new Color(r.toString(16), g.toString(16), b.toString(16));
-  }
-  toRGB() {
-    var r = Number.parseInt(this.color.substring(1, 3), 16);
-    var g = Number.parseInt(this.color.substring(3, 5), 16);
-    var b = Number.parseInt(this.color.substring(5, 7), 16);
-    return [r, g, b];
-  }
-  toRGBString() {
-    var values = this.toRGB();
-    return "rgb(" + values[0] + "," + values[1] + "," + values[2] + ")";
-  }
-  darken(magnitude) {
-    // magnitude = value from 0 to 255
-    var values = this.toRGB();
-    var a = values.map((v) => {return Math.max(v - magnitude, 0).toString(16).padStart(2, "0");});
-    return "#" + a[0] + a[1] + a[2];
-  }
-  lighten(magnitude) {
-    // magnitude = value from 0 to 255
-    var values = this.toRGB();
-    var a = values.map((v) => {return Math.min(v + magnitude, 255).toString(16).padStart(2, "0");});
-    return "#" + a[0] + a[1] + a[2];
-  }
-  transparent(magnitude) {
-    return this.color + magnitude.toString(16);
-  }
-}
 
 var tracks = [];
 var resizing_track = null;
@@ -262,6 +571,7 @@ class Track {
     this.description.style.backgroundColor = this.color.color;
     this.description.style.color = "";
     this.description.style.borderRightColor = this.color.lighten(10);
+    this.description.style.background = this.color.color;
   }
 
   disable() {
@@ -270,6 +580,7 @@ class Track {
     this.description.style.backgroundColor = this.color.darken(20);
     this.description.style.color = "#ffffff45";
     this.description.style.borderRightColor = this.color.darken(20);
+    this.description.style.background = "gray repeating-linear-gradient(45deg, transparent, transparent 2px, red 2px, red 4px)"
   }
 
   updateData() {
@@ -320,7 +631,7 @@ class Track {
     // TODO maybe optimize this
     var resize_handle = this.element.querySelector("#track_resize");
     var l = this.element;
-    resize_handle.onmousedown = function(e) {
+    resize_handle.onmousedown = function() {
       resizing_track = l;
       return false;
     };
@@ -351,7 +662,7 @@ class Track {
   }
   
   initializeEventListeners() {
-    this.element.addEventListener("mouseenter", (e) => {
+    this.element.addEventListener("mouseenter", () => {
       // help
       header_help_text.innerHTML = this.title;
       
@@ -419,16 +730,23 @@ class Track {
 
     // radio button on click
     addRadioEventListener(this.element.querySelector(".radio_btn"), this);
+
+    // context menu
+    this.description.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      current_context_track = this;
+      toggle_track_context_menu(e, this);
+    });
   }
 
   setTitle(title) {
     this.element.querySelector("#track_title").innerHTML = title;
-    //this.title = title;
+    this.title = title;
   }
 
   setColor(color) {
     this.color = color;
-    this.description.style.backgroundColor = this.color.color;
+    this.description.style.background = this.color.color;
     this.description.style.borderColor = this.color.darken(8) + " " + this.color.lighten(10);
   }
 
@@ -1277,7 +1595,7 @@ function step() {
 var control_down = false;
 var alt_down = false;
 document.addEventListener("keypress", (e) => {
-  if (e.code === "Space") {
+  if (e.code === "Space" && !deactivate_space_to_play) {
     e.preventDefault();
     play();
   }
