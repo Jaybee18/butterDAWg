@@ -703,6 +703,45 @@ main::-webkit-scrollbar {
     background-color: #00ff2b;
 }
 
+#upper_luminance_limiter {
+    width: inherit;
+    height: 75px;
+    backdrop-filter: grayscale(1);
+}
+
+#lower_luminance_limiter {
+    width: inherit;
+    height: 90px;
+    backdrop-filter: grayscale(1);
+    position: absolute;
+    bottom: 0px;
+}
+
+#upper_canvas_limiter {
+    position: absolute;
+    width: 255px;
+    height: 110px;
+    top: 0px;
+    backdrop-filter: grayscale(1);
+}
+
+#lower_canvas_limiter {
+    position: absolute;
+    width: 255px;
+    bottom: -1px;
+    height: 30px;
+    backdrop-filter: grayscale(1);
+}
+
+.color_picker_button .fa-lock{
+    transform: scale(0.7);
+}
+.color_picker_button #lock:hover {
+    outline: solid 2px yellow!important;
+    color: yellow!important;
+    outline-offset: 0px;
+}
+
 .color_picker #values {
     height: 80px;
     display: flex;

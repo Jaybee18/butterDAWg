@@ -377,9 +377,13 @@ color_picker_confirm.addEventListener("click", () => {
   color_picker.style.display = "none";
 });
 
+let canvas_min = 75;
+document.getElementById("upper_canvas_limiter").style.height = canvas_min + "px";
+let canvas_max = 30;
+document.getElementById("lower_canvas_limiter").style.height = canvas_max + "px";
 function color_picker_cursor_movement(e) {
   color_picker_cursor_pos.x = Math.min(Math.max(0, e.clientX - color_picker.offsetLeft - 26), 250);
-  color_picker_cursor_pos.y = Math.min(Math.max(0, e.clientY - color_picker.offsetTop - 80), 250);
+  color_picker_cursor_pos.y = Math.min(Math.max(0 + (colors_limited?canvas_min:0), e.clientY - color_picker.offsetTop - 80), 250 - (colors_limited?canvas_max:0));
   color_picker_cursor.style.left = color_picker_cursor_pos.x + 26 + "px";
   color_picker_cursor.style.top = color_picker_cursor_pos.y + 76 + "px";
 
@@ -392,8 +396,12 @@ document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", color_picker_cursor_movement);
 });
 
+let lum_min = 75;
+document.getElementById("upper_luminance_limiter").style.height = lum_min + "px";
+let lum_max = 90;
+document.getElementById("lower_luminance_limiter").style.height = lum_max + "px";
 function color_picker_luminance_movement(e) {
-  luminance = Math.max(Math.min(e.clientY - color_picker.offsetTop - 80, 250), 0);
+  luminance = Math.max(Math.min(e.clientY - color_picker.offsetTop - 80, 250 - (colors_limited?lum_max:0)), 0 + (colors_limited?lum_min:0));
   luminance_cursor.style.top = luminance + 79 - 6 + "px";
   updateColorPickerPreview()
 }
@@ -422,6 +430,23 @@ let color_picker_close_button = document.querySelector(".color_picker #conf_xmar
 color_picker_close_button.addEventListener("mousedown", () => {
   color_picker.style.display = "none";
 });
+
+let luminance_upper = document.getElementById("upper_luminance_limiter");
+let luminance_lower = document.getElementById("lower_luminance_limiter");
+let canvas_upper = document.getElementById("upper_canvas_limiter");
+let canvas_lower = document.getElementById("lower_canvas_limiter");
+var colors_limited = true;
+function color_limitations() {
+  colors_limited = !colors_limited;
+  luminance_upper.style.display = colors_limited ? "block" : "none";
+  luminance_lower.style.display = colors_limited ? "block" : "none";
+  canvas_upper.style.display = colors_limited ? "block" : "none";
+  canvas_lower.style.display = colors_limited ? "block" : "none";
+  let temp = {"clientY": luminance + color_picker.offsetTop + 80, "clientX": color_picker_cursor_pos.x + color_picker.offsetLeft + 26};
+  color_picker_luminance_movement(temp);
+  temp.clientY = color_picker_cursor_pos.y + color_picker.offsetTop + 80;
+  color_picker_cursor_movement(temp);
+}
 
 // palette functionality
 // TODO event listeners setup may be a bit inefficient
@@ -580,7 +605,8 @@ class Track {
     this.description.style.backgroundColor = this.color.darken(20);
     this.description.style.color = "#ffffff45";
     this.description.style.borderRightColor = this.color.darken(20);
-    this.description.style.background = "gray repeating-linear-gradient(45deg, transparent, transparent 2px, red 2px, red 4px)"
+    this.description.style.borderLeftColor = this.color.darken(20);
+    this.description.style.background = "repeating-linear-gradient(45deg, transparent, transparent 2px, #0000000a 2px, #0000000a 4px) " + this.color.darken(20);
   }
 
   updateData() {

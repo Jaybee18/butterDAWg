@@ -198,11 +198,18 @@
           <div class="color_picker_button"></div>
           <div class="color_picker_button"></div>
           <div class="color_picker_button"></div>
-          <div class="color_picker_button"></div>
+          <div class="color_picker_button" onclick="color_limitations()"><div class="tool_button" id="lock"><i class="fa-solid fa-lock"></i></div></div>
         </div>
         <div id="color_picker_mid">
-          <canvas width="255" height="255"></canvas>
-          <div id="luminance_slider"></div>
+          <div>
+            <canvas width="255" height="255"></canvas>
+            <div id="upper_canvas_limiter"></div>
+            <div id="lower_canvas_limiter"></div>
+          </div>
+          <div id="luminance_slider">
+            <div id="upper_luminance_limiter"></div>
+            <div id="lower_luminance_limiter"></div>
+          </div>
         </div>
         <div id="canvas_cursor"></div>
         <div id="luminance_cursor"></div>
