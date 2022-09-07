@@ -1,9 +1,10 @@
 # butterDAWg
- FL Studio clone with Electron (WIP)
+FL Studio clone with Electron (WIP)
  
- It is not a 100% clone, but has some tweaks made by me
+It is not a 100% clone:
+there are some deviations from the original that I believe improve the UX
  
- Audio functionality is about to be implemented
+Audio functionality partially implemented
  
 current (version 0.3.2):
 ![grafik](https://user-images.githubusercontent.com/64578396/179958914-d864f78e-aea7-4405-9f14-c46003c45ade.png)
