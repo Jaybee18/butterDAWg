@@ -366,6 +366,9 @@ class Track {
       this.color = color;
       this.description.style.background = this.color.color;
       this.description.style.borderColor = this.color.darken(8) + " " + this.color.lighten(10);
+      this.samples.forEach(s => {
+        s.setColor(color);
+      });
     }
   
     addSample(sample) {

@@ -93,15 +93,15 @@ document.addEventListener("mouseup", () => {
 
 // draggable class for objects that will be draggable
 class Draggable {
-initializeDragListener() {
-    this.element.addEventListener("mousedown", () => {
-    current_drag_element = this;
-    });
-}
+  initializeDragListener() {
+      this.element.addEventListener("mousedown", () => {
+      current_drag_element = this;
+      });
+  }
 
-getDragElement() {
-    throw "Abstract function of Draggable is not implemented";
-}
+  getDragElement() {
+      throw "Abstract function of Draggable is not implemented";
+  }
 }
   
 // add sidebar tree functionality
