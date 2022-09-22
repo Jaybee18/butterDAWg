@@ -125,6 +125,11 @@ for (let i = 0; i < track_context_items.length; i++) {
         color_picker.style.display = "block";
       });
       break;
+    case 8:
+      track_context_items[i].addEventListener("click", () => {
+        toggle_track_context_menu();
+        current_context_track.resize_locked = !current_context_track.resize_locked;
+      });
   
     default:
       break;
@@ -145,6 +150,7 @@ class Track {
       this.data = new Array(400*44100);
       this.buffer_position = 0;
       this.enabled = true;
+      this.resize_locked = false;
   
       // construct own element
       var template = document.getElementById("track_template");
@@ -249,13 +255,15 @@ class Track {
       // TODO maybe optimize this
       var resize_handle = this.element.querySelector("#track_resize");
       var l = this.element;
+      let temp_this = this;
       resize_handle.onmousedown = function() {
+        if (temp_this.resize_locked) {return false;}
         resizing_track = l;
         return false;
       };
   
       document.getElementById("tracks").onmousemove = function(e) {
-        if (resizing_track === null) {
+        if (resizing_track === null || temp_this.resize_locked) {
           return false;
         }
   
@@ -276,6 +284,7 @@ class Track {
     }
   
     resizeHeight(delta) {
+      if (this.resize_locked) {return;}
       this.element.style.height = this.element.clientHeight - delta + "px";
     }
     
