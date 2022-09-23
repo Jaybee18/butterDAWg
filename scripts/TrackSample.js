@@ -29,7 +29,8 @@ class TrackSample {
   
     resize() {
       // resizes the sample according to the current xsnap value
-      this.width = this.item.getDuration()*(bpm/60*xsnap);
+      console.log(this.item.getDuration());
+      this.width = this.item.getDuration()*(xsnap*4   /8   *   (bpm/60));
       this.element.style.width = this.width + "px";
       this.resizeCanvas(this.width, 200);
     }
@@ -78,6 +79,7 @@ class TrackSample {
   
       var oldX = 0;
       var initial_grab_offset = 0;
+      let temp_this = this;
       function elementDrag(e) {
         e.preventDefault();
         var t = currently_hovered_track();
@@ -97,7 +99,7 @@ class TrackSample {
         newX = Math.max(newX, 0);
         a.style.top = "0px";
         a.style.left = newX + "px";
-        this.x = newX;
+        temp_this.x = newX;
       }
       this.element.querySelector(".track_object_drag_handle").addEventListener("mousedown", (e) => {
         e.preventDefault();
@@ -119,11 +121,10 @@ class TrackSample {
         var newWidth = mouse_down_width - delta;
         a.style.width = newWidth + "px";
       }
-      var local = this;
       right_resize.addEventListener("mousedown", (e) => {
         e.preventDefault();
         mouse_down_position = e.clientX;
-        mouse_down_width = Number.parseFloat(window.getComputedStyle(local.element).width.replace("px", ""));
+        mouse_down_width = Number.parseFloat(window.getComputedStyle(temp_this.element).width.replace("px", ""));
         document.addEventListener("mousemove", right_resize_listener);
       });
       document.addEventListener("mouseup", () => {
