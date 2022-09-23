@@ -200,6 +200,18 @@ class Track {
      console.log(this.data.slice(this.buffer_position - size, this.buffer_position));
      return this.data.slice(this.buffer_position - size, this.buffer_position);
     }
+
+    play() {
+      // play method gets called every 10? ms
+      // search for any samples that are registered at that current
+      // timestamp, those have to be played in the current audio context
+      // immediatly
+      this.samples.forEach(sample => {
+        if (pixels_to_ms(sample.x) === current_time) {
+          sample.play();
+        }
+      });
+    }
   
     enable() {
       this.enabled = true;

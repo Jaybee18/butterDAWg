@@ -7,6 +7,10 @@ class TrackSample {
       this.color = null;
       this.depth_max = item.depth_max;
       this.x = 0;
+      this.timestamp = 0; // timestep at which this sample is registered in a track
+
+      this.sample_buffer = null;
+      this.sample_source = null;
   
       // construct own element
       var template = document.getElementById("track_sample_object");
@@ -19,6 +23,7 @@ class TrackSample {
       this.resize()
       this.drawCanvas(); 
       this.initializeEventListeners();
+      this.initializeAudio();
     }
   
     move(x, y) {
@@ -130,6 +135,22 @@ class TrackSample {
       document.addEventListener("mouseup", () => {
         document.removeEventListener("mousemove", right_resize_listener);
     });
+    }
+
+    initializeAudio() {
+      this.sample_buffer = audiocontext.createBuffer(1, audiocontext.sampleRate, audiocontext.sampleRate*2);
+      this.sample_buffer.copyToChannel(Float32Array.from(this.data), 0);
+      this.sample_source = audiocontext.createBufferSource();
+      this.sample_source.connect(audiocontext.destination);
+      this.sample_source.buffer = this.sample_buffer;
+    }
+
+    play() {
+      this.sample_source.start();
+    }
+
+    stop() {
+      this.sample_source.stop();
     }
   }
   
