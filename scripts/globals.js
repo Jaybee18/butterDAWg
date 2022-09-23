@@ -5,9 +5,9 @@ var deactivate_space_to_play = false;
 
 const fs = require("fs");
 const wavefile = require("wavefile");
-const Speaker = require("speaker");
-const stream = require("stream");
-var {Howl, Howler} = require("howler");
+//const Speaker = require("speaker");
+//const stream = require("stream");
+//var {Howl, Howler} = require("howler");
 const { WaveFile } = require("wavefile");
 
 var cumulativeOffset = function(element) {

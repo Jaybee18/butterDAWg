@@ -1,3 +1,4 @@
+const { WaveFile } = require("wavefile");
 
 // palette functionality
 // TODO event listeners setup may be a bit inefficient
@@ -206,7 +207,7 @@ class Item extends Draggable{
 
   loadData() {
     // Load a wav file buffer as a WaveFile object
-    this.file = new wavefile.WaveFile(fs.readFileSync(this.contents));
+    this.file = new WaveFile(fs.readFileSync(this.contents));
     this.depth = this.file.bitDepth;
     switch (this.depth) {
       case "16":

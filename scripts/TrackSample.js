@@ -6,7 +6,7 @@ class TrackSample {
       this.item = item;
       this.color = null;
       this.depth_max = item.depth_max;
-      //this.x = 0;
+      this.x = 0;
   
       // construct own element
       var template = document.getElementById("track_sample_object");
@@ -24,7 +24,7 @@ class TrackSample {
     move(x, y) {
       this.element.style.left = this.element.offsetLeft + x + "px";
       this.element.style.top = this.element.offsetTop + y + "px";
-      //this.x = this.element.offsetLeft + x;
+      this.x = this.element.offsetLeft + x;
     }
   
     resize() {
@@ -97,7 +97,7 @@ class TrackSample {
         newX = Math.max(newX, 0);
         a.style.top = "0px";
         a.style.left = newX + "px";
-        //this.x = newX;
+        this.x = newX;
       }
       this.element.querySelector(".track_object_drag_handle").addEventListener("mousedown", (e) => {
         e.preventDefault();
