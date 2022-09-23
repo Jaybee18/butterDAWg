@@ -130,12 +130,42 @@ for (let i = 0; i < track_context_items.length; i++) {
         toggle_track_context_menu();
         current_context_track.resize_locked = !current_context_track.resize_locked;
       });
+      break;
+    case 19:
+      // up
+      track_context_items[i].addEventListener("click", () => {
+        toggle_track_context_menu();
+        let a = tracks.indexOf(current_context_track);
+        let b = tracks.indexOf(current_context_track)-1;
+        if (b < 0) {return;}
+        // swap HTML elements
+        track_view.insertBefore(current_context_track.element, tracks[tracks.indexOf(current_context_track)-1].element);
+        // swap tracks-array entries
+        let tmp = tracks[a];
+        tracks[a] = tracks[b];
+        tracks[b] = tmp;
+      });
+      break;
+    case 20:
+      // down
+      track_context_items[i].addEventListener("click", () => {
+        toggle_track_context_menu();
+        let a = tracks.indexOf(current_context_track);
+        let b = tracks.indexOf(current_context_track)+1;
+        if (b === tracks.length) {return;}
+        // swap HTML elements
+        track_view.insertBefore(current_context_track.element, tracks[tracks.indexOf(current_context_track)+2].element);
+        // swap tracks-array entries
+        let tmp = tracks[a];
+        tracks[a] = tracks[b];
+        tracks[b] = tmp;
+      });
+      break;
   
     default:
       break;
   }
 }
-
 
 //
 // Track class definition
