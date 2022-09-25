@@ -1,3 +1,6 @@
+const Speaker = require("speaker");
+var {Howl, Howler} = require("howler");
+
 
 var help_text = document.getElementById("header_help_text");
 var xsnap = 20;
