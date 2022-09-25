@@ -412,6 +412,8 @@ function __step() {
   //  src: wav.toBuffer(),
   //  html5: true,
   //});
+
+/*
 let interval = null;
 const buffer_size = 44100;
 let speaker = new Speaker();
@@ -425,7 +427,7 @@ function play() {
     stream.end();
     stream.destroy();
     play_button.innerHTML = "<i class='fa-solid fa-play'></i>";
-    track_bar_cursor.style.display = "none";*/
+    track_bar_cursor.style.display = "none";
     bufferStream.end();
     clearInterval(interval);
   } else {
@@ -444,7 +446,7 @@ function play() {
 /*
 44100 frames = 1 sec
 882 frames = 0.02 sec = 20 ms
-*/
+
 //var test = 0;
 function step() {
   // move cursor
@@ -452,7 +454,7 @@ function step() {
   /*cursor.style.left = cursor_pos + "px";
   //track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
   track_bar_cursor.style.left = cursor_pos - tracks[0].content.scrollLeft + 97 + "px";
-  track_bar_cursor.style.top = track_view.scrollTop + "px";*/
+  track_bar_cursor.style.top = track_view.scrollTop + "px";
 
   // retrieve sound
   (buffer = []).length = buffer_size;
@@ -467,7 +469,7 @@ function step() {
   wav.fromScratch(2, 44100, '16', buffer);
   bufferStream.write(wav.toBuffer());
 }
-
+*/
 
 
 

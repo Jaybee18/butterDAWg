@@ -51,9 +51,18 @@ track_view.addEventListener("mousemove", (e) => {
   }
 });
 
-//
-// show track context menu
-//
+/*
+ *     ██████╗ ██████╗ ███╗   ██╗████████╗███████╗██╗  ██╗████████╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
+ *    ██╔════╝██╔═══██╗████╗  ██║╚══██╔══╝██╔════╝╚██╗██╔╝╚══██╔══╝    ████╗ ████║██╔════╝████╗  ██║██║   ██║
+ *    ██║     ██║   ██║██╔██╗ ██║   ██║   █████╗   ╚███╔╝    ██║       ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
+ *    ██║     ██║   ██║██║╚██╗██║   ██║   ██╔══╝   ██╔██╗    ██║       ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
+ *    ╚██████╗╚██████╔╝██║ ╚████║   ██║   ███████╗██╔╝ ██╗   ██║       ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
+ *     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝       ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝ 
+ *  
+ *    hide/show the context menu
+ *    listeners
+ *    etc.
+ */
 let track_config_menu = document.getElementById("track_config_menu");
 let track_config_xoffset = 0;
 let track_config_yoffset = 0;
@@ -132,9 +141,17 @@ for (let i = 0; i < track_context_items.length; i++) {
 }
 
 
-//
-// Track class definition
-//
+/*
+ *    ████████╗██████╗  █████╗  ██████╗██╗  ██╗
+ *    ╚══██╔══╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝
+ *       ██║   ██████╔╝███████║██║     █████╔╝ 
+ *       ██║   ██╔══██╗██╔══██║██║     ██╔═██╗ 
+ *       ██║   ██║  ██║██║  ██║╚██████╗██║  ██╗
+ *       ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
+ * 
+ *    class definition
+ */
+function pixels_to_frames(px) {return (44100 * (60 / bpm)) / (xsnap*4/8) * px;}
 class Track {
     constructor () {
       this.samples = [];
@@ -178,8 +195,22 @@ class Track {
       if sum(buffer) > 0:
         this.play_indicator.style.background = white
       */
-      this.buffer_position += size;
-      return this.data.slice(this.buffer_position - size, this.buffer_position);
+     this.buffer_position += size;
+     console.log(this.buffer_position);
+     console.log(this.data.slice(this.buffer_position - size, this.buffer_position));
+     return this.data.slice(this.buffer_position - size, this.buffer_position);
+    }
+
+    play() {
+      // play method gets called every 10? ms
+      // search for any samples that are registered at that current
+      // timestamp, those have to be played in the current audio context
+      // immediatly
+      this.samples.forEach(sample => {
+        if (pixels_to_ms(sample.x) === current_time) {
+          sample.play();
+        }
+      });
     }
   
     enable() {
@@ -202,11 +233,13 @@ class Track {
     }
   
     updateData() {
+      // function that writes the frame data to the track's audio array
       for (let i = 0; i < this.samples.length; i++) {
-        var s = this.samples[i];
-        var d = s.data;
+        let s = this.samples[i];
+        let d = s.data;
+        let offset = pixels_to_frames(s.x);
         for (let j = 0; j < d.length; j++) {
-          this.data[j] = d[j];
+          this.data[j+offset] = d[j];
         }
       }
     }
@@ -334,7 +367,9 @@ class Track {
         if (this.hover_buffer !== null) {
           var newX = e.clientX - cumulativeOffset(this.hover_buffer.element.parentElement).left - this.hover_buffer.element.clientWidth/2;
           newX = Math.min(Math.max(newX, 0), this.content.clientWidth) + this.content.scrollLeft;
-          this.hover_buffer.element.style["left"] = newX-newX%xsnap + "px";
+          let newnewX = newX - newX % xsnap;
+          this.hover_buffer.element.style["left"] = newnewX + "px";
+          this.hover_buffer.x = newnewX;
         }
       });
   
@@ -366,6 +401,9 @@ class Track {
       this.color = color;
       this.description.style.background = this.color.color;
       this.description.style.borderColor = this.color.darken(8) + " " + this.color.lighten(10);
+      this.samples.forEach(s => {
+        s.setColor(color);
+      });
     }
   
     addSample(sample) {
