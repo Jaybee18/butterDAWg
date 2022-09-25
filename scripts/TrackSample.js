@@ -34,8 +34,16 @@ class TrackSample {
   
     resize() {
       // resizes the sample according to the current xsnap value
-      console.log(this.item.getDuration());
-      this.width = this.item.getDuration()*(xsnap*4   /8   *   (bpm/60));
+      //this.width = this.item.getDuration()*(xsnap*4   /8   *   (bpm/60));
+      /*
+      44100 frames = 1 sec
+      44100 frames = 1000 ms
+      1 frame = 1/44100 sec
+      1 frame = 0.0022675736961451248 ms
+
+
+      */
+      this.width = this.item.getDuration() * 10000 * ms_to_pixels(1000/sample_rate);
       this.element.style.width = this.width + "px";
       this.resizeCanvas(this.width, 200);
     }
@@ -138,8 +146,9 @@ class TrackSample {
     }
 
     initializeAudio() {
-      this.sample_buffer = audiocontext.createBuffer(1, audiocontext.sampleRate, audiocontext.sampleRate*2);
+      this.sample_buffer = audiocontext.createBuffer(2, this.data.length, audiocontext.sampleRate*2);
       this.sample_buffer.copyToChannel(Float32Array.from(this.data), 0);
+      this.sample_buffer.copyToChannel(Float32Array.from(this.data), 1);
       this.sample_source = audiocontext.createBufferSource();
       this.sample_source.connect(audiocontext.destination);
       this.sample_source.buffer = this.sample_buffer;

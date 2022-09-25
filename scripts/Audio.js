@@ -1,4 +1,3 @@
-const sample_rate = 44100;
 const buffer_size = 44100;
 const timeout = 100;
 
