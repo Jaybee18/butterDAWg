@@ -7,7 +7,7 @@ var deactivate_space_to_play = false;
 var current_time = 0;
 
 const sample_rate = 44100;
-const xsnap = 20;
+var xsnap = 20;
 const bpm = 150;
 
 const fs = require("fs");
@@ -56,4 +56,4 @@ function pixels_to_ms(px) {return px / ms_to_pixels_factor;}
 10 px / 400 = 0.025 px/ms
 => 10 px / (1 beat / (150 beat/min / 60_000 ms)) = 0.025 px/ms
 */
-function ms_to_pixels(ms) {return ms_to_pixels_factor * ms;}
+function ms_to_pixels(ms) {return ms * ms_to_pixels_factor;}

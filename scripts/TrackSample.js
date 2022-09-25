@@ -34,16 +34,7 @@ class TrackSample {
   
     resize() {
       // resizes the sample according to the current xsnap value
-      //this.width = this.item.getDuration()*(xsnap*4   /8   *   (bpm/60));
-      /*
-      44100 frames = 1 sec
-      44100 frames = 1000 ms
-      1 frame = 1/44100 sec
-      1 frame = 0.0022675736961451248 ms
-
-
-      */
-      this.width = this.item.getDuration() * 10000 * ms_to_pixels(1000/sample_rate);
+      this.width = ms_to_pixels(this.item.getDuration() * 1000);
       this.element.style.width = this.width + "px";
       this.resizeCanvas(this.width, 200);
     }

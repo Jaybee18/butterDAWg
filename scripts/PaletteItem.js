@@ -7,9 +7,9 @@ class Item extends Draggable{
       this.indent = indent;
       this.children = [];
       this.title = title;
-      this.depth = null;
-      this.depth_type = null;
-      this.depth_max = null;
+      this.depth = "32f";
+      this.depth_type = Float32Array;
+      this.depth_max = 1.0;
   
       // construct container
       var a = document.createElement("div");
@@ -48,32 +48,10 @@ class Item extends Draggable{
     loadData() {
       // Load a wav file buffer as a WaveFile object
       this.file = new WaveFile(fs.readFileSync(this.contents));
-      this.file.toBitDepth("32f");
-      this.depth = this.file.bitDepth;
-      switch (this.depth) {
-        case "16":
-          this.depth_type = Int16Array;
-          this.depth_max = 32767;
-          break;
-        case "32":
-          this.depth_type = Int32Array;
-          this.depth_max = 2147483647;
-          break;
-        case "8":
-          this.depth_type = Int8Array;
-          this.depth_max = 127;
-          break;
-        case "32f":
-          this.depth_type = Float32Array;
-          this.depth_max = 1.0;
-          break;
-        case "64f":
-          this.depth_type = Float64Array;
-          this.depth_max = 1.0;
-          break;
-        default:
-          break;
+      if (this.file.bitDepth !== "32f") {
+        this.file.toBitDepth("32f");
       }
+      this.depth = this.file.bitDepth;
     }
   
     getData() {
@@ -87,7 +65,7 @@ class Item extends Draggable{
   
     getDuration() {
       // returns duration in seconds
-      return this.getWidth() / framerate;
+      return this.getData().length / sample_rate / 2;
     }
   
     initializeEventListeners() {
