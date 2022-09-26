@@ -6,7 +6,11 @@ class TrackSample {
       this.item = item;
       this.color = null;
       this.depth_max = item.depth_max;
-      //this.x = 0;
+      this.x = 0;
+      this.timestamp = 0; // timestep at which this sample is registered in a track
+
+      this.sample_buffer = null;
+      this.sample_source = null;
   
       // construct own element
       var template = document.getElementById("track_sample_object");
@@ -19,17 +23,18 @@ class TrackSample {
       this.resize()
       this.drawCanvas(); 
       this.initializeEventListeners();
+      this.initializeAudio();
     }
   
     move(x, y) {
       this.element.style.left = this.element.offsetLeft + x + "px";
       this.element.style.top = this.element.offsetTop + y + "px";
-      //this.x = this.element.offsetLeft + x;
+      this.x = this.element.offsetLeft + x;
     }
   
     resize() {
       // resizes the sample according to the current xsnap value
-      this.width = this.item.getDuration()*(bpm/60*xsnap);
+      this.width = ms_to_pixels(this.item.getDuration() * 1000);
       this.element.style.width = this.width + "px";
       this.resizeCanvas(this.width, 200);
     }
@@ -78,6 +83,7 @@ class TrackSample {
   
       var oldX = 0;
       var initial_grab_offset = 0;
+      let temp_this = this;
       function elementDrag(e) {
         e.preventDefault();
         var t = currently_hovered_track();
@@ -97,7 +103,7 @@ class TrackSample {
         newX = Math.max(newX, 0);
         a.style.top = "0px";
         a.style.left = newX + "px";
-        //this.x = newX;
+        temp_this.x = newX;
       }
       this.element.querySelector(".track_object_drag_handle").addEventListener("mousedown", (e) => {
         e.preventDefault();
@@ -119,16 +125,32 @@ class TrackSample {
         var newWidth = mouse_down_width - delta;
         a.style.width = newWidth + "px";
       }
-      var local = this;
       right_resize.addEventListener("mousedown", (e) => {
         e.preventDefault();
         mouse_down_position = e.clientX;
-        mouse_down_width = Number.parseFloat(window.getComputedStyle(local.element).width.replace("px", ""));
+        mouse_down_width = Number.parseFloat(window.getComputedStyle(temp_this.element).width.replace("px", ""));
         document.addEventListener("mousemove", right_resize_listener);
       });
       document.addEventListener("mouseup", () => {
         document.removeEventListener("mousemove", right_resize_listener);
     });
+    }
+
+    initializeAudio() {
+      this.sample_buffer = audiocontext.createBuffer(2, this.data.length, audiocontext.sampleRate*2);
+      this.sample_buffer.copyToChannel(Float32Array.from(this.data), 0);
+      this.sample_buffer.copyToChannel(Float32Array.from(this.data), 1);
+      this.sample_source = audiocontext.createBufferSource();
+      this.sample_source.connect(audiocontext.destination);
+      this.sample_source.buffer = this.sample_buffer;
+    }
+
+    play() {
+      this.sample_source.start();
+    }
+
+    stop() {
+      this.sample_source.stop();
     }
   }
   

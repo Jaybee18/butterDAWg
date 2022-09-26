@@ -1,10 +1,11 @@
+//const Speaker = require("speaker");
+//var {Howl, Howler} = require("howler");
+
 
 var help_text = document.getElementById("header_help_text");
-var xsnap = 20;
 var framerate = 44100;
 
 var is_playing = false;
-var bpm = 150;
 var cursor_pos = 0; // in px
 var track_length = 500; // in s
 function length_in_beats() {return track_length/60*bpm;}
@@ -409,7 +410,9 @@ function __step() {
   //  src: wav.toBuffer(),
   //  html5: true,
   //});
-/*let interval = null;
+
+/*
+let interval = null;
 const buffer_size = 44100;
 let speaker = new Speaker();
 let wav = new WaveFile();
@@ -464,8 +467,8 @@ function step() {
   wav.fromScratch(2, 44100, '16', buffer);
   bufferStream.write(wav.toBuffer());
 }
-
 */
+
 
 
 
