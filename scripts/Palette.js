@@ -1,5 +1,6 @@
 
 // palette functionality
+
 // TODO event listeners setup may be a bit inefficient
 var palette = document.querySelector(".palette");
 var palette_current_scope = 0;
@@ -39,6 +40,7 @@ for (let i = 0; i < scopes.length; i++) {
 palette.addEventListener("mouseenter", () => {
   // sample preview
   if (current_drag_element !== null) {
+    current_drag_element
     palette.insertAdjacentHTML("beforeend", '<div class="palette_object" style="opacity: 0.3;">\
                                               <i class="fa-solid fa-wave-square"></i>\
                                               <p>' + current_drag_element.title.split(".")[0] + '</p>\
@@ -157,6 +159,7 @@ var sidebar_folder_colors = {
   "Speech": "#689880",
   "Templates": "#689880"
 };
+const types = {0: "file", 1: "sample"};
 class Item extends Draggable{
   constructor (title, contents, indent=0) {
     super();
@@ -169,6 +172,7 @@ class Item extends Draggable{
     this.depth = null;
     this.depth_type = null;
     this.depth_max = null;
+    this.type = types[0];
 
     // construct container
     var a = document.createElement("div");
@@ -232,6 +236,9 @@ class Item extends Draggable{
       default:
         break;
     }
+
+    // convert type to Float32Array, cuz the Audio player requires that format
+    
   }
 
   getData() {
