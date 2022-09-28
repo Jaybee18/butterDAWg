@@ -531,6 +531,71 @@
             </div>
           </div>
         </div>
+        <div class="mixer_wrapper">
+          <div class="mixer">
+            <div class="mixer_toolbar">
+              <div class="tool_button">
+                <i class="fa-solid fa-caret-right"></i>
+              </div>
+              <div class="tool_button">
+                <i class="fa-regular fa-hand-pointer"></i>
+              </div>
+              <div class="tool_button">
+                <i class="fa-solid fa-wave-square"></i>
+              </div>
+            </div>
+            <div class="mixer_channels_wrapper">
+              <!-- volume control channel -->
+              <div class="channel" id="master_volume">
+                <div class="index_indicator">
+                  <p>C</p>
+                </div>
+                <div class="channel_volume_indicator"></div>
+              </div>
+              <!-- master channel -->
+              <div class="channel" id="master_channel">
+                <div class="index_indicator">
+                  <p>M</p>
+                </div>
+                <div class="channel_label">
+                  <p>Master</p>
+                </div>
+                <div class="channel_volume">
+                  <div class="channel_volume_indicator"></div>
+                  <div class="channel_toggle">
+                    <div class="channel_toggle_green"></div>
+                  </div>
+                  <div class="channel_pan">
+                    <div class="channel_pan_knob"></div>
+                  </div>
+                </div>
+                <div class="channel_volume_slider">
+                  <div class="channel_volume_knob">
+                    <div class="channel_volume_knob_peak"></div>
+                  </div>
+                  <div class="channel_volume_background"></div>
+                </div>
+                <div class="channel_links">
+
+                </div>
+              </div>
+              <div class="mixer_seperator">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </div>
+              <!-- other channels -->
+             </div>
+          </div>
+          <div class="mixer_plugins">
+            <div class="plugins_toolbar"></div>
+            <div class="plugins_content">
+              <div class="channel_input"></div>
+              <div class="channel_plugins"></div>
+              <div class="channel_eq"></div>
+              <div class="channel_time"></div>
+              <div class="channel_output"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -544,6 +609,7 @@
     <script src="./scripts/Header.js"></script>
     <script src="./scripts/Audio.js"></script>
     <script src="./scripts/Keybinds.js"></script>
+    <script src="./scripts/Mixer.js"></script>
     <script src="./renderer.js"></script>
   </body>
 </html>
