@@ -356,7 +356,6 @@ class Track {
       this.element.addEventListener("mouseenter", () => {
         // help
         header_help_text.innerHTML = this.title;
-        
       });
   
       this.content.addEventListener("wheel", (e) => {
