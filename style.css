@@ -16,6 +16,10 @@
     user-select: none;
 }
 
+html {
+    overflow: hidden;
+}
+
 ::-webkit-scrollbar {
     background-color: var(--bg-dark);
     box-shadow: inset 0px 0px 6px 5px rgba(0,0,0,0.3);
@@ -1849,7 +1853,6 @@ main::-webkit-scrollbar {
     background-color: #374045;
     border: solid 1px #313a40;
     border-style: none solid none solid;
-    box-sizing: border-box;
 }
 
 .channel > .index_indicator {
@@ -1903,7 +1906,7 @@ main::-webkit-scrollbar {
 }
 
 #master_volume > .channel_volume_indicator {
-    height: 288px;
+    height: 84.5%;
     width: 12px;
     margin: 3px;
 }
@@ -1917,6 +1920,7 @@ main::-webkit-scrollbar {
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
 }
 
 .channel_toggle_green {
@@ -1932,9 +1936,10 @@ main::-webkit-scrollbar {
     height: 20px;
     border-radius: 30px;
     margin-bottom: -10px;
-    background-color: #374045;
+    /*background-color: #374045;*/
+    background: #374045 conic-gradient(from 0deg at 50% 50%, #00000000 0%, #00000000 85%, #5cff5c 85%, #5cff5c 100%);
     box-shadow: inset 0 0 2px 0px black;
-    cursor: e-resize;
+    cursor: ew-resize;
 
     display: flex;
     justify-content: center;
@@ -1951,7 +1956,7 @@ main::-webkit-scrollbar {
 
 .channel_volume_slider {
     width: 100%;
-    height: 120px;
+    height: 28%;
     margin-top: 20px;
     display: flex;
     justify-content: center;
@@ -1970,7 +1975,7 @@ main::-webkit-scrollbar {
     overflow: hidden;
     display: flex;
     align-items: center;
-    cursor: n-resize;
+    cursor: ns-resize;
 }
 
 .channel_volume_knob_peak {
@@ -1978,7 +1983,7 @@ main::-webkit-scrollbar {
     height: 5px;
     background-color: #00000014;
     box-shadow: 0 0 4px 2px #0000008c, inset 0 1px 1px 1px #ffffff6b, inset 0 -1px 2px 1px #5a5a5a4f;
-    border-radius: 1.5px;
+    border-radius: 0.5px;
 }
 
 .channel_volume_background {
