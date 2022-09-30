@@ -1,0 +1,396 @@
+.tracks_wrapper {
+    height: inherit;
+    padding: 0px 5px 0px 0px;
+    background-color: #3f484d;
+    box-shadow: inset 0 0 0 1px var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+
+    /* just for testing of the mixer */
+    height: 60%!important;
+}
+.tracks_wrapper_wrapper {
+    height: inherit;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.tracks_top_bar {
+    height: 42px;
+    width: inherit;
+    background-color: #3f484d;
+    display: flex;
+    flex-direction: row;
+}
+
+.tracks_top_bar_scrollbar {
+    width: inherit;
+    height: 50%;
+    position: relative;
+    background-color: #353e43;
+    box-shadow: inset 0 0 0 1px #1d262b;
+}
+
+.tracks_top_bar_scrollbar_left, .tracks_top_bar_scrollbar_right {
+    background-color: #50595e;
+    width: 20px;
+    height: 100%;
+    margin: 0px;
+    box-shadow: inset 0 0 0 1px var(--border-color), inset 0 0 0 2px #636c71;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fa-chevron-left, .fa-chevron-right {
+    color: var(--bg-dark);
+}
+
+.tracks_top_bar_scrollbar_handle {
+    width: 100px;
+    height: 100%;
+    background-color: #4f5d64;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px #000000aa, inset 0 0 0 2px #636c71;
+    position: absolute;
+    float: left;
+    left: 20px;
+}
+
+.notransition {
+    transition: none !important;
+}
+
+.tracks_top_bar_bars {
+    width: max-content;
+    height: 50%;
+    background-color: #192328;
+    /*display: flex;
+    flex-direction: row;*/
+    overflow: hidden;
+    user-select: none;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.tracks_top_bar_bars_wrapper {
+    overflow: hidden;
+}
+
+.tracks_top_bar_bars > p {
+    color: rgb(160, 160, 160);
+    margin: 0px;
+    float: left;
+    height: 100%;
+    user-select: none;
+}
+
+.bars_labels {
+    color: white; 
+    margin: 0px 0px 0px 28px; 
+    font-size: 20px;
+}
+
+.tracks {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    max-width: 100%;
+    flex-grow: 1;
+    position: relative;
+    height: calc(100% - 43px); /* track view height - tracks top bar - border */
+    border-style: none none solid solid;
+    border-width: 1px;
+    border-color: #1d262b;
+}
+
+main::-webkit-scrollbar {
+    color: blue!important;
+    background-color: blue!important;
+}
+
+.track_add {
+    display: flex;
+    justify-content: center;
+}
+
+.track_add > label{
+    color: #ffffff55;
+    font-weight: 900;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tracks_palette_wrapper {
+    height: calc(100% - 20px + 5px); /* entire tracks view - toolbar + padding*/
+    display: flex;
+}
+
+.tracks_palette {
+    height: calc(100% - 28px);
+    width: 200px;
+    margin-top: 15px;
+}
+
+.palette_scope {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 6px;
+    /* to align the scope with the palette and compensate
+    for the scrollbar and the scrollbar's margin-right */
+    margin-right: 26px;
+    margin-left: 2px;
+}
+
+.palette {
+    height: 100%;
+    flex-grow: 1;
+    background-color: #313c45;
+    padding: 0 3px 0 5px;
+    box-shadow: inset 0 0 0 1px #1d262b;
+}
+.palette_object {
+    display: flex;
+    height: 25px;
+    background-color: #454f54;
+    margin-top: 5px;
+    border-radius: 2px;
+    color: #dbe5ebbf;
+}
+.palette_object > p {
+    margin: auto 0;
+}
+.palette_object > i {
+    margin: auto 5px auto 3px;
+}
+.tracks_breadcrumbs {
+    display: flex;
+    margin-left: 12px;
+    margin-top: -3px;
+    color: #8f979b;
+}
+.tracks_breadcrumbs > p {
+    height: fit-content;
+    margin: auto 0 auto 0;
+}
+.tracks_breadcrumbs > div {
+    margin: auto 0 auto 0;
+    transition: all 0.3s;
+}
+.tracks_breadcrumbs > div:hover {   
+    color: #ffc43f;
+}
+.tracks_breadcrumbs > div > i {
+    transition: transform 0.3s, color 0.1s;
+}
+.tracks_breadcrumbs > div:hover > i {
+    transform: rotate(90deg);
+    transition: transform 0.3s, color 0.1s;
+}
+.palette_scrollbar {
+    height: 100%;
+    width: 21px;
+    background-color: #353e43;
+    box-shadow: inset 0 0 0 1px #1d262b, inset 0 0 0 2px #00000010;
+    margin-right: 7px;
+}
+.palette_scope > .tool_button {
+    width: 3.3vw;
+    height: 20px;
+    border-radius: 6px;
+    color: #8f979b;
+}
+.palette_scope > .tool_button:hover {
+    outline: solid 2px #d2d8dc;
+    color: #d2d8dc;
+    outline-offset: 0px;
+}
+.palette_scope > .tool_button:hover > .automation_svg {
+    fill: #d2d8dc;
+    transition: fill 0.3s;
+}
+.palette_scope > .tool_button:hover > .piano_svg {
+    fill: #d2d8dc;
+    transition: fill 0.3s;
+}
+.palette_scope > .tool_button:hover > .wave_svg {
+    fill: #d2d8dc;
+    transition: fill 0.3s;
+}
+.automation_svg {
+    transform: rotate(45deg);
+    transition: fill 0.3s;
+}
+.piano_svg, .wave_svg {
+    transition: fill 0.3s;
+    transform: scale(0.7);
+}
+
+
+
+
+
+
+.tracks_top_bar > div > .piano_svg {
+    position: absolute;
+    right: 1px;
+    top: 2px;
+    transform: scale(0.6);
+}
+
+.tracks_top_bar > div > .wave_svg {
+    position: absolute;
+    right: 47px;
+}
+
+.tracks_top_bar > div > .automation_svg {
+    position: absolute;
+    right: 33px;
+    top: 1px;
+    transform: scale(0.77) rotate(45deg);
+}
+
+
+
+
+
+
+
+
+.tracks_tool_bar {
+    display: flex;
+    flex-direction: row;
+    height: 22px;
+    margin-top: 5px;
+    margin-bottom: 3px;
+}
+
+.tracks_tool_bar > p {
+    margin: 0 0 0 15px;
+    color: #b2d0d3;
+}
+
+.tracks_tool_bar > .tool_button {
+    width: 17px;
+    height: 17px;
+    margin: 0 2px 0 2px;
+}
+.tool_button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #b2d0d3;
+    outline: solid 2px transparent;
+    outline-offset: 1.5px;
+    border-radius: 5px;
+    transition: outline-color 0.2s, color 0.15s, outline-offset 0.2s, outline-width 0.1s;
+}
+.tool_button > i {
+    transition: transform 0.3s, color 0.1s;
+}
+
+#tool_caret_right > i {
+    margin: 1px 0 0 -1px;
+}
+#tool_caret_right:hover {
+    outline: solid 2px #f69238;
+    color: #f69238;
+    outline-offset: 0px;
+}
+#tool_caret_right:hover > i {
+    transform: rotateZ(90deg);
+    transition: transform 0.3s;
+}
+#tool_magnet > i {
+    margin: -1px 0 0 0;
+    color: #7eefa9;
+}
+#tool_magnet:hover {
+    outline: solid 2px #7eefa9;
+    color: #7eefa9;
+    outline-offset: 0px;
+}
+#tool_pencil {
+    margin-left: 10px;
+}
+#tool_pencil:hover {
+    outline: solid 2px #fcba40;
+    color: #fcba40;
+    outline-offset: 0px;
+}
+#tool_brush > i {
+    margin: 3px 0 0 2px;
+}
+#tool_brush:hover {
+    outline: solid 2px #7bcefd;
+    color: #7bcefd;
+    outline-offset: 0px;
+}
+#tool_delete:hover {
+    outline: solid 2px #ff5b53;
+    color: #ff5b53;
+    outline-offset: 0px;
+}
+#tool_mute > i{
+    margin: 1px 0 0 0;
+}
+#tool_mute:hover {
+    outline: solid 2px #ff54b0;
+    color: #ff54b0;
+    outline-offset: 0px;
+}
+#tool_resize:hover {
+    outline: solid 2px #ffa64a;
+    color: #ffa64a;
+    outline-offset: 0px;
+}
+#tool_slice:hover {
+    outline: solid 2px #85b3ff;
+    color: #85b3ff;
+    outline-offset: 0px;
+}
+#tool_expand:hover {
+    outline: solid 2px #ffab60;
+    color: #ffab60;
+    outline-offset: 0px;
+}
+#tool_search:hover {
+    outline: solid 2px #85b3ff;
+    color: #85b3ff;
+    outline-offset: 0px;
+}
+#tool_volume:hover {
+    outline: solid 2px #ffa64a;
+    color: #ffa64a;
+    outline-offset: 0px;
+}
+
+
+
+
+
+
+
+
+#bars_cursor {
+    position: absolute;
+    left: -10px;
+    margin-top: 1px;
+    cursor: grab;
+}
+
+.line_cursor {
+    display: none;
+    width: 15px;
+    height: calc(100vh + 500px);
+    margin-top: -250px;
+    position: absolute;
+    z-index: 3;
+    left: 0px;
+    border-style: none solid none none;
+    border-width: 1px;
+    border-color: #32cd32;
+    background: linear-gradient(270deg, #32cd326b, transparent);
+}
