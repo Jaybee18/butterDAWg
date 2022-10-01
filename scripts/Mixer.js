@@ -13,8 +13,9 @@ const slot = '  <div class="plugin_slot">\
                 </div > ';
 
 class PluginSlot {
-    constructor() {
+    constructor(index) {
         this.element = null;
+        this.index = index;
 
         this.createElement();
     }
@@ -23,6 +24,7 @@ class PluginSlot {
         let a = document.createElement("div");
         a.innerHTML = slot;
         let b = a.firstElementChild;
+        b.querySelector(".slot_wrapper p").innerHTML = "Slot " + this.index;
         this.element = b;
         let c = document.querySelector(".channel_plugins");
         c.appendChild(this.element);
@@ -30,5 +32,5 @@ class PluginSlot {
 }
 
 for (let i = 0; i < 10; i++) {
-    pluginslots.push(new PluginSlot());
+    pluginslots.push(new PluginSlot(i));
 }

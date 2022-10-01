@@ -121,6 +121,7 @@ class Channel {
 
     select(selected) {
         let volume = this.element.querySelector(".channel_volume_indicator");
+        let volume_wrapper = this.element.querySelector(".channel_volume");
         let indicator = this.element.querySelector(".index_indicator");
         let indicator_text = indicator.querySelector("p");
         if (selected) {
@@ -133,12 +134,14 @@ class Channel {
             this.element.style.borderColor = "#3c464c";
             indicator.style.background = "repeating-linear-gradient(45deg, transparent, transparent 2px, #0000000a 2px, #0000000a 4px) #636c71";
             indicator_text.style.color = "var(--text-color)";
+            volume_wrapper.style.background = "linear-gradient(#3d474c, var(--bg-dark))";
         } else {
             volume.classList.remove("channel_volume_select");
             this.element.style.backgroundColor = "#374045";
             this.element.style.borderColor = "#313a40";
             indicator.style.background = "#636c71";
             indicator_text.style.color = "var(--bg-darker)";
+            volume_wrapper.style.background = "linear-gradient(#374045, var(--bg-dark))";
         }
     }
 }
