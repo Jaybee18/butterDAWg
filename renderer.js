@@ -272,3 +272,7 @@ document.getElementById("track_add_label").click();
 document.getElementById("track_add_label").click();
 document.getElementById("track_add_label").click();
 document.getElementById("track_add_label").click();
+
+let items = ["test1", "test2", "test3", "[spacer]", "test4"];
+let listeners = [() => {alert("test1")}, () => {alert("test2")}, () => {alert("test3")}, () => {alert("test4")}];
+let test = new ContextMenu(items, listeners);

@@ -89,8 +89,6 @@ track_config_menu.querySelector("#conf_xmark").addEventListener("click", () => {
   deactivate_space_to_play = false;
 });
 function showTrackConfig(e) {
-  toggle_track_context_menu();
-  
   track_config_menu.querySelector("#conf_bottom p").innerText = current_context_track.title;
   
   track_config_menu.style.left = e.clientX + "px";
@@ -101,80 +99,91 @@ function showTrackConfig(e) {
   track_config_menu.querySelector("#conf_name_input").value = current_context_track.title;
 }
 
-// context menu disappear
-let context_menu = document.getElementById("track_context_menu");
-let color_picker_menu = document.getElementById("color_picker");
 let current_context_track = null; // this will be set when the context menu is opened on one track (to the given track)
-let track_context_items = context_menu.querySelectorAll(".context_item");
-function toggle_track_context_menu(e, track) {
-  if (e === undefined) {
-    context_menu.style.display = "none";
-  } else {
-    context_menu.style.left = e.clientX + "px";
-    context_menu.style.top = e.clientY + "px";
-    context_menu.style.display = "block";
-    current_context_track = track;
+
+let context_event_listeners = [
+  (e) => {
+    showTrackConfig(e);
+    return true;
+  },
+  () => {
+    color_picker.style.display = "block";
+    return true;
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  () => {
+    current_context_track.resize_locked = !current_context_track.resize_locked;
+    return true;
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  () => {
+    let a = tracks.indexOf(current_context_track);
+    let b = tracks.indexOf(current_context_track)-1;
+    if (b < 0) {return;}
+    // swap HTML elements
+    track_view.insertBefore(current_context_track.element, tracks[tracks.indexOf(current_context_track)-1].element);
+    // swap tracks-array entries
+    let tmp = tracks[a];
+    tracks[a] = tracks[b];
+    tracks[b] = tmp;
+    return true;
+  },
+  () => {
+    let a = tracks.indexOf(current_context_track);
+    let b = tracks.indexOf(current_context_track)+1;
+    if (b === tracks.length) {return;}
+    // swap HTML elements
+    track_view.insertBefore(current_context_track.element, tracks[tracks.indexOf(current_context_track)+2].element);
+    // swap tracks-array entries
+    let tmp = tracks[a];
+    tracks[a] = tracks[b];
+    tracks[b] = tmp;
+    return true;
   }
-}
-document.querySelector("body").addEventListener("click", (e) => {
-  if (e.target.offsetParent != context_menu) {
-    toggle_track_context_menu();
-  }
-});
-for (let i = 0; i < track_context_items.length; i++) {
-  switch (i) {
-    case 0:
-      track_context_items[i].addEventListener("click", (e) => {
-        showTrackConfig(e);
-      });
-      break;
-    case 1:
-      track_context_items[i].addEventListener("click", (e) => {
-        toggle_track_context_menu();
-        color_picker.style.display = "block";
-      });
-      break;
-    case 8:
-      track_context_items[i].addEventListener("click", () => {
-        toggle_track_context_menu();
-        current_context_track.resize_locked = !current_context_track.resize_locked;
-      });
-      break;
-    case 19:
-      // up
-      track_context_items[i].addEventListener("click", () => {
-        toggle_track_context_menu();
-        let a = tracks.indexOf(current_context_track);
-        let b = tracks.indexOf(current_context_track)-1;
-        if (b < 0) {return;}
-        // swap HTML elements
-        track_view.insertBefore(current_context_track.element, tracks[tracks.indexOf(current_context_track)-1].element);
-        // swap tracks-array entries
-        let tmp = tracks[a];
-        tracks[a] = tracks[b];
-        tracks[b] = tmp;
-      });
-      break;
-    case 20:
-      // down
-      track_context_items[i].addEventListener("click", () => {
-        toggle_track_context_menu();
-        let a = tracks.indexOf(current_context_track);
-        let b = tracks.indexOf(current_context_track)+1;
-        if (b === tracks.length) {return;}
-        // swap HTML elements
-        track_view.insertBefore(current_context_track.element, tracks[tracks.indexOf(current_context_track)+2].element);
-        // swap tracks-array entries
-        let tmp = tracks[a];
-        tracks[a] = tracks[b];
-        tracks[b] = tmp;
-      });
-      break;
-  
-    default:
-      break;
-  }
-}
+];
+
+let context_items = ["Rename, color and icon...", 
+                      "Change color...", 
+                      "Change icon...", 
+                      "Auto name", 
+                      "Auto name clips", 
+                      "[spacer]", 
+                      "Track mode", 
+                      "Performance settings", 
+                      "[spacer]",
+                      "Size", 
+                      "Lock to this size", 
+                      "[spacer]",
+                      "Group with above track", 
+                      "Auto color group", 
+                      "[spacer]", 
+                      "Current clip source", 
+                      "Lock to content", 
+                      "Merge pattern clips", 
+                      "Consolidate this clip", 
+                      "Mute all clips", 
+                      "[spacer]", 
+                      "Insert one", 
+                      "Delete one", 
+                      "[spacer]",
+                      "Move up", 
+                      "Move down"
+];
+
+let new_context_menu = new ContextMenu(context_items, context_event_listeners);
 
 
 /*
@@ -427,7 +436,8 @@ class Track {
       this.description.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         current_context_track = this;
-        toggle_track_context_menu(e, this);
+        new_context_menu.toggle(e);
+        //toggle_track_context_menu(e, this);
       });
     }
   
