@@ -150,4 +150,5 @@ class Channel {
 for (let i = 0; i < 60; i++) {
     let a = new Channel(i);
     a.addToMixer();
+    channels.push(a);
 }

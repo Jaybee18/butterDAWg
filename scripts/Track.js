@@ -101,6 +101,12 @@ function showTrackConfig(e) {
 
 let current_context_track = null; // this will be set when the context menu is opened on one track (to the given track)
 
+// track context menu channel link menu
+let context_channel_items = channels.map((v, i) => {return "Insert " + i;});
+let context_channel_listeners = Array.from({length: channels.length}, () => null);
+let channel_context = new ContextMenu(context_channel_items, context_channel_listeners);
+
+// track context menu
 let context_event_listeners = [
   (e) => {
     showTrackConfig(e);
@@ -113,7 +119,10 @@ let context_event_listeners = [
   null,
   null,
   null,
-  null,
+  (e) => {
+    channel_context.toggle(e);
+    return false;
+  },
   null,
   null,
   () => {

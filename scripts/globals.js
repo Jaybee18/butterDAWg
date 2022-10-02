@@ -1,4 +1,5 @@
 var tracks = [];
+var channels = [];
 var resizing_track = null;
 
 var deactivate_space_to_play = false;

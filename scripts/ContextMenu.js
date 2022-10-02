@@ -34,7 +34,12 @@ class ContextMenu {
     addToDocument() {
         let temp_this = this;
         document.body.appendChild(this.element);
-        document.addEventListener("click", (e) => {if (temp_this.element.style.display==="block" && e.target.parentElement !== this.element) {temp_this.toggle();}})
+        document.addEventListener("click", (e) => {
+            if (temp_this.element.style.display==="block" && e.target.offsetParent !== this.element &&
+                !e.target.parentElement.classList.contains("context_menu")) {
+                temp_this.toggle();
+            }
+        });
     }
 
     toggle(e) {
@@ -43,8 +48,16 @@ class ContextMenu {
         if (this.element.style.display === "block") {
             this.element.style.display = "none";
         } else {
-            this.element.style.top = e.clientY + "px";
-            this.element.style.left = e.clientX + "px";
+            // if this is a submenu, aka the clicked element is a context_item, spawn
+            // the context menu offset by the parents position on the screen. Else just
+            // spawn it at the mouse cursor
+            if (e.target.classList.contains("context_item")) {
+                this.element.style.top = e.target.offsetTop + e.target.offsetParent.offsetTop + "px";
+                this.element.style.left = e.target.offsetLeft + e.target.offsetParent.offsetLeft + e.target.offsetParent.clientWidth+ "px";
+            } else {
+                this.element.style.top = e.clientY + "px";
+                this.element.style.left = e.clientX + "px";
+            }
             this.element.style.display = "block";
         }
     }
