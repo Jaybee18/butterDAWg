@@ -7,7 +7,16 @@
     <script src="https://kit.fontawesome.com/a95d7f2b70.js" crossorigin="anonymous"></script>
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <title>butterDAWg</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./styles/general.css">
+    <link rel="stylesheet" href="./styles/Header.css">
+    <link rel="stylesheet" href="./styles/Sidebar.css">
+    <link rel="stylesheet" href="./styles/Playlist.css">
+    <link rel="stylesheet" href="./styles/Track.css">
+    <link rel="stylesheet" href="./styles/TrackObject.css">
+    <link rel="stylesheet" href="./styles/TrackContextMenu.css">
+    <link rel="stylesheet" href="./styles/Mixer.css">
+    <link rel="stylesheet" href="./styles/Channel.css">
+    
     <svg height="0" width="0" viewbox="0 0 10 50">
       <defs>
           <clipPath id="handle_path">
@@ -531,10 +540,91 @@
             </div>
           </div>
         </div>
+        <div class="mixer_wrapper">
+          <div class="mixer">
+            <div class="mixer_toolbar">
+              <div class="tool_button">
+                <i class="fa-solid fa-caret-right"></i>
+              </div>
+              <div class="tool_button">
+                <i class="fa-regular fa-hand-pointer"></i>
+              </div>
+              <div class="tool_button">
+                <i class="fa-solid fa-wave-square"></i>
+              </div>
+            </div>
+            <div class="mixer_channels_wrapper">
+              <!-- volume control channel -->
+              <div class="channel" id="master_volume">
+                <div class="index_indicator">
+                  <p>C</p>
+                </div>
+                <div class="channel_volume_indicator"></div>
+              </div>
+              <!-- master channel -->
+              <div class="channel" id="master_channel">
+                <div class="index_indicator">
+                  <p>M</p>
+                </div>
+                <div class="channel_label">
+                  <p>Master</p>
+                </div>
+                <div class="channel_volume">
+                  <div class="channel_volume_indicator"></div>
+                  <div class="channel_toggle">
+                    <div class="channel_toggle_green"></div>
+                  </div>
+                  <div class="channel_pan">
+                    <div class="channel_pan_knob"></div>
+                  </div>
+                </div>
+                <div class="channel_volume_slider">
+                  <div class="channel_volume_knob">
+                    <div class="channel_volume_knob_peak"></div>
+                  </div>
+                  <div class="channel_volume_background"></div>
+                </div>
+                <div class="channel_links">
+
+                </div>
+              </div>
+              <div class="mixer_seperator">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </div>
+              <!-- other channels -->
+             </div>
+          </div>
+          <div class="mixer_plugins">
+            <div class="plugins_toolbar"></div>
+            <div class="plugins_content">
+              <div class="channel_input">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <div class="header_snap_selector">
+                  <p>(none)</p>
+                  <i class="fa-solid fa-caret-right"></i>
+                </div>
+                <i class="fa-regular fa-clock"></i>
+              </div>
+              <div class="channel_plugins">
+                <!-- Plugin slots -->
+              </div>
+              <div class="channel_eq"></div>
+              <div class="channel_time"></div>
+              <div class="channel_output">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <div class="header_snap_selector">
+                  <p>Out 1 - Out 2</p>
+                  <i class="fa-solid fa-caret-right"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="./scripts/globals.js"></script>
+    <script src="./scripts/ContextMenu.js"></script>
     <script src="./scripts/Color.js"></script>
     <script src="./scripts/ColorPicker.js"></script>
     <script src="./scripts/Track.js"></script>
@@ -544,6 +634,8 @@
     <script src="./scripts/Header.js"></script>
     <script src="./scripts/Audio.js"></script>
     <script src="./scripts/Keybinds.js"></script>
+    <script src="./scripts/Channel.js"></script>
+    <script src="./scripts/Mixer.js"></script>
     <script src="./renderer.js"></script>
   </body>
 </html>

@@ -47,8 +47,8 @@ class Draggable {
     
 
 // conversion functions
-const ms_to_pixels_factor = xsnap*4/8 / (1/(bpm/60000));
-function pixels_to_ms(px) {return px / ms_to_pixels_factor;}
+//var ms_to_pixels_factor = xsnap*4/8 / (1/(bpm/60000));
+function pixels_to_ms(px) {return px / (xsnap*4/8 / (1/(bpm/60000)));}
 /*
 10 px = 1 beat
 1 beat = 150/60000 = 0.0025 beats/ms
@@ -56,4 +56,4 @@ function pixels_to_ms(px) {return px / ms_to_pixels_factor;}
 10 px / 400 = 0.025 px/ms
 => 10 px / (1 beat / (150 beat/min / 60_000 ms)) = 0.025 px/ms
 */
-function ms_to_pixels(ms) {return ms * ms_to_pixels_factor;}
+function ms_to_pixels(ms) {return ms * (xsnap*4/8 / (1/(bpm/60000)));}

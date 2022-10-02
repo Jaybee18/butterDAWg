@@ -1,0 +1,116 @@
+.track {
+    /*height: 100px; specifying the dimensions of the canvas here will cause wrong coordinates
+    width: 2100px;*/
+    min-height: 60px;
+    max-height: 300px;
+    height: 70px;
+    background-color: #1b272e;
+}
+
+#track_wrap {
+    width: 100%;
+    height: inherit;
+    min-height: 60px;
+    max-height: 300px;
+    display: flex;
+    color: var(--text-color);
+    /*position: relative;*/
+    /*z-index: 0;*/
+}
+
+#track_resize {
+    width: 70%;
+    height: 10px;
+    bottom: -6px;
+    cursor: n-resize;
+    position: absolute;
+    z-index: 1;
+}
+
+.description {
+    width: 93px;
+    border-radius: 0px 8px 8px 0px;
+    border-width: 1px;
+    border-style: none solid;
+    border-color: rgb(86, 51, 161);
+    background-color: #5e39ab;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: linear-gradient(0deg, #00000014, transparent);
+}
+
+.description > .fa-ellipsis {
+    color: #00000050;
+    position: absolute;
+    margin-left: 5px;
+    bottom: 0px;
+}
+
+.description > .radio_btn {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background-color: #000000;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ffffff8a;
+    width: 12px;
+    height: 12px;
+    margin-right: 3px;
+    margin-bottom: 3px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.radio_btn > .radio_btn_green {
+    width: 10px;
+    height: 10px;
+    border-radius: 20px;
+    background-color: rgb(50, 255, 32);
+    box-shadow: inset 0 -1px 2px 2px #ffffffaa;
+    transition: background-color 0.2s;
+}
+
+.track_play_indicator {
+    background-color: #333f46;
+    z-index: 2;
+    width: 6px;
+    box-shadow: inset 0 0 0 1px #1b272e, 0.5px 0 2px 0 #1b272e;
+    transition: background-color 0.5s;
+}
+
+.track_content {
+    /*border-radius: 2px;
+    border-style: none solid solid solid;
+    border-width: 1px;
+    border-color: var(--border-color);*/
+    flex-grow: 1;
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.track_background {
+    width: 10000px;
+    height: 100%;
+    position: absolute;
+    z-index: 0;
+    display: flex;
+}
+
+.tile {
+    flex-grow: 1;
+    border-style: solid;
+    border-width: 1px 1px 1px 0px;
+    border-color: #182832;
+}
+
+#track_canvas {
+    width: 100%;
+    height: 100%;
+}

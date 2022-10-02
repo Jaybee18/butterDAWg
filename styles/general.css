@@ -1,0 +1,90 @@
+:root {
+    --bg-light: #646b73;
+    --bg-medium: #434c51;
+    --bg-dark: #242f35;
+    --bg-darker: #181e22;
+
+    --track-light: #34444e;
+    --track-dark: #2e3e48;
+
+    --border-color: #010102aa;
+
+    --text-color: aliceblue;
+}
+
+* {
+    user-select: none;
+}
+
+html {
+    overflow: hidden;
+}
+
+::-webkit-scrollbar {
+    background-color: var(--bg-dark);
+    box-shadow: inset 0px 0px 6px 5px rgba(0,0,0,0.3);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--bg-medium);
+    
+    border-style: solid;
+    border-color: #000000aa;
+    border-width: 1px;
+    box-shadow: inset 0 0 0 1px #69757c90;
+}
+
+::-webkit-scrollbar-corner {
+    background-color: var(--bg-medium);
+}
+
+html {
+    height: 100%;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    /*font-family: 'Open Sans', sans-serif;*/
+    font-size: smaller;
+}
+
+header {
+    background-color: #596267;
+    height: min-content;
+}
+
+body {
+    background-color: blue;
+    margin: 0px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#content {
+    display: flex;
+    flex-direction: row;
+    height: calc(100vh - 84px); /* 100% of viewport minus the header */
+    background-color: var(--bg-medium);
+}
+
+.main_content {
+    flex-grow: 20;
+    min-width: 0;
+    height: inherit;
+    width: calc(100% - 138px); /* window width - sidebar width */
+}
+
+#drag_container {
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
+    background-color: var(--bg-darker);
+    color: var(--bg-light);
+    border-radius: 5px;
+    padding: 4px;
+    /* the objects in the document need to be able to recieve move events, to 
+    determine if they want to display sth special, when hovered with an item, 
+    so pass every event right through the object */
+    pointer-events: none;
+    transition: transform 0.1s;
+}
