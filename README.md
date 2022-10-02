@@ -6,7 +6,12 @@ there are some deviations from the original that I believe improve the UX
  
 Audio functionality partially implemented
  
-current (version 0.3.2):
+ 
+current (version 0.4.0):
+![grafik](https://user-images.githubusercontent.com/64578396/193315177-dd883db7-2012-4ae1-812d-96c06e7c5642.png)
+
+ 
+version 0.3.2:
 ![grafik](https://user-images.githubusercontent.com/64578396/179958914-d864f78e-aea7-4405-9f14-c46003c45ade.png)
 
 
