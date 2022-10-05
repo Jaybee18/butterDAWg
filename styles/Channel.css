@@ -52,16 +52,56 @@
     height: 60px;
     margin: 3px;
     border-radius: 2px;
-    box-shadow: inset 0 0 2px 1px #1a1a1af2;
+    /*box-shadow: inset 0 0 2px 1px #1a1a1af2;*/
     background-color: #374045;
+    position: relative;
+    overflow: hidden;
+}
+
+.channel_volume_indicator::before {
+    content: '';
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 2px 1px #1a1a1af2;
+    position: absolute;
+    z-index: 3;
+    border-radius: 2px;
+}
+
+.indicator_top {
+    height: 100%;
+    background: #374045;
+    width: 100%;
+    position: absolute;
+    z-index: 2;
+}
+
+.indicator_bottom {
+    height: 100%!important;
+    background: linear-gradient(0, lime 40%, yellow 70%, red);
+    width: 100%;
+    position: absolute;
+    border-radius: 2px;
+}
+
+.selection_indicator {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    border-radius: 2px;
 }
 
 .channel_volume_select {
+    background: #00ff0017;
+    z-index: 6;
+}
+
+.channel_volume_select2 {
     border: solid 1px #00ff00c4;
     border-width: 2px 1px;
     margin-top: 1px;
     margin-bottom: 1px;
-    background: linear-gradient(1deg, #00ff0017, #00ff0017), #374045;
+    background: linear-gradient(0deg, #00ff0017, #00ff0017), #374045;
 }
 
 #master_volume > .channel_volume_indicator {

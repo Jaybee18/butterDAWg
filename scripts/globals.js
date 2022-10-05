@@ -1,5 +1,6 @@
 var tracks = [];
 var channels = [];
+var context_menus = []; // all open context menus
 var resizing_track = null;
 
 var deactivate_space_to_play = false;
@@ -58,3 +59,36 @@ function pixels_to_ms(px) {return px / (xsnap*4/8 / (1/(bpm/60000)));}
 => 10 px / (1 beat / (150 beat/min / 60_000 ms)) = 0.025 px/ms
 */
 function ms_to_pixels(ms) {return ms * (xsnap*4/8 / (1/(bpm/60000)));}
+
+
+// cheaty stuff
+function sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+        currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+}
+
+
+// Audio stuff
+const buffer_size = 44100;
+const timeout = 10; 
+const audiocontext = new AudioContext({sample_rate});
+audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {console.log("loaded passthrough module");});
+audiocontext.suspend();
+
+
+// temp
+class PassthroughNode extends AudioWorkletNode {
+  constructor(context, options) {
+    // set options here
+    super(context, 'passthrough', options);
+    
+    // configure port for communication with the audioprocessor
+    this.port.addEventListener("message", (m) => {
+      options.callback(m.data.volume);
+    });
+    this.port.start();
+  }
+}

@@ -15,8 +15,13 @@ class Color {
       var b = Number.parseInt(this.color.substring(5, 7), 16);
       return [r, g, b];
     }
-    toRGBString() {
-      var values = this.toRGB();
+    toRGBString(r, g, b) {
+      let values = undefined;
+      if (r === undefined || g === undefined || b === undefined) {
+        values = this.toRGB();
+      } else {
+        values = [r, g, b];
+      }
       return "rgb(" + values[0] + "," + values[1] + "," + values[2] + ")";
     }
     darken(magnitude) {
@@ -33,6 +38,14 @@ class Color {
     }
     transparent(magnitude) {
       return this.color + magnitude.toString(16);
+    }
+    lerp(target_color, percent) {
+      let [r, g, b] = this.toRGB();
+      let [tr, tg, tb] = target_color.toRGB();
+      r += (tr - r) * percent;
+      g += (tg - g) * percent;
+      b += (tb - b) * percent;
+      return this.toRGBString(r, g, b);
     }
   }
   

@@ -103,7 +103,13 @@ let current_context_track = null; // this will be set when the context menu is o
 
 // track context menu channel link menu
 let context_channel_items = channels.map((v, i) => {return "Insert " + i;});
-let context_channel_listeners = Array.from({length: channels.length}, () => null);
+let context_channel_listeners = channels.map((v, i) => { 
+  return () => {
+    // connect the current track to the selected channel and close the context menu
+    current_context_track.connect(v);
+    return true;
+  };
+});
 let channel_context = new ContextMenu(context_channel_items, context_channel_listeners);
 
 // track context menu
@@ -212,12 +218,24 @@ class Track {
       this.temp_samples = [];
       this.hover_buffer = null;
       this.color = null;
+      this.play_indicator_color = new Color(51, 63, 70);
       this.title = "";
-      this.data = new Array(400*44100);
+      //this.data = new Array(400*44100);
       this.buffer_position = 0;
       this.enabled = true;
       this.resize_locked = false;
+      this.channel = null;
   
+      audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {
+        //this.audio_node = new AudioWorkletNode(audiocontext, "passthrough", {'c': () => {console.log("success");}});
+        this.audio_node = new AnalyserNode(audiocontext);
+        this.passthrough_node = new PassthroughNode(audiocontext, {'callback': (volume) => {
+          this.setPlayIndicator(volume);
+        }});
+        this.audio_node.connect(this.passthrough_node);
+        this.passthrough_node.connect(audiocontext.destination);
+      });
+
       // construct own element
       var template = document.getElementById("track_template");
       var clone = template.content.cloneNode(true);
@@ -245,6 +263,7 @@ class Track {
     }
   
     getFrames(size) {
+      return;
       // == process audio with plugins etc. ==
       /*
       if sum(buffer) > 0:
@@ -268,6 +287,24 @@ class Track {
       });
     }
   
+    connect(channel) {
+      this.channel = channel;
+
+      // connect the track to the first element of the 
+      // channel audio node pipeline
+      this.passthrough_node.connect(channel.getFirstAudioNode());
+
+      // finally enable the channel
+      this.channel.toggle();
+    }
+
+    setPlayIndicator(percent) {
+      // set the intensity (in %) of the play indicator
+      // to the right of the description
+      /* neutral color is rgb(51, 63, 70) */
+      this.element.querySelector(".track_play_indicator").style.backgroundColor = this.play_indicator_color.lerp(new Color("#ffffff"), Math.min(1.0, percent*2));
+    }
+
     enable() {
       this.enabled = true;
       this.radio_btn.firstElementChild.style.backgroundColor = green;
@@ -288,6 +325,7 @@ class Track {
     }
   
     updateData() {
+      return;
       // function that writes the frame data to the track's audio array
       for (let i = 0; i < this.samples.length; i++) {
         let s = this.samples[i];
@@ -477,7 +515,7 @@ class Track {
       // from the sidebar, to display a track_sample representation of
       // the sample on the track at the current position of the mouse
       if (this.hover_buffer !== null) {return;}
-      var t = new TrackSample(item);
+      var t = new TrackSample(item, this);
       t.setColor(this.color);
       this.content.appendChild(t.element);
       //t.move(this.content.scrollLeft, 0);

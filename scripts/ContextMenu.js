@@ -8,6 +8,9 @@ class ContextMenu {
         this.items = items.filter((value, i, a) => {return value!=="[spacer]";});
         this.raw_items = items;
 
+        // this will be set to the parent context menu to also toggle
+        // it if this context menu gets toggled
+        this.parent_buffer = null;
 
         this.createElement();
         this.addToDocument();
@@ -59,6 +62,7 @@ class ContextMenu {
                 this.element.style.left = e.clientX + "px";
             }
             this.element.style.display = "block";
+            context_menus.push(this);
         }
     }
 
@@ -69,7 +73,11 @@ class ContextMenu {
 
             let item = this.element.querySelector(".context_item:nth-child(" + (i+1) + ")");
             item.addEventListener("click", (e) => {
-                if (listeners[j](e)) {this.toggle();}
+                if (listeners[j](e)) {
+                    context_menus.forEach(element => {
+                        element.toggle();
+                    });
+                }
             });
         }
     }

@@ -195,6 +195,7 @@ function bars_cursor_move_listener(e) {
   var newX = e.clientX - cumulativeOffset(top_bar).left - 10 + bars.scrollLeft;
   cursor.style.left = newX;
   cursor_pos = newX;
+  current_time = pixels_to_ms(newX);
   track_bar_cursor.style.left = cumulativeOffset(cursor.parentElement).left - sidebar.clientWidth - 6.5 + cursor_pos + bars.scrollLeft + 97 + "px"; // TODO HARDCORDED OFFSETTT 111111!!!!1!!!
 }
 top_bar_bars.addEventListener("mousedown", (e) => {

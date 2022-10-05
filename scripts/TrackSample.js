@@ -1,6 +1,5 @@
-
 class TrackSample {
-    constructor (item) {
+    constructor (item, track) {
       this.title = item.title;
       this.data = item.getData();
       this.item = item;
@@ -8,6 +7,7 @@ class TrackSample {
       this.depth_max = item.depth_max;
       this.x = 0;
       this.timestamp = 0; // timestep at which this sample is registered in a track
+      this.track = track; // the track that this sample is registered in
 
       this.sample_buffer = null;
       this.sample_source = null;
@@ -140,17 +140,24 @@ class TrackSample {
       this.sample_buffer = audiocontext.createBuffer(2, this.data.length, audiocontext.sampleRate*2);
       this.sample_buffer.copyToChannel(Float32Array.from(this.data), 0);
       this.sample_buffer.copyToChannel(Float32Array.from(this.data), 1);
-      this.sample_source = audiocontext.createBufferSource();
-      this.sample_source.connect(audiocontext.destination);
-      this.sample_source.buffer = this.sample_buffer;
+      //this.sample_source = audiocontext.createBufferSource();
+      //this.sample_source.connect(audiocontext.destination);
+      //this.sample_source.connect(this.track.audio_node);
+      //this.sample_source.buffer = this.sample_buffer;
+      
     }
 
     play() {
+      console.log("start")
+      this.sample_source = audiocontext.createBufferSource();
+      this.sample_source.buffer = this.sample_buffer;
+      console.log(this.track.audio_node);
+      this.sample_source.connect(this.track.audio_node);
       this.sample_source.start();
     }
 
     stop() {
-      this.sample_source.stop();
+      //this.sample_source.stop();
     }
   }
   

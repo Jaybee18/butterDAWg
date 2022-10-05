@@ -392,5 +392,6 @@ main::-webkit-scrollbar {
     border-style: none solid none none;
     border-width: 1px;
     border-color: #32cd32;
-    background: linear-gradient(270deg, #32cd326b, transparent);
+    /* might be taking up too much resources */
+    /*background: linear-gradient(270deg, #32cd326b, transparent);*/
 }

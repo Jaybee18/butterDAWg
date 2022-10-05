@@ -326,7 +326,7 @@
     font-size: 11px;
     color: #181e22;
     cursor: pointer;
-    padding: 0 0 0 22px;
+    padding: 2px 0 2px 22px;
 
     transition: background 0.2s, color 0.2s;
 }

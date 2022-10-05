@@ -1,10 +1,5 @@
-const buffer_size = 44100;
-const timeout = 100;
-
-const int16max = 32767;
-
-const audiocontext = new AudioContext({sample_rate});
-audiocontext.suspend();
+let track_bar_cursor = document.querySelector(".line_cursor");
+let line_cursor_offset = 93 - 6; // description width (93px) + half of line cursor width (16px)
 
 let cursor_anim = null;
 function play() {
@@ -12,13 +7,14 @@ function play() {
         // stop
         audiocontext.suspend();
         clearInterval(cursor_anim);
+        track_bar_cursor.style.display = "none";
         console.log("stopped");
     } else {
         // start
         audiocontext.resume();
-        let start = Date.now();
         cursor_anim = setInterval(() => {
             cursor_pos += ms_to_pixels(10);
+            track_bar_cursor.style.left = cursor_pos + line_cursor_offset + "px";
             cursor.style.left = cursor_pos - (cursor.clientWidth/2) + "px";
 
             tracks.forEach(track => {
@@ -26,8 +22,8 @@ function play() {
             });
 
             current_time += 10;
-            console.log(Date.now() - start);
         }, 10);
+        //track_bar_cursor.style.display = "block";
         console.log("started");
     }
     is_playing = !is_playing;
