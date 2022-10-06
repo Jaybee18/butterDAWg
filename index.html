@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="./styles/Header.css">
     <link rel="stylesheet" href="./styles/Sidebar.css">
     <link rel="stylesheet" href="./styles/Playlist.css">
+    <link rel="stylesheet" href="./styles/AudioGraph.css">
     <link rel="stylesheet" href="./styles/Track.css">
     <link rel="stylesheet" href="./styles/TrackObject.css">
     <link rel="stylesheet" href="./styles/TrackContextMenu.css">
@@ -353,7 +354,7 @@
       </div>
       <div class="sidebar_resize" id="sidebar_resize"></div>
       <div class="main_content" id="main_content">
-        <div class="tracks_wrapper">
+        <div class="tracks_wrapper" style="display: none;">
 
           <div class="tracks_tool_bar">
             <div class="tool_button" id="tool_caret_right">
@@ -540,7 +541,7 @@
             </div>
           </div>
         </div>
-        <div class="mixer_wrapper">
+        <div class="mixer_wrapper" style="display: none;">
           <div class="mixer">
             <div class="mixer_toolbar">
               <div class="tool_button">
@@ -616,6 +617,22 @@
                   <p>Out 1 - Out 2</p>
                   <i class="fa-solid fa-caret-right"></i>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="audio_graph_wrapper">
+          <div class="audio_graph_toolbar"></div>
+          <div class="audio_graph_screen">
+            <div class="retro"></div>
+            <div class="item">
+              <div class="input">
+                <div class="connector"></div>
+                <p retro="Channel 1">Channel 1</p>
+              </div>
+              <div class="output">
+                <p retro="Output">Output</p>
+                <div class="connector"></div>
               </div>
             </div>
           </div>

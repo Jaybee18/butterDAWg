@@ -1,0 +1,136 @@
+.audio_graph_wrapper {
+    height: inherit;
+    padding: 0px 5px 0px 0px;
+    background-color: #3f484d;
+    box-shadow: inset 0 0 0 1px var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+
+    /* just for testing of the mixer */
+    height: 100%!important;
+}
+
+.audio_graph_toolbar {
+    height: 20px;
+    border: dashed 1px black;
+}
+
+.audio_graph_screen {
+    height: 100%;
+    margin: 5px;
+    box-shadow: inset 0 0 14px 1px black, inset 0 0 10px 4px black;
+    border-radius: 30px;
+    background: radial-gradient(circle at center, #ffffff17 0%, #1212123b 70%, #000000b5 100%) var(--bg-dark);
+    overflow: hidden;
+    border: solid 2px black;
+    outline: solid 1px #bfbfbf4d;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.retro_effect {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+@keyframes retro_wiggle {
+    0% {background-position-y: 1px;}
+    100% {background-position-y: 8px;}
+}
+
+.retro {
+    content: " ";
+    display: block;
+    position: relative;
+    background: linear-gradient(
+        to bottom,
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.25) 50%
+    );
+    background-size: 100% 5px;
+    z-index: 2;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+
+    /*animation: retro_wiggle 0.7s linear 0s infinite;*/
+}
+
+.audio_graph_screen > .item {
+    position: absolute;
+    top: 10%;
+    left: 30%;
+    width: 200px;
+    height: 250px;
+    background: radial-gradient(#9d9d9d26 93%, transparent) var(--bg-medium);
+    box-shadow: 0 0 14px 3px #9797974d;
+    border: solid 1px #91919126;
+}
+
+div.input > p {
+    margin-left: 10px;
+    margin: 1px 0 -1px 10px;
+}
+
+div.output > p {
+    margin-right: 10px;
+    margin: 1px 10px -1px 0;
+}
+
+div.input > p, div.output > p {
+    font-weight: bold;
+    text-transform: uppercase;
+    color: red;
+    mix-blend-mode: screen;
+    filter: blur(1px);
+    top: 0;
+    left: -1px;
+    white-space: nowrap;
+}
+
+p::before, p::after {
+    content: attr(retro);
+    position: absolute;
+    mix-blend-mode: screen;
+}
+
+p::before {
+    top: calc(-0.4*1px);
+    left: calc(0.6*1px);
+    color: limegreen;
+}
+
+p::after {
+    top: 0;
+    left: 3px;
+    color: blue;
+}
+
+.item > .input {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.item > .input > .connector {
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 10px;
+    margin-left: -4px;
+    box-shadow: -1px 0px 4px 2px red;
+    background-color: #ff0000e0;
+}
+
+.item > .output {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
