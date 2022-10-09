@@ -625,14 +625,20 @@
           <div class="audio_graph_toolbar"></div>
           <div class="audio_graph_screen">
             <div class="retro"></div>
+            <canvas class="grid_background" width="1000" height="1000"></canvas>
             <div class="item">
-              <div class="input">
-                <div class="connector"></div>
-                <p retro="Channel 1">Channel 1</p>
+              <div class="item_header">
+                <p retro="Title">Title</p>
               </div>
-              <div class="output">
-                <p retro="Output">Output</p>
-                <div class="connector"></div>
+              <div class="item_body">
+                <div class="input">
+                  <div class="connector"></div>
+                  <p retro="Channel 1">Channel 1</p>
+                </div>
+                <div class="output">
+                  <p retro="Output">Output</p>
+                  <div class="connector"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -653,6 +659,7 @@
     <script src="./scripts/Audio.js"></script>
     <script src="./scripts/Keybinds.js"></script>
     <script src="./scripts/Mixer.js"></script>
+    <script src="./scripts/AudioGraph.js"></script>
     <script src="./renderer.js"></script>
   </body>
 </html>

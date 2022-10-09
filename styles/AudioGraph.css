@@ -43,7 +43,6 @@
 }
 
 .retro {
-    content: " ";
     display: block;
     position: relative;
     background: linear-gradient(
@@ -61,15 +60,18 @@
     /*animation: retro_wiggle 0.7s linear 0s infinite;*/
 }
 
+.grid_background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
 .audio_graph_screen > .item {
     position: absolute;
     top: 10%;
     left: 30%;
     width: 200px;
     height: 250px;
-    background: radial-gradient(#9d9d9d26 93%, transparent) var(--bg-medium);
-    box-shadow: 0 0 14px 3px #9797974d;
-    border: solid 1px #91919126;
 }
 
 div.input > p {
@@ -82,7 +84,7 @@ div.output > p {
     margin: 1px 10px -1px 0;
 }
 
-div.input > p, div.output > p {
+.item p {
     font-weight: bold;
     text-transform: uppercase;
     color: red;
@@ -111,26 +113,79 @@ p::after {
     color: blue;
 }
 
-.item > .input {
+.input {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
 }
 
-.item > .input > .connector {
+.input, .output {
+    margin: 5px 0;
+}
+
+.input > .connector {
     width: 8px;
     height: 8px;
     background-color: red;
     border-radius: 10px;
     margin-left: -4px;
     box-shadow: -1px 0px 4px 2px red;
-    background-color: #ff0000e0;
+    mix-blend-mode: screen;
+    position: relative;
 }
 
-.item > .output {
+.input > .connector::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: blue;
+    left: 2px;
+    top: 0px;
+    position: absolute;
+    border-radius: 10px;
+    mix-blend-mode: screen;
+    box-shadow: -1px 0px 4px 2px blue;
+}
+
+.input > .connector::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: lime;
+    position: absolute;
+    border-radius: 10px;
+    mix-blend-mode: screen;
+    top: 0px;
+    left: -2px;
+    box-shadow: -1px 0px 4px 2px lime;
+}
+
+.output {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
+}
+
+.item_header {
+    height: 20px;
+    box-shadow: 0px 0px 7px 5px #c8000085;
+    z-index: 1;
+    position: relative;
+    background-color: #b41f1fcc;
+    border-radius: 1px 1px 0 0;
+    border: solid 1px #83838326;
+}
+
+.item_header > p {
+    margin: 0;
+}
+
+.item_body {
+    background: radial-gradient(#9d9d9d26 93%, transparent) var(--bg-medium);
+    box-shadow: 0 0 14px 3px #9797974d;
+    border: solid 1px #91919126;
+    height: calc(100% - 20px);
+    padding-top: 10px;
 }
