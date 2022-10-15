@@ -70,6 +70,12 @@ function sleep(milliseconds) {
     } while (currentDate - date < milliseconds);
 }
 
+function createElement(HTML) {
+  let a = document.createElement("div");
+  a.innerHTML = HTML;
+  return a.firstElementChild;
+}
+
 
 // Audio stuff
 const buffer_size = 44100;

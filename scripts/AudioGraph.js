@@ -45,3 +45,60 @@ for (let i = 0; i < screen.width; i+= rect.width) {
 screen_context.stroke();
 
 // drag listener
+
+
+/*
+    ================== Nodes =====================
+*/
+let agsn = '<div class="item">\
+              <div class="item_header">\
+                <p retro="Title">Title</p>\
+              </div>\
+              <div class="item_body">\
+                <div class="input">\
+                  <div class="connector"></div>\
+                  <p retro="Channel 1">Channel 1</p>\
+                </div>\
+                <div class="output">\
+                  <p retro="Output">Output</p>\
+                  <div class="connector"></div>\
+                </div>\
+              </div>\
+            </div>';
+
+class AudioGraphSourceNode {
+    constructor() {
+        this.title = "TestNode"
+        this.element = null;
+    }
+
+    createElement() {
+        let a = createElement(agsn);
+        let b = a.querySelector(".item_header > p");
+        b.setAttribute("retro", this.title);
+        b.innerHTML = this.title;
+        this.element = a;
+    }
+
+    addToGraph() {
+        let a = document.getElementById("audiograph");
+        a.appendChild(this.element);
+    }
+
+    initializeEventListeners() {
+        let header = this.element.querySelector(".item_header");
+        function nodemove(e) {
+            this.element.style.left = this.element.offsetLeft + e.movementX + "px";
+        }
+        header.addEventListener("mousedown", () => {
+            document.addEventListener("mousemove", nodemove);
+        });
+        document.addEventListener("mouseup", () => {
+            document.removeEventListener("mousemove", nodemove);
+        });
+    }
+}
+
+let nodeee = new AudioGraphSourceNode();
+nodeee.createElement();
+nodeee.addToGraph();
