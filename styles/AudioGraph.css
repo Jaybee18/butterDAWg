@@ -169,17 +169,16 @@ p::after {
 }
 
 .item_header {
-    height: 20px;
-    box-shadow: 0px 0px 7px 5px #c8000085;
+    box-shadow: 0px 0px 9px 3px #c8000085;
     z-index: 1;
     position: relative;
     background-color: #b41f1fcc;
-    border-radius: 1px 1px 0 0;
+    /* border-radius: 1px 1px 0 0; */
     border: solid 1px #83838326;
 }
 
 .item_header > p {
-    margin: 0;
+    margin: 3px 0;
 }
 
 .item_body {
