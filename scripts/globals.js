@@ -73,7 +73,7 @@ function sleep(milliseconds) {
 function createElement(HTML) {
   let a = document.createElement("div");
   a.innerHTML = HTML;
-  return a.firstElementChild;
+  return a.firstChild;
 }
 
 

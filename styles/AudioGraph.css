@@ -43,7 +43,7 @@
 }
 
 .retro {
-    display: block;
+    display: none;
     position: relative;
     background: linear-gradient(
         to bottom,
@@ -170,9 +170,8 @@ p::after {
 
 .item_header {
     box-shadow: 0px 0px 9px 3px #c8000085;
-    z-index: 1;
     position: relative;
-    background-color: #b41f1fcc;
+    background-color: #346278; /*#b41f1fcc;*/
     /* border-radius: 1px 1px 0 0; */
     border: solid 1px #83838326;
 }
@@ -182,7 +181,8 @@ p::after {
 }
 
 .item_body {
-    background: radial-gradient(#9d9d9d26 93%, transparent) var(--bg-medium);
+    /*background: radial-gradient(#9d9d9d26 93%, transparent) var(--bg-medium);*/
+    background: var(--bg-medium);
     box-shadow: 0 0 14px 3px #9797974d;
     border: solid 1px #91919126;
     height: calc(100% - 20px);

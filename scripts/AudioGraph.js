@@ -50,6 +50,7 @@ screen_context.stroke();
 /*
     ================== Nodes =====================
 */
+var nodes = [];
 let agsn = '<div class="item">\
               <div class="item_header">\
                 <p retro="Title">Title</p>\
@@ -67,9 +68,15 @@ let agsn = '<div class="item">\
             </div>';
 
 class AudioGraphSourceNode {
-    constructor() {
-        this.title = "TestNode"
+    constructor(title) {
+        this.title = title
         this.element = null;
+
+        this.createElement();
+        this.addToGraph();
+        this.initializeEventListeners();
+
+        nodes.push(this);
     }
 
     createElement() {
@@ -87,8 +94,10 @@ class AudioGraphSourceNode {
 
     initializeEventListeners() {
         let header = this.element.querySelector(".item_header");
+        let tempthis = this;
         function nodemove(e) {
-            this.element.style.left = this.element.offsetLeft + e.movementX + "px";
+            tempthis.element.style.left = tempthis.element.offsetLeft + e.movementX + "px";
+            tempthis.element.style.top = tempthis.element.offsetTop + e.movementY + "px";
         }
         header.addEventListener("mousedown", () => {
             document.addEventListener("mousemove", nodemove);
@@ -99,6 +108,22 @@ class AudioGraphSourceNode {
     }
 }
 
-let nodeee = new AudioGraphSourceNode();
-nodeee.createElement();
-nodeee.addToGraph();
+// add initial nodes to screen
+let nodeee = new AudioGraphSourceNode("node1");
+
+// initialize screen drag listener
+function screendrag(e) {
+    nodes.forEach(element => {
+        let tmp = element.element;
+        tmp.style.left = tmp.offsetLeft + e.movementX + "px";
+        tmp.style.top = tmp.offsetTop + e.movementY + "px";
+    });
+}
+document.addEventListener("mousedown", (e) => {
+    if (e.button === 1) {
+        document.addEventListener("mousemove", screendrag);
+    }
+});
+document.addEventListener("mouseup", () => {
+    document.removeEventListener("mousemove", screendrag);
+});
