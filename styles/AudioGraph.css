@@ -120,22 +120,30 @@ p::after {
     align-items: center;
 }
 
-.input, .output {
+.item_body > div {
     margin: 5px 0;
 }
 
-.input > .connector {
+.input > .connector, .output > .connector {
     width: 8px;
     height: 8px;
     background-color: red;
     border-radius: 10px;
-    margin-left: -4px;
     box-shadow: -1px 0px 4px 2px red;
     mix-blend-mode: screen;
     position: relative;
 }
 
-.input > .connector::before {
+.input > .connector {
+    margin-left: -4px;
+}
+
+.output > .connector {
+    margin-right: -8px;
+    margin-left: 4px;
+}
+
+.input > .connector::before, .output > .connector::before {
     content: '';
     width: 8px;
     height: 8px;
@@ -148,7 +156,7 @@ p::after {
     box-shadow: -1px 0px 4px 2px blue;
 }
 
-.input > .connector::after {
+.input > .connector::after, .output > .connector::after {
     content: '';
     width: 8px;
     height: 8px;
@@ -169,7 +177,8 @@ p::after {
 }
 
 .item_header {
-    box-shadow: 0px 0px 9px 3px #c8000085;
+    /*box-shadow: 0px 0px 9px 3px #c8000085;*/
+    box-shadow: 0px 0px 6px 2px #346278;
     position: relative;
     background-color: #346278; /*#b41f1fcc;*/
     /* border-radius: 1px 1px 0 0; */
@@ -185,6 +194,46 @@ p::after {
     background: var(--bg-medium);
     box-shadow: 0 0 14px 3px #9797974d;
     border: solid 1px #91919126;
-    height: calc(100% - 20px);
+    /*height: calc(100% - 20px);*/
     padding-top: 10px;
+
+    /* temporary change, bc idk what to do with the header shadow TODO*/
+    padding-top: 29px;
+    margin-top: -29px;
+}
+
+/* playbutton component */
+.item_body > .playbutton {
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.item_body > .playbutton > i {
+    color: #fff;
+    filter: blur(1px);
+    transform: scale(1.5);
+    background: transparent;
+    mix-blend-mode: screen;
+    cursor: pointer;
+}
+
+/* I/O components */
+.item_body svg {
+    position: absolute;
+}
+
+/* stat component */
+.item_body > .stat {
+    margin-left: 5px;
+}
+
+.item_body > .stat > p {
+    margin: 0;
+}
+.item_body path {
+    border: 1px solid blue;
+    filter: blur(1px);
 }

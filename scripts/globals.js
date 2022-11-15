@@ -82,8 +82,7 @@ const buffer_size = 44100;
 const timeout = 10; 
 const audiocontext = new AudioContext({sample_rate});
 audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {console.log("loaded passthrough module");});
-audiocontext.suspend();
-
+//audiocontext.suspend();
 
 // temp
 class PassthroughNode extends AudioWorkletNode {

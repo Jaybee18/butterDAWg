@@ -50,49 +50,26 @@ screen_context.stroke();
 /*
     ================== Nodes =====================
 */
-var nodes = [];
-let agsn = '<div class="item">\
-              <div class="item_header">\
-                <p retro="Title">Title</p>\
-              </div>\
-              <div class="item_body">\
-                <div class="input">\
-                  <div class="connector"></div>\
-                  <p retro="Channel 1">Channel 1</p>\
-                </div>\
-                <div class="output">\
-                  <p retro="Output">Output</p>\
-                  <div class="connector"></div>\
-                </div>\
-              </div>\
-            </div>';
-
-class AudioGraphSourceNode {
-    constructor(title) {
-        this.title = title
-        this.element = null;
-
-        this.createElement();
-        this.addToGraph();
-        this.initializeEventListeners();
-
-        nodes.push(this);
+let baseNode = '<div class="item">\
+                    <div class="item_header">\
+                        <p retro="Title">Title</p>\
+                    </div>\
+                    <div class="item_body"></div>\
+                </div>';
+class AudioGraphNode {
+    constructor() {
+        this.initElement();
+        this.initComponents();
     }
 
-    createElement() {
-        let a = createElement(agsn);
-        let b = a.querySelector(".item_header > p");
-        b.setAttribute("retro", this.title);
-        b.innerHTML = this.title;
-        this.element = a;
-    }
+    initElement() {
+        // create the HTML element
+        this.element = createElement(baseNode)
 
-    addToGraph() {
-        let a = document.getElementById("audiograph");
-        a.appendChild(this.element);
-    }
+        // attach it to the document
+        document.getElementById("audiograph").appendChild(this.element)
 
-    initializeEventListeners() {
+        // initialize move listeners
         let header = this.element.querySelector(".item_header");
         let tempthis = this;
         function nodemove(e) {
@@ -106,10 +83,232 @@ class AudioGraphSourceNode {
             document.removeEventListener("mousemove", nodemove);
         });
     }
+
+    setTitle(title) {
+        let a = this.element.querySelector(".item_header > p");
+        a.setAttribute("retro", title);
+        a.innerText = title;
+    }
+
+    initComponents() {
+        throw Error("initComponents has to be implemented when inheriting AudioGraphNode");
+    }
+
+    addComponent(component) {
+        let body = this.element.querySelector(".item_body");
+        body.appendChild(component.getElement());
+        return component;
+    }
+}
+
+var nodes = [];
+let nodeComponents = {
+    "input": '<div class="input">\
+                    <div class="connector"></div>\
+                    <p retro="Input">Input</p>\
+                </div>',
+    "output": '<div class="output">\
+                    <p retro="Output">Output</p>\
+                    <div class="connector">\
+                        <svg><path stroke-linejoin="bevel" stroke-width="2" stroke="#fff" fill="none"></path></svg>\
+                    </div>\
+                </div>',
+    "iconbutton": '<div class="playbutton">\
+                        <i class="fa-solid fa-play"></i>\
+                    </div>',
+    "stat": '<div class="stat">\
+                <p retro="length: 12s">length: 12s</p>\
+            </div>',
+};
+
+class Stat {
+    constructor(label, value) {
+        let tmp = createElement(nodeComponents["stat"]);
+        let text = label + ": " + value;
+        tmp.querySelector("p").setAttribute("retro", text);
+        tmp.querySelector("p").innerText = text;
+        this.element = tmp;
+    }
+
+    getElement() {
+        return this.element;
+    }
+}
+
+// the current input-connector that is being hovered
+var currentHoverConnector = null;
+
+class Input {
+    constructor(label) {
+        let tmp = createElement(nodeComponents["input"]);
+        tmp.querySelector("p").setAttribute("retro", label);
+        tmp.querySelector("p").innerText = label;
+
+        let knob = tmp.querySelector(".connector");
+        knob.addEventListener("mouseenter", () => {
+            currentHoverConnector = this;
+        });
+        knob.addEventListener("mouseleave", () => {
+            currentHoverConnector = null;
+        });
+
+        this.element = tmp;
+    }
+
+    getConnector() {
+        return this.element.querySelector(".connector");
+    }
+
+    getElement() {
+        return this.element;
+    }
+}
+
+class Output {
+    constructor(label) {
+        let tmp = createElement(nodeComponents["output"]);
+        tmp.querySelector("p").setAttribute("retro", label);
+        tmp.querySelector("p").innerText = label;
+        // list of connectors that this output is connected to
+        this.connections = [];
+        let knob = tmp.querySelector(".connector");
+        let path = tmp.querySelector("path");
+        let svg = tmp.querySelector("svg");
+        function updateConnection(e) {
+            let svg_padding = 5;
+            let yswap = e.clientY < cumulativeOffset(knob).top;
+            let xswap = e.clientX < cumulativeOffset(knob).left;
+            let both = xswap && yswap;
+            if (xswap) {
+                svg.style.left = e.clientX - cumulativeOffset(knob).left - (test?0:svg_padding) + "px";
+            } else {
+                svg.style.left = knob.clientWidth/2 - svg_padding + "px";
+            }
+            if (yswap) {
+                svg.style.top = e.clientY - cumulativeOffset(knob).top - (test?0:svg_padding) + "px";
+            } else {
+                svg.style.top = knob.clientHeight/2 - svg_padding + "px";
+            }
+            let offset = cumulativeOffset(tmp);
+            let a = Math.abs(e.clientX - offset.left - tmp.clientWidth);
+            let b = Math.abs(e.clientY - offset.top - tmp.clientHeight/2);
+            path.setAttribute("d", `M ${svg_padding} ${svg_padding} C ${(a+svg_padding)/2} 0 ${(a+svg_padding)/2} ${b} ${a} ${b}`);
+            if (!both) {
+                if (xswap) {
+                    path.setAttribute("d", `M ${svg_padding} ${b} C ${a/2} ${b} ${a/2} ${svg_padding} ${a+svg_padding} ${svg_padding}`);
+                }
+                if (yswap) {
+                    path.setAttribute("d", `M ${svg_padding} ${b} C ${a/2} ${b} ${a/2} ${svg_padding} ${a} ${svg_padding}`);
+                }
+            }
+            svg.setAttribute("width", path.getBoundingClientRect().width + svg_padding*2);
+            svg.setAttribute("height", path.getBoundingClientRect().height + svg_padding*2);
+        }
+        tmp.querySelector(".connector").addEventListener("mousedown", () => {
+            document.addEventListener("mousemove", updateConnection);
+            svg.style.display = "block";
+        });
+        document.addEventListener("mouseup", () => {
+            document.removeEventListener("mousemove", updateConnection);
+            return;
+            svg.style.display = "none";
+            svg.setAttribute("width", 0);
+            svg.setAttribute("height", 0);
+
+            if (currentHoverConnector != null) {
+                connections.push(currentHoverConnector);
+            }
+        });
+        this.element = tmp;
+    }
+
+    updateConnections() {
+        //
+    }
+
+    getElement() {
+        return this.element;
+    }
+}
+
+class IconButton {
+    constructor(icon, onclick) {
+        let tmp = createElement(nodeComponents["iconbutton"]);
+        tmp.innerHTML = icon;
+        tmp.addEventListener("click", onclick);
+        this.element = tmp;
+    }
+
+    getElement() {
+        return this.element;
+    }
+
+    changeIcon(newicon) {
+        this.element.innerHTML = newicon;
+    }
+}
+
+
+class AudioGraphSourceNode extends AudioGraphNode {
+    constructor(source) {
+        super();
+        this.is_playing = false;
+        this.source = source;
+        this.sample = null;
+        this.setTitle(source.filename);
+    }
+
+    initComponents() {
+        this.addComponent(new Output("outoput"));
+        this.addComponent(new Stat("length", "12s"));
+        let playbutton = new IconButton('<i class="fa-solid fa-play"></i>', () => {
+            // change the icon according to the play state
+            this.is_playing = !this.is_playing;
+            if (this.is_playing) {
+                playbutton.changeIcon('<i class="fa-solid fa-pause"></i>');
+                this.play();
+            } else {
+                playbutton.changeIcon('<i class="fa-solid fa-play"></i>');
+                this.pause();
+            }
+        });
+        this.addComponent(playbutton);
+    }
+
+    play() {
+        this.sample = audiocontext.createBufferSource();
+        this.sample.buffer = this.source.getAudioBuffer();
+        this.sample.connect(audiocontext.destination);
+        this.sample.start();
+    }
+
+    pause() {
+        this.sample.stop();
+    }
+}
+
+class AudioGraphOutputNode extends AudioGraphNode {
+    constructor() {
+        super();
+        this.setTitle("Output 1");
+    }
+
+    initComponents() {
+        this.addComponent(new Input("inputo"));
+        this.addComponent(new Stat("channels", "2"));
+    }
+}
+
+class Connection {
+    constructor(output, input) {
+        // both parameters are I/O elements
+    }
 }
 
 // add initial nodes to screen
-let nodeee = new AudioGraphSourceNode("node1");
+let source = new Source("./files/0Current project/kick7.1.wav");
+let nodeee = new AudioGraphSourceNode(source);
+let outpotu = new AudioGraphOutputNode();
 
 // initialize screen drag listener
 function screendrag(e) {

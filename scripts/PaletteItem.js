@@ -23,7 +23,7 @@ class Item extends Draggable{
       if (ending === "wav") {
         var type_icon = document.createElement("i");
         type_icon.classList.add("fa-solid");
-        type_icon.classList.add("fa-wave-square");
+        type_icon.classList.add("fa-file-audio");
         this.loadData();
         this.initializeDragListener();
       } else if (title === ending) {
