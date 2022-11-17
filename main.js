@@ -3,11 +3,11 @@ const path = require('path')
 
 const createWindow = () => {
     const win = new BrowserWindow({
-      width: 800,
-      height: 600,
+      width: 1800,
+      height: 1000,
       autoHideMenuBar: true,
-      fullscreen: true,
-      frame: false,
+      fullscreen: false, // just for debugging TODO
+      frame: true, // just for debugging
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: true,

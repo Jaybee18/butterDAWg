@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "allowJs": false,
+      "target": "ES5",
+      "outDir": "built",
+      "preserveConstEnums": true,
+      "strictNullChecks": false,
+      "moduleResolution": "node",
+      "module": "CommonJS",
+      "rootDir": "src",
+      "strict": true
+    },
+    "exclude": ["node_modules", "src/AudioNodes"]
+}

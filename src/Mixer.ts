@@ -13,7 +13,11 @@ const slot = '  <div class="plugin_slot">\
                 </div > ';
 
 class PluginSlot {
-    constructor(index) {
+
+    element: HTMLElement;
+    index: number;
+
+    constructor(index: number) {
         this.element = null;
         this.index = index;
 
@@ -21,9 +25,10 @@ class PluginSlot {
     }
 
     createElement() {
+        // TODO rewrite with custom createElement
         let a = document.createElement("div");
         a.innerHTML = slot;
-        let b = a.firstElementChild;
+        let b = <HTMLElement> a.firstElementChild;
         b.querySelector(".slot_wrapper p").innerHTML = "Slot " + this.index;
         this.element = b;
         let c = document.querySelector(".channel_plugins");

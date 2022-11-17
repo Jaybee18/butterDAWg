@@ -1,4 +1,7 @@
-let screen = document.querySelector(".grid_background");
+import { Source } from "./Source";
+import { createElement, cumulativeOffset, globals } from "./globals";
+
+let screen = <HTMLCanvasElement> document.querySelector(".grid_background")!;
 let screen_context = screen.getContext("2d");
 screen_context.clearRect(0, 0, screen.width, screen.height);
 let rect = {"width": 30, "height": 30};
@@ -27,7 +30,7 @@ screen_context.stroke();
 let warp = 15; // screen warp in percent
 var parab = (x) => {return (0.00001 * warp) * Math.pow(x - 500, 2);};
 screen_context.strokeStyle = "#00000000";
-screen_context.lineWidth = "2";
+screen_context.lineWidth = 2;
 const cross_width = rect.width * 0.04;
 for (let i = 0; i < screen.width; i+= rect.width) {
     let temp3 = 0;
@@ -57,6 +60,9 @@ let baseNode = '<div class="item">\
                     <div class="item_body"></div>\
                 </div>';
 class AudioGraphNode {
+
+    element: HTMLElement;
+
     constructor() {
         this.initElement();
         this.initComponents();
@@ -85,7 +91,7 @@ class AudioGraphNode {
     }
 
     setTitle(title) {
-        let a = this.element.querySelector(".item_header > p");
+        let a = <HTMLElement> this.element.querySelector(".item_header > p");
         a.setAttribute("retro", title);
         a.innerText = title;
     }
@@ -122,6 +128,9 @@ let nodeComponents = {
 };
 
 class Stat {
+
+    element: HTMLElement;
+
     constructor(label, value) {
         let tmp = createElement(nodeComponents["stat"]);
         let text = label + ": " + value;
@@ -139,6 +148,9 @@ class Stat {
 var currentHoverConnector = null;
 
 class Input {
+
+    element: HTMLElement;
+
     constructor(label) {
         let tmp = createElement(nodeComponents["input"]);
         tmp.querySelector("p").setAttribute("retro", label);
@@ -165,13 +177,15 @@ class Input {
 }
 
 class Output {
+
+    element: HTMLElement;
+
     constructor(label) {
         let tmp = createElement(nodeComponents["output"]);
         tmp.querySelector("p").setAttribute("retro", label);
         tmp.querySelector("p").innerText = label;
         // list of connectors that this output is connected to
-        this.connections = [];
-        let knob = tmp.querySelector(".connector");
+        let knob = <HTMLElement> tmp.querySelector(".connector");
         let path = tmp.querySelector("path");
         let svg = tmp.querySelector("svg");
         function updateConnection(e) {
@@ -180,12 +194,12 @@ class Output {
             let xswap = e.clientX < cumulativeOffset(knob).left;
             let both = xswap && yswap;
             if (xswap) {
-                svg.style.left = e.clientX - cumulativeOffset(knob).left - (test?0:svg_padding) + "px";
+                svg.style.left = e.clientX - cumulativeOffset(knob).left - svg_padding + "px";
             } else {
                 svg.style.left = knob.clientWidth/2 - svg_padding + "px";
             }
             if (yswap) {
-                svg.style.top = e.clientY - cumulativeOffset(knob).top - (test?0:svg_padding) + "px";
+                svg.style.top = e.clientY - cumulativeOffset(knob).top - svg_padding + "px";
             } else {
                 svg.style.top = knob.clientHeight/2 - svg_padding + "px";
             }
@@ -201,23 +215,17 @@ class Output {
                     path.setAttribute("d", `M ${svg_padding} ${b} C ${a/2} ${b} ${a/2} ${svg_padding} ${a} ${svg_padding}`);
                 }
             }
-            svg.setAttribute("width", path.getBoundingClientRect().width + svg_padding*2);
-            svg.setAttribute("height", path.getBoundingClientRect().height + svg_padding*2);
+            svg.setAttribute("width", (path.getBoundingClientRect().width + svg_padding*2).toString());
+            svg.setAttribute("height", (path.getBoundingClientRect().height + svg_padding*2).toString());
         }
         tmp.querySelector(".connector").addEventListener("mousedown", () => {
             document.addEventListener("mousemove", updateConnection);
             svg.style.display = "block";
         });
         document.addEventListener("mouseup", () => {
-            document.removeEventListener("mousemove", updateConnection);
-            return;
             svg.style.display = "none";
-            svg.setAttribute("width", 0);
-            svg.setAttribute("height", 0);
-
-            if (currentHoverConnector != null) {
-                connections.push(currentHoverConnector);
-            }
+            svg.setAttribute("width", "0");
+            svg.setAttribute("height", "0");
         });
         this.element = tmp;
     }
@@ -232,6 +240,9 @@ class Output {
 }
 
 class IconButton {
+
+    element: HTMLElement;
+
     constructor(icon, onclick) {
         let tmp = createElement(nodeComponents["iconbutton"]);
         tmp.innerHTML = icon;
@@ -250,6 +261,11 @@ class IconButton {
 
 
 class AudioGraphSourceNode extends AudioGraphNode {
+
+    is_playing: boolean;
+    source: Source;
+    sample: AudioBufferSourceNode;
+
     constructor(source) {
         super();
         this.is_playing = false;
@@ -276,9 +292,9 @@ class AudioGraphSourceNode extends AudioGraphNode {
     }
 
     play() {
-        this.sample = audiocontext.createBufferSource();
+        this.sample = globals.audiocontext.createBufferSource();
         this.sample.buffer = this.source.getAudioBuffer();
-        this.sample.connect(audiocontext.destination);
+        this.sample.connect(globals.audiocontext.destination);
         this.sample.start();
     }
 
