@@ -1,0 +1,26 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "windows" :{
+                "command": "tsc; move-item ./built/main.js . -force; move-item ./built/renderer.js . -force; move-item ./built/preload.js . -force"
+            },
+            "linux": {
+                "command": "tsc && mv ./built/main.js . && mv ./built/renderer.js . && mv ./built/preload.js ."
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false,
+                "revealProblems": "always"
+            }
+        }
+    ]
+}
