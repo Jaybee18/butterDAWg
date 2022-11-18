@@ -26,12 +26,14 @@ var Globals = /** @class */ (function () {
         this.current_drag_element = null;
         // current progression in the track in ms
         this.current_time = 0;
+        this.cursor_pos = 0; // in px
         this.sample_rate = 44100;
         this.xsnap = 20;
         this.bpm = 150;
         // audio stuff
         this.buffer_size = 44100;
         this.timeout = 10;
+        this.is_playing = false;
         this.audiocontext = new AudioContext({ sampleRate: this.sample_rate });
         this.header_help_text = document.getElementById("header_help_text");
         // description width (93px) + half of line cursor width (16px)
@@ -41,6 +43,9 @@ var Globals = /** @class */ (function () {
         // toggle button colors
         this.green = "rgb(50, 255, 32)"; // #32ff17
         this.grey = "rgb(126, 135, 125)"; // #7e877d
+        // keybinds
+        this.control_down = false;
+        this.alt_down = false;
     }
     return Globals;
 }());

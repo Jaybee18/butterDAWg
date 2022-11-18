@@ -105,6 +105,8 @@ var AudioGraphNode = /** @class */ (function () {
         throw Error("initComponents has to be implemented when inheriting AudioGraphNode");
     };
     AudioGraphNode.prototype.addComponent = function (component) {
+        // component of type Node Component
+        // aka Output, Input, Stat, ...
         var body = this.element.querySelector(".item_body");
         body.appendChild(component.getElement());
         return component;
@@ -130,24 +132,36 @@ var nodeComponents = {
                 <p retro="length: 12s">length: 12s</p>\
             </div>',
 };
-var Stat = /** @class */ (function () {
+var AudioGraphNodeComponent = /** @class */ (function () {
+    function AudioGraphNodeComponent() {
+    }
+    AudioGraphNodeComponent.prototype.getElement = function () {
+        throw new Error("getElement has to be implemented by subclasses of AudioGraphNodeComponent");
+    };
+    return AudioGraphNodeComponent;
+}());
+var Stat = /** @class */ (function (_super) {
+    __extends(Stat, _super);
     function Stat(label, value) {
+        var _this = _super.call(this) || this;
         var tmp = (0, globals_1.createElement)(nodeComponents["stat"]);
         var text = label + ": " + value;
         tmp.querySelector("p").setAttribute("retro", text);
         tmp.querySelector("p").innerText = text;
-        this.element = tmp;
+        _this.element = tmp;
+        return _this;
     }
     Stat.prototype.getElement = function () {
         return this.element;
     };
     return Stat;
-}());
+}(AudioGraphNodeComponent));
 // the current input-connector that is being hovered
 var currentHoverConnector = null;
-var Input = /** @class */ (function () {
+var Input = /** @class */ (function (_super) {
+    __extends(Input, _super);
     function Input(label) {
-        var _this = this;
+        var _this = _super.call(this) || this;
         var tmp = (0, globals_1.createElement)(nodeComponents["input"]);
         tmp.querySelector("p").setAttribute("retro", label);
         tmp.querySelector("p").innerText = label;
@@ -158,7 +172,8 @@ var Input = /** @class */ (function () {
         knob.addEventListener("mouseleave", function () {
             currentHoverConnector = null;
         });
-        this.element = tmp;
+        _this.element = tmp;
+        return _this;
     }
     Input.prototype.getConnector = function () {
         return this.element.querySelector(".connector");
@@ -167,9 +182,11 @@ var Input = /** @class */ (function () {
         return this.element;
     };
     return Input;
-}());
-var Output = /** @class */ (function () {
+}(AudioGraphNodeComponent));
+var Output = /** @class */ (function (_super) {
+    __extends(Output, _super);
     function Output(label) {
+        var _this = _super.call(this) || this;
         var tmp = (0, globals_1.createElement)(nodeComponents["output"]);
         tmp.querySelector("p").setAttribute("retro", label);
         tmp.querySelector("p").innerText = label;
@@ -218,7 +235,8 @@ var Output = /** @class */ (function () {
             svg.setAttribute("width", "0");
             svg.setAttribute("height", "0");
         });
-        this.element = tmp;
+        _this.element = tmp;
+        return _this;
     }
     Output.prototype.updateConnections = function () {
         //
@@ -227,13 +245,17 @@ var Output = /** @class */ (function () {
         return this.element;
     };
     return Output;
-}());
-var IconButton = /** @class */ (function () {
+}(AudioGraphNodeComponent));
+var IconButton = /** @class */ (function (_super) {
+    __extends(IconButton, _super);
     function IconButton(icon, onclick) {
+        var _this = _super.call(this) || this;
+        // TODO any type
         var tmp = (0, globals_1.createElement)(nodeComponents["iconbutton"]);
         tmp.innerHTML = icon;
         tmp.addEventListener("click", onclick);
-        this.element = tmp;
+        _this.element = tmp;
+        return _this;
     }
     IconButton.prototype.getElement = function () {
         return this.element;
@@ -242,7 +264,7 @@ var IconButton = /** @class */ (function () {
         this.element.innerHTML = newicon;
     };
     return IconButton;
-}());
+}(AudioGraphNodeComponent));
 var AudioGraphSourceNode = /** @class */ (function (_super) {
     __extends(AudioGraphSourceNode, _super);
     function AudioGraphSourceNode(source) {

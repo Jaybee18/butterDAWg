@@ -28,7 +28,7 @@ for (let x = 0; x < screen.width; x+= rect.width) {
 screen_context.stroke();
 */
 let warp = 15; // screen warp in percent
-var parab = (x) => {return (0.00001 * warp) * Math.pow(x - 500, 2);};
+var parab = (x:number) => {return (0.00001 * warp) * Math.pow(x - 500, 2);};
 screen_context.strokeStyle = "#00000000";
 screen_context.lineWidth = 2;
 const cross_width = rect.width * 0.04;
@@ -78,7 +78,7 @@ class AudioGraphNode {
         // initialize move listeners
         let header = this.element.querySelector(".item_header");
         let tempthis = this;
-        function nodemove(e) {
+        function nodemove(e: MouseEvent) {
             tempthis.element.style.left = tempthis.element.offsetLeft + e.movementX + "px";
             tempthis.element.style.top = tempthis.element.offsetTop + e.movementY + "px";
         }
@@ -90,7 +90,7 @@ class AudioGraphNode {
         });
     }
 
-    setTitle(title) {
+    setTitle(title: string) {
         let a = <HTMLElement> this.element.querySelector(".item_header > p");
         a.setAttribute("retro", title);
         a.innerText = title;
@@ -100,14 +100,16 @@ class AudioGraphNode {
         throw Error("initComponents has to be implemented when inheriting AudioGraphNode");
     }
 
-    addComponent(component) {
+    addComponent(component: AudioGraphNodeComponent) {
+        // component of type Node Component
+        // aka Output, Input, Stat, ...
         let body = this.element.querySelector(".item_body");
         body.appendChild(component.getElement());
         return component;
     }
 }
 
-var nodes = [];
+var nodes: Array<AudioGraphNode> = [];
 let nodeComponents = {
     "input": '<div class="input">\
                     <div class="connector"></div>\
@@ -127,11 +129,21 @@ let nodeComponents = {
             </div>',
 };
 
-class Stat {
+
+class AudioGraphNodeComponent {
+    constructor(){}
+
+    getElement(): HTMLElement {
+        throw new Error("getElement has to be implemented by subclasses of AudioGraphNodeComponent");
+    }
+}
+
+class Stat extends AudioGraphNodeComponent {
 
     element: HTMLElement;
 
-    constructor(label, value) {
+    constructor(label:string, value:string) {
+        super();
         let tmp = createElement(nodeComponents["stat"]);
         let text = label + ": " + value;
         tmp.querySelector("p").setAttribute("retro", text);
@@ -147,11 +159,12 @@ class Stat {
 // the current input-connector that is being hovered
 var currentHoverConnector = null;
 
-class Input {
+class Input extends AudioGraphNodeComponent {
 
     element: HTMLElement;
 
-    constructor(label) {
+    constructor(label:string) {
+        super();
         let tmp = createElement(nodeComponents["input"]);
         tmp.querySelector("p").setAttribute("retro", label);
         tmp.querySelector("p").innerText = label;
@@ -176,11 +189,12 @@ class Input {
     }
 }
 
-class Output {
+class Output extends AudioGraphNodeComponent {
 
     element: HTMLElement;
 
-    constructor(label) {
+    constructor(label:string) {
+        super();
         let tmp = createElement(nodeComponents["output"]);
         tmp.querySelector("p").setAttribute("retro", label);
         tmp.querySelector("p").innerText = label;
@@ -188,7 +202,7 @@ class Output {
         let knob = <HTMLElement> tmp.querySelector(".connector");
         let path = tmp.querySelector("path");
         let svg = tmp.querySelector("svg");
-        function updateConnection(e) {
+        function updateConnection(e: MouseEvent) {
             let svg_padding = 5;
             let yswap = e.clientY < cumulativeOffset(knob).top;
             let xswap = e.clientX < cumulativeOffset(knob).left;
@@ -239,11 +253,13 @@ class Output {
     }
 }
 
-class IconButton {
+class IconButton extends AudioGraphNodeComponent {
 
     element: HTMLElement;
 
-    constructor(icon, onclick) {
+    constructor(icon:string, onclick:any) {
+        super();
+        // TODO any type
         let tmp = createElement(nodeComponents["iconbutton"]);
         tmp.innerHTML = icon;
         tmp.addEventListener("click", onclick);
@@ -254,7 +270,7 @@ class IconButton {
         return this.element;
     }
 
-    changeIcon(newicon) {
+    changeIcon(newicon:string) {
         this.element.innerHTML = newicon;
     }
 }
@@ -266,7 +282,7 @@ class AudioGraphSourceNode extends AudioGraphNode {
     source: Source;
     sample: AudioBufferSourceNode;
 
-    constructor(source) {
+    constructor(source: Source) {
         super();
         this.is_playing = false;
         this.source = source;
@@ -316,7 +332,7 @@ class AudioGraphOutputNode extends AudioGraphNode {
 }
 
 class Connection {
-    constructor(output, input) {
+    constructor(output: any, input: any) {
         // both parameters are I/O elements
     }
 }
@@ -327,7 +343,7 @@ let nodeee = new AudioGraphSourceNode(source);
 let outpotu = new AudioGraphOutputNode();
 
 // initialize screen drag listener
-function screendrag(e) {
+function screendrag(e: MouseEvent) {
     nodes.forEach(element => {
         let tmp = element.element;
         tmp.style.left = tmp.offsetLeft + e.movementX + "px";

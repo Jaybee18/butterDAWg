@@ -69,7 +69,7 @@ var Item = /** @class */ (function (_super) {
         return _this;
     }
     Item.prototype.loadData = function () {
-        console.log(typeof this.contents);
+        console.log(typeof this.contents); // assure with if that this.contents is in fact a string
         // Load a wav file buffer as a WaveFile object
         this.file = new wavefile_1.WaveFile((0, fs_1.readFileSync)(this.contents));
         if (this.file.bitDepth !== "32f") {

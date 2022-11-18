@@ -347,22 +347,22 @@ var Track = /** @class */ (function () {
     Track.prototype.initializeResizing = function () {
         // TODO maybe optimize this
         var resize_handle = this.element.querySelector("#track_resize");
-        var l = this.element;
-        var temp_this = this;
+        /*var l = this.element;
+        let temp_this = this;
         resize_handle.onmousedown = function () {
-            if (temp_this.resize_locked) {
-                return false;
-            }
+            if (temp_this.resize_locked) { return false; }
             resizing_track = l;
             return false;
         };
+
         document.getElementById("tracks").onmousemove = function (e) {
             if (resizing_track === null || temp_this.resize_locked) {
                 return false;
             }
-            var new_height = e.clientY - (0, globals_1.cumulativeOffset)(resizing_track).top; //resizing_track.offsetTop;
+
+            var new_height = e.clientY - cumulativeOffset(resizing_track).top; //resizing_track.offsetTop;
             resizing_track.style.height = new_height + "px";
-        };
+        };*/
     };
     Track.prototype.resizeBackground = function (event) {
         var background = this.content.querySelector(".track_background");
@@ -395,7 +395,7 @@ var Track = /** @class */ (function () {
                 newOffset = Math.min(Math.max(newOffset, 0), 1);
                 tracks_scroll_to(newOffset, 0);
             }
-            else if (control_down) {
+            else if (globals_1.globals.control_down) {
                 // delta = x*100
                 if (globals_1.globals.xsnap - e.deltaY / 100 < 6) {
                     return;
@@ -409,7 +409,7 @@ var Track = /** @class */ (function () {
                     globals_1.globals.tracks[i].resizeBackground(e);
                 }
             }
-            else if (alt_down) {
+            else if (globals_1.globals.alt_down) {
                 e.preventDefault();
                 for (var i = 0; i < globals_1.globals.tracks.length; i++) {
                     globals_1.globals.tracks[i].resizeHeight(e.deltaY / 10);

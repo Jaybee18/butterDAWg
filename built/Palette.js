@@ -107,7 +107,7 @@ document.addEventListener("mouseup", function () {
 function mapFolder(folder) {
     if (!(0, fs_1.existsSync)(folder)) {
         console.log("couldn't read palette input folder");
-        return null;
+        return new Map([["", ""]]);
     }
     // if 'folder' is a file, only return the file
     // aka arrived at the deepest possible recursion in the folder

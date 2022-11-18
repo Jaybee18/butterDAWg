@@ -119,7 +119,7 @@ globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthrough.js").t
 
 // temp
 export class PassthroughNode extends AudioWorkletNode {
-	constructor(context, options) {
+	constructor(context: BaseAudioContext, options: AudioWorkletNodeOptions) {
 		// set options here
 		super(context, 'passthrough', options);
 
@@ -157,7 +157,7 @@ export var sidebar_folder_colors = {
 	"Templates": "#689880"
 };
 
-export function insertAfter(newNode, existingNode) {
+export function insertAfter(newNode: Node, existingNode: Node) {
 	existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
 }
 

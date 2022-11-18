@@ -5,7 +5,7 @@ export var color_picker = document.getElementById("color_picker");
 let color_picker_buttons = document.querySelectorAll(".color_picker > #bottom > .btn");
 let color_picker_reset = color_picker_buttons[0];
 let color_picker_confirm = color_picker_buttons[1];
-let color_picker_drag_handle = document.querySelector(".color_picker > #top");
+let color_picker_drag_handle = <HTMLElement> document.querySelector(".color_picker > #top");
 var color_picker_canvas = <HTMLCanvasElement>document.querySelector(".color_picker canvas");
 var color_picker_cursor = document.getElementById("canvas_cursor");
 var color_picker_preview = document.getElementById("color_picker_preview");
@@ -31,13 +31,13 @@ var canvasData = ctx.getImageData(0, 0, color_picker_width, color_picker_height)
  * @param   {number}  l       The lightness
  * @return  {Array}           The RGB representation
  */
-function hslToRgb(h, s, l) {
+function hslToRgb(h: number, s: number, l: number) {
 	var r, g, b;
 
 	if (s == 0) {
 		r = g = b = l; // achromatic
 	} else {
-		var hue2rgb = function hue2rgb(p, q, t) {
+		var hue2rgb = function hue2rgb(p: number, q: number, t: number) {
 			if (t < 0) t += 1;
 			if (t > 1) t -= 1;
 			if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -57,7 +57,7 @@ function hslToRgb(h, s, l) {
 }
 // https://stackoverflow.com/questions/7812514/drawing-a-dot-on-html5-canvas
 // That's how you define the value of a pixel
-function drawPixel(x, y, r, g, b, a) {
+function drawPixel(x: number, y: number, r: number, g: number, b: number, a: number) {
 	var index = (x + y * color_picker_width) * 4;
 
 	canvasData.data[index + 0] = r;
@@ -118,7 +118,7 @@ let canvas_min = 75;
 document.getElementById("upper_canvas_limiter").style.height = canvas_min + "px";
 let canvas_max = 30;
 document.getElementById("lower_canvas_limiter").style.height = canvas_max + "px";
-function color_picker_cursor_movement(e) {
+function color_picker_cursor_movement(e: { clientX: number, clientY: number}) {
 	color_picker_cursor_pos.x = Math.min(Math.max(0, e.clientX - color_picker.offsetLeft - 26), 250);
 	color_picker_cursor_pos.y = Math.min(Math.max(0 + (colors_limited ? canvas_min : 0), e.clientY - color_picker.offsetTop - 80), 250 - (colors_limited ? canvas_max : 0));
 	color_picker_cursor.style.left = color_picker_cursor_pos.x + 26 + "px";
@@ -137,7 +137,7 @@ let lum_min = 75;
 document.getElementById("upper_luminance_limiter").style.height = lum_min + "px";
 let lum_max = 90;
 document.getElementById("lower_luminance_limiter").style.height = lum_max + "px";
-function color_picker_luminance_movement(e) {
+function color_picker_luminance_movement(e: { clientX: number, clientY: number}) {
 	luminance = Math.max(Math.min(e.clientY - color_picker.offsetTop - 80, 250 - (colors_limited ? lum_max : 0)), 0 + (colors_limited ? lum_min : 0));
 	luminance_cursor.style.top = luminance + 79 - 6 + "px";
 	updateColorPickerPreview()
@@ -150,7 +150,7 @@ document.addEventListener("mouseup", () => {
 });
 
 let color_picker_offset = { "x": 0, "y": 0 };
-function color_picker_movement(e) {
+function color_picker_movement(e: MouseEvent) {
 	color_picker.style.left = e.clientX - color_picker_offset.x + "px";
 	color_picker.style.top = e.clientY - color_picker_offset.y + "px";
 }

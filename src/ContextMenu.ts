@@ -75,7 +75,7 @@ export class ContextMenu {
         }
     }
 
-    addEventListeners(listeners) {
+    addEventListeners(listeners: Array<Function>) {
         // listeners should return true, if the context menu window should be closed after clicking
         for (let i = 0, j = 0; i < this.raw_items.length; i++, j+=this.raw_items[i]==="[spacer]"?0:1) {
             if (this.raw_items[i] === "[spacer]" || listeners[j] === null) {continue;}

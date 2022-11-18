@@ -3,9 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.play = void 0;
 var globals_1 = require("./globals");
 var track_bar_cursor = document.querySelector(".line_cursor");
+var cursor = document.getElementById("bars_cursor");
 var cursor_anim = null;
 function play() {
-    if (is_playing) {
+    if (globals_1.globals.is_playing) {
         // stop
         globals_1.globals.audiocontext.suspend();
         clearInterval(cursor_anim);
@@ -16,9 +17,9 @@ function play() {
         // start
         globals_1.globals.audiocontext.resume();
         cursor_anim = setInterval(function () {
-            cursor_pos += (0, globals_1.ms_to_pixels)(10);
-            track_bar_cursor.style.left = cursor_pos + globals_1.globals.line_cursor_offset + "px";
-            cursor.style.left = cursor_pos - (cursor.clientWidth / 2) + "px";
+            globals_1.globals.cursor_pos += (0, globals_1.ms_to_pixels)(10);
+            track_bar_cursor.style.left = globals_1.globals.cursor_pos + globals_1.globals.line_cursor_offset + "px";
+            cursor.style.left = globals_1.globals.cursor_pos - (cursor.clientWidth / 2) + "px";
             globals_1.globals.tracks.forEach(function (track) {
                 track.play();
             });
@@ -27,6 +28,6 @@ function play() {
         //track_bar_cursor.style.display = "block";
         console.log("started");
     }
-    is_playing = !is_playing;
+    globals_1.globals.is_playing = !globals_1.globals.is_playing;
 }
 exports.play = play;

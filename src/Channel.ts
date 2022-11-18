@@ -1,6 +1,6 @@
 import { globals } from "./globals";
 
-var current_selected_channel = null;
+var current_selected_channel:Channel = null;
 
 const channel_element =
 	' <div class="channel">\
@@ -108,7 +108,7 @@ export class Channel {
 		let toggle_button = this.element.querySelector(".channel_toggle");
 		let pan_knob = <HTMLElement> this.element.querySelector(".channel_pan");
 		let knob_height = volume_slider.clientHeight;
-		function slider_move(e) {
+		function slider_move(e:MouseEvent) {
 			temp_this.volume =
 				Math.round((1 - (volume_slider.offsetTop + 6) / (100 - 13)) * 100) *
 				1.25;
@@ -137,7 +137,7 @@ export class Channel {
 		this.element.addEventListener("mousedown", (e) => {
 			this.select(true);
 		});
-		function pan_move(e) {
+		function pan_move(e: MouseEvent) {
 			temp_this.pan -= e.movementY / 100;
 			temp_this.pan = Math.max(Math.min(temp_this.pan, 1.5), 0.5);
 			if (temp_this.pan < 1) {
@@ -192,7 +192,7 @@ export class Channel {
 		if (this.enabled) this.draw();
 	}
 
-	select(selected) {
+	select(selected:boolean) {
 		let volume_wrapper2 = this.element.querySelector(".channel_volume_indicator");
 		let volume = this.element.querySelector(".selection_indicator");
 		let volume_wrapper = <HTMLElement> this.element.querySelector(".channel_volume");
