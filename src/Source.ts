@@ -12,10 +12,10 @@ export class Source {
 
     path: string;
     filename: string;
-    wavefile: WaveFile | null;
+    wavefile: WaveFile;
     audio_buffer: AudioBuffer;
 
-    constructor(path) {
+    constructor(path: string) {
         // path to the source file
         this.path = path;
         this.filename = path.substring(path.lastIndexOf("/"))

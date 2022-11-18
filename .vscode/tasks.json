@@ -6,12 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "windows" :{
-                "command": "tsc; move-item ./built/main.js . -force; move-item ./built/renderer.js . -force; move-item ./built/preload.js . -force"
-            },
-            "linux": {
-                "command": "tsc && mv ./built/main.js . && mv ./built/renderer.js . && mv ./built/preload.js ."
-            },
+            "command": "tsc",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -20,6 +15,20 @@
                 "showReuseMessage": false,
                 "clear": false,
                 "revealProblems": "always"
+            }
+        },
+        {
+            "label": "start",
+            "type": "shell",
+            "command": "npm start",
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false,
+                "revealProblems": "never"
             }
         }
     ]

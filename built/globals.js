@@ -15,7 +15,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.currently_hovered_track = exports.insertAfter = exports.sidebar_folder_colors = exports.PassthroughNode = exports.createElement = exports.sleep = exports.ms_to_pixels = exports.pixels_to_ms = exports.Draggable = exports.cumulativeOffset = exports.globals = void 0;
+exports.addRadioEventListener = exports.currently_hovered_track = exports.insertAfter = exports.sidebar_folder_colors = exports.PassthroughNode = exports.createElement = exports.sleep = exports.ms_to_pixels = exports.pixels_to_ms = exports.Draggable = exports.cumulativeOffset = exports.globals = void 0;
 var Globals = /** @class */ (function () {
     function Globals() {
         this.tracks = [];
@@ -99,6 +99,7 @@ exports.pixels_to_ms = pixels_to_ms;
 */
 function ms_to_pixels(ms) { return ms * (exports.globals.xsnap * 4 / 8 / (1 / (exports.globals.bpm / 60000))); }
 exports.ms_to_pixels = ms_to_pixels;
+function pixels_to_frames(px) { return (44100 * (60 / exports.globals.bpm)) / (exports.globals.xsnap * 4 / 8) * px; }
 // cheaty stuff
 function sleep(milliseconds) {
     var date = Date.now();
@@ -120,13 +121,13 @@ exports.globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthroug
 // temp
 var PassthroughNode = /** @class */ (function (_super) {
     __extends(PassthroughNode, _super);
-    function PassthroughNode(context, options) {
+    function PassthroughNode(context, options, callback) {
         var _this = 
         // set options here
         _super.call(this, context, 'passthrough', options) || this;
         // configure port for communication with the audioprocessor
         _this.port.addEventListener("message", function (m) {
-            options.callback(m.data.volume);
+            callback(m.data.volume);
         });
         _this.port.start();
         return _this;
@@ -173,3 +174,36 @@ function currently_hovered_track() {
     return t;
 }
 exports.currently_hovered_track = currently_hovered_track;
+// add event listeners to all toggle buttons
+function addRadioEventListener(btn, track) {
+    var light = btn.querySelector(".radio_btn_green");
+    btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (e.button === 0) {
+            var bg = light.style.backgroundColor;
+            // the 'or' is bc the property is "" at first, but since the button
+            // gets initialized with a green background, it gets treated as "green"
+            (bg === exports.globals.green || bg === "") ? track.disable() : track.enable();
+        }
+    });
+    btn.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+        var all_tracks_disabled = true;
+        exports.globals.tracks.forEach(function (element) {
+            if (element.enabled && element !== track) {
+                all_tracks_disabled = false;
+            }
+        });
+        if (all_tracks_disabled && track.enabled) {
+            for (var i = 0; i < exports.globals.tracks.length; i++) {
+                exports.globals.tracks[i].enable();
+            }
+        }
+        else {
+            for (var i = 0; i < exports.globals.tracks.length; i++) {
+                (exports.globals.tracks[i] !== track) ? exports.globals.tracks[i].disable() : exports.globals.tracks[i].enable();
+            }
+        }
+    });
+}
+exports.addRadioEventListener = addRadioEventListener;

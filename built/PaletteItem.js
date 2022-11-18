@@ -137,6 +137,7 @@ var Item = /** @class */ (function (_super) {
         globals_1.globals.sidebar.appendChild(this.element);
     };
     Item.prototype.appendAfter = function (element) {
+        // TODO any type
         this.element.style.color = element.style.color;
         (0, globals_1.insertAfter)(this.element, element);
     };

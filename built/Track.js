@@ -29,23 +29,25 @@ track_view.addEventListener("mousemove", function (e) {
     if (wheel_down) {
         var deltaX = drag_mouse_down_pos_x - e.clientX;
         var deltaY = drag_mouse_down_pos_y - e.clientY;
-        tracks_scroll_by_px(deltaX - delta_delta_x, deltaY - delta_delta_y);
+        console.log("removed method");
+        //tracks_scroll_by_px(deltaX - delta_delta_x, deltaY - delta_delta_y);
         delta_delta_x = deltaX;
         delta_delta_y = deltaY;
     }
 });
 /*
- *     ██████╗ ██████╗ ███╗   ██╗████████╗███████╗██╗  ██╗████████╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
- *    ██╔════╝██╔═══██╗████╗  ██║╚══██╔══╝██╔════╝╚██╗██╔╝╚══██╔══╝    ████╗ ████║██╔════╝████╗  ██║██║   ██║
- *    ██║     ██║   ██║██╔██╗ ██║   ██║   █████╗   ╚███╔╝    ██║       ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
- *    ██║     ██║   ██║██║╚██╗██║   ██║   ██╔══╝   ██╔██╗    ██║       ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
- *    ╚██████╗╚██████╔╝██║ ╚████║   ██║   ███████╗██╔╝ ██╗   ██║       ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
- *     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝       ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝
- *
- *    hide/show the context menu
- *    listeners
- *    etc.
- */
+*     ██████╗ ██████╗ ███╗   ██╗████████╗███████╗██╗  ██╗████████╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
+*    ██╔════╝██╔═══██╗████╗  ██║╚══██╔══╝██╔════╝╚██╗██╔╝╚══██╔══╝    ████╗ ████║██╔════╝████╗  ██║██║   ██║
+*    ██║     ██║   ██║██╔██╗ ██║   ██║   █████╗   ╚███╔╝    ██║       ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
+*    ██║     ██║   ██║██║╚██╗██║   ██║   ██╔══╝   ██╔██╗    ██║       ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
+*    ╚██████╗╚██████╔╝██║ ╚████║   ██║   ███████╗██╔╝ ██╗   ██║       ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
+*     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝       ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝
+*
+*    hide/show the context menu
+*    listeners
+*    etc.
+*/
+var current_context_track = null; // this will be set when the context menu is opened on one track (to the given track)
 var track_config_menu = document.getElementById("track_config_menu");
 var track_config_xoffset = 0;
 var track_config_yoffset = 0;
@@ -80,7 +82,6 @@ function showTrackConfig(e) {
     globals_1.globals.deactivate_space_to_play = true;
     track_config_menu.querySelector("#conf_name_input").value = current_context_track.title;
 }
-var current_context_track = null; // this will be set when the context menu is opened on one track (to the given track)
 // track context menu channel link menu
 var context_channel_items = globals_1.globals.channels.map(function (v, i) { return "Insert " + i; });
 var context_channel_listeners = globals_1.globals.channels.map(function (v, i) {
@@ -152,7 +153,8 @@ var context_event_listeners = [
         return true;
     }
 ];
-var context_items = ["Rename, color and icon...",
+var context_items = [
+    "Rename, color and icon...",
     "Change color...",
     "Change icon...",
     "Auto name",
@@ -202,7 +204,6 @@ drawBarLabels();
  *
  *    class definition
  */
-function pixels_to_frames(px) { return (44100 * (60 / globals_1.globals.bpm)) / (globals_1.globals.xsnap * 4 / 8) * px; }
 var Track = /** @class */ (function () {
     function Track() {
         var _this = this;
@@ -218,10 +219,8 @@ var Track = /** @class */ (function () {
         globals_1.globals.audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(function () {
             //this.audio_node = new AudioWorkletNode(audiocontext, "passthrough", {'c': () => {console.log("success");}});
             _this.audio_node = new AnalyserNode(globals_1.globals.audiocontext);
-            _this.passthrough_node = new globals_1.PassthroughNode(globals_1.globals.audiocontext, {
-                'callback': function (volume) {
-                    _this.setPlayIndicator(volume);
-                }
+            _this.passthrough_node = new globals_1.PassthroughNode(globals_1.globals.audiocontext, {}, function (volume) {
+                _this.setPlayIndicator(volume);
             });
             _this.audio_node.connect(_this.passthrough_node);
             _this.passthrough_node.connect(globals_1.globals.audiocontext.destination);
@@ -385,6 +384,10 @@ var Track = /** @class */ (function () {
             // help
             globals_1.globals.header_help_text.innerHTML = _this.title;
         });
+        var drag_container = document.getElementById("drag_container");
+        var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
+        var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
+        var maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
         this.content.addEventListener("wheel", function (e) {
             if (e.shiftKey) {
                 e.preventDefault();
@@ -393,7 +396,8 @@ var Track = /** @class */ (function () {
                 var currentOffset = (bars_scrollbar_handle.offsetLeft - 20) / maxX;
                 var newOffset = currentOffset + (e.deltaY / 100) / 50;
                 newOffset = Math.min(Math.max(newOffset, 0), 1);
-                tracks_scroll_to(newOffset, 0);
+                console.log("remove method");
+                //tracks_scroll_to(newOffset, 0);
             }
             else if (globals_1.globals.control_down) {
                 // delta = x*100
@@ -447,7 +451,7 @@ var Track = /** @class */ (function () {
             }
         });
         // radio button on click
-        addRadioEventListener(this.element.querySelector(".radio_btn"), this);
+        (0, globals_1.addRadioEventListener)(this.element.querySelector(".radio_btn"), this);
         // context menu
         this.description.addEventListener("contextmenu", function (e) {
             e.preventDefault();
@@ -493,3 +497,4 @@ var Track = /** @class */ (function () {
 exports.Track = Track;
 // add track-button functionality
 // document.getElementById("track_add_label").addEventListener('click', () => {new Track();});
+//document.querySelectorAll(".radio_btn").forEach(btn => addRadioEventListener(btn)); // probably works, but idk

@@ -14,7 +14,7 @@ export class Item extends Draggable {
 	depth: string;
 	depth_max: number;
 
-	constructor(title, contents: string | Map<string, string>, indent = 0) {
+	constructor(title: string, contents: string | Map<string, string>, indent = 0) {
 		super();
 		this.file = null;
 		this.contents = contents;
@@ -131,7 +131,8 @@ export class Item extends Draggable {
 		globals.sidebar.appendChild(this.element);
 	}
 
-	appendAfter(element) {
+	appendAfter(element: any) {
+		// TODO any type
 		this.element.style.color = element.style.color;
 		insertAfter(this.element, element);
 	}

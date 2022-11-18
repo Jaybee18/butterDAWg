@@ -14,7 +14,7 @@ class Globals {
 
 	// current progression in the track in ms
 	current_time: number = 0;
-	cursor_pos:number = 0; // in px
+	cursor_pos: number = 0; // in px
 
 	sample_rate: number = 44100;
 	xsnap: number = 20;
@@ -35,8 +35,8 @@ class Globals {
 	sidebar: HTMLElement = document.getElementById("sidebar");
 
 	// toggle button colors
-	green:string = "rgb(50, 255, 32)"; // #32ff17
-	grey:string = "rgb(126, 135, 125)"; // #7e877d
+	green: string = "rgb(50, 255, 32)"; // #32ff17
+	grey: string = "rgb(126, 135, 125)"; // #7e877d
 
 	// keybinds
 	control_down: boolean = false;
@@ -96,6 +96,7 @@ export function pixels_to_ms(px: number) { return px / (globals.xsnap * 4 / 8 / 
 */
 export function ms_to_pixels(ms: number) { return ms * (globals.xsnap * 4 / 8 / (1 / (globals.bpm / 60000))); }
 
+function pixels_to_frames(px: number) { return (44100 * (60 / globals.bpm)) / (globals.xsnap * 4 / 8) * px; }
 
 // cheaty stuff
 export function sleep(milliseconds: number) {
@@ -119,19 +120,19 @@ globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthrough.js").t
 
 // temp
 export class PassthroughNode extends AudioWorkletNode {
-	constructor(context: BaseAudioContext, options: AudioWorkletNodeOptions) {
+	constructor(context: BaseAudioContext, options: AudioWorkletNodeOptions, callback: Function) {
 		// set options here
 		super(context, 'passthrough', options);
 
 		// configure port for communication with the audioprocessor
 		this.port.addEventListener("message", (m) => {
-			options.callback(m.data.volume);
+			callback(m.data.volume);
 		});
 		this.port.start();
 	}
 }
 
-export var sidebar_folder_colors = {
+export var sidebar_folder_colors: { [name: string]: string } = {
 	"0Current project": "#aa8070",
 	"1Recent files": "#7ca366",
 	"2Plugin database": "#6781a4",
@@ -169,4 +170,35 @@ export function currently_hovered_track() {
 		}
 	});
 	return t;
+}
+
+// add event listeners to all toggle buttons
+export function addRadioEventListener(btn: HTMLElement, track: Track) {
+	var light = <HTMLElement> btn.querySelector(".radio_btn_green");
+	btn.addEventListener("click", (e) => {
+		e.preventDefault();
+		if (e.button === 0) {
+			var bg = light.style.backgroundColor;
+			// the 'or' is bc the property is "" at first, but since the button
+			// gets initialized with a green background, it gets treated as "green"
+			(bg === globals.green || bg === "") ? track.disable() : track.enable();
+		}
+	});
+	btn.addEventListener("contextmenu", (e) => {
+		e.preventDefault();
+		var all_tracks_disabled = true;
+		globals.tracks.forEach(element => {
+			if (element.enabled && element !== track) { all_tracks_disabled = false; }
+		});
+
+		if (all_tracks_disabled && track.enabled) {
+			for (let i = 0; i < globals.tracks.length; i++) {
+				globals.tracks[i].enable();
+			}
+		} else {
+			for (let i = 0; i < globals.tracks.length; i++) {
+				(globals.tracks[i] !== track) ? globals.tracks[i].disable() : globals.tracks[i].enable();
+			}
+		}
+	});
 }

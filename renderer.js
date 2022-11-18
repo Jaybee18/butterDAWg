@@ -57,23 +57,6 @@ document.querySelectorAll(".header_button").forEach(button => {
   });
 });
 
-// header controls scope buttons
-var scope_pat = document.querySelector(".scope_pat");
-var scope_song = document.querySelector(".scope_song");
-scope_pat.addEventListener("click", () => {
-  if (!scope_pat.classList.contains("scope_pat_clicked")){
-    scope_pat.classList.add("scope_pat_clicked");
-    scope_song.classList.remove("scope_song_clicked");
-  }
-});
-scope_song.addEventListener("click", () => {
-  if (!scope_song.classList.contains("scope_song_clicked")){
-    scope_song.classList.add("scope_song_clicked");
-    scope_pat.classList.remove("scope_pat_clicked");
-  }
-});
-scope_pat.click();
-
 // sidebar resizing 
 var resizing_sidebar = false;
 
@@ -120,38 +103,6 @@ function updateHeaderWaveview() {
   ctx.stroke();
 }
 updateHeaderWaveview();
-
-// add event listeners to all toggle buttons
-function addRadioEventListener(btn, track) {
-  var light = btn.querySelector(".radio_btn_green");
-  btn.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (e.button === 0) {
-      var bg = light.style.backgroundColor;
-      // the 'or' is bc the property is "" at first, but since the button
-      // gets initialized with a green background, it gets treated as "green"
-      (bg === green || bg === "") ? track.disable() : track.enable();
-    }
-  });
-  btn.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    var all_tracks_disabled = true;
-    tracks.forEach(element => {
-      if (element.enabled && element !== track) {all_tracks_disabled = false;}
-    });
-
-    if (all_tracks_disabled && track.enabled) {
-      for (let i = 0; i < tracks.length; i++) {
-        tracks[i].enable();
-      }
-    } else {
-      for (let i = 0; i < tracks.length; i++) {
-        (tracks[i] !== track) ? tracks[i].disable() : tracks[i].enable();
-      }
-    }
-  });
-}
-document.querySelectorAll(".radio_btn").forEach(btn => addRadioEventListener(btn)); // probably works, but idk
 
 
 // add event listeners to bars-bar

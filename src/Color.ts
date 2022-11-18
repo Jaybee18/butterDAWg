@@ -2,7 +2,7 @@ export class Color {
 
 	color: string;
 
-	constructor(hex: string, g?: string, b?: string) {
+	constructor(hex: string | number, g?: number, b?: number) {
 		if (g === undefined && b === undefined) {
 			this.color = <string>hex;
 		} else {
@@ -10,7 +10,7 @@ export class Color {
 		}
 	}
 	fromRGB(r: number, g: number, b: number) { // obsolete
-		return new Color(r.toString(16), g.toString(16), b.toString(16));
+		return new Color(r.toString(16), Number.parseInt(g.toString(16)), Number.parseInt(b.toString(16)));
 	}
 	toRGB() {
 		var r = Number.parseInt(this.color.substring(1, 3), 16);

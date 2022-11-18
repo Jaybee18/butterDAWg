@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, lstatSync } from "fs";
-import { globals } from "./globals";
+import { Draggable, globals } from "./globals";
 import { Item } from "./PaletteItem";
 
 // palette functionality
@@ -9,7 +9,7 @@ import { Item } from "./PaletteItem";
 var palette = document.querySelector(".palette");
 var palette_current_scope = 0;
 var palette_current_element = null; /* current selected object to paint on tracks */
-var palette_content = [[], [], []]; // list of lists of 'Item's
+var palette_content: Draggable[][] = [[], [], []]; // list of lists of 'Item's
 var scopes = <NodeListOf<HTMLElement>>document.querySelectorAll(".palette_scope > .tool_button");
 for (let j = 0; j < 3; j++) {
 	scopes[j].style.fill = "#8f979b";
@@ -22,7 +22,7 @@ for (let i = 0; i < scopes.length; i++) {
 		palette_content[i].forEach(item => {
 			content += '<div class="palette_object">\
                     <i class="fa-solid fa-wave-square"></i>\
-                    <p>' + item.title.split(".")[0] + '</p>\
+                    <p>' + (<Item> item).title.split(".")[0] + '</p>\
                   </div>';
 		});
 		palette.innerHTML = content;

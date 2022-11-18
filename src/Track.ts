@@ -4,9 +4,10 @@
 import { TrackSample } from "./TrackSample";
 import { Color } from "./Color";
 import { Channel } from "./Channel";
-import { cumulativeOffset, globals, PassthroughNode, pixels_to_ms } from "./globals";
+import { addRadioEventListener, cumulativeOffset, globals, PassthroughNode, pixels_to_ms } from "./globals";
 import { ContextMenu } from "./ContextMenu";
 import { color_picker } from "./ColorPicker";
+import { Item } from "./PaletteItem";
 
 //
 var bars = document.querySelector(".tracks_top_bar_bars_wrapper");
@@ -30,28 +31,30 @@ track_view.addEventListener("mousemove", (e) => {
 	if (wheel_down) {
 		var deltaX = drag_mouse_down_pos_x - e.clientX;
 		var deltaY = drag_mouse_down_pos_y - e.clientY;
-		tracks_scroll_by_px(deltaX - delta_delta_x, deltaY - delta_delta_y);
+		console.log("removed method")
+		//tracks_scroll_by_px(deltaX - delta_delta_x, deltaY - delta_delta_y);
 		delta_delta_x = deltaX;
 		delta_delta_y = deltaY;
 	}
 });
 
 /*
- *     ██████╗ ██████╗ ███╗   ██╗████████╗███████╗██╗  ██╗████████╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
- *    ██╔════╝██╔═══██╗████╗  ██║╚══██╔══╝██╔════╝╚██╗██╔╝╚══██╔══╝    ████╗ ████║██╔════╝████╗  ██║██║   ██║
- *    ██║     ██║   ██║██╔██╗ ██║   ██║   █████╗   ╚███╔╝    ██║       ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
- *    ██║     ██║   ██║██║╚██╗██║   ██║   ██╔══╝   ██╔██╗    ██║       ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
- *    ╚██████╗╚██████╔╝██║ ╚████║   ██║   ███████╗██╔╝ ██╗   ██║       ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
- *     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝       ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝ 
- *  
- *    hide/show the context menu
- *    listeners
- *    etc.
- */
+*     ██████╗ ██████╗ ███╗   ██╗████████╗███████╗██╗  ██╗████████╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
+*    ██╔════╝██╔═══██╗████╗  ██║╚══██╔══╝██╔════╝╚██╗██╔╝╚══██╔══╝    ████╗ ████║██╔════╝████╗  ██║██║   ██║
+*    ██║     ██║   ██║██╔██╗ ██║   ██║   █████╗   ╚███╔╝    ██║       ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
+*    ██║     ██║   ██║██║╚██╗██║   ██║   ██╔══╝   ██╔██╗    ██║       ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
+*    ╚██████╗╚██████╔╝██║ ╚████║   ██║   ███████╗██╔╝ ██╗   ██║       ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
+*     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝       ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝ 
+*  
+*    hide/show the context menu
+*    listeners
+*    etc.
+*/
+let current_context_track: Track = null; // this will be set when the context menu is opened on one track (to the given track)
 let track_config_menu = document.getElementById("track_config_menu");
 let track_config_xoffset = 0;
 let track_config_yoffset = 0;
-function track_config_movement(e) {
+function track_config_movement(e: MouseEvent) {
 	track_config_menu.style.left = e.clientX - track_config_xoffset + "px";
 	track_config_menu.style.top = e.clientY - track_config_yoffset + "px";
 }
@@ -73,7 +76,7 @@ track_config_menu.querySelector("#conf_xmark").addEventListener("click", () => {
 	track_config_menu.style.display = "none";
 	globals.deactivate_space_to_play = false;
 });
-function showTrackConfig(e) {
+function showTrackConfig(e: MouseEvent) {
 	(<HTMLElement>track_config_menu.querySelector("#conf_bottom p")).innerText = current_context_track.title;
 
 	track_config_menu.style.left = e.clientX + "px";
@@ -84,7 +87,6 @@ function showTrackConfig(e) {
 	(<HTMLInputElement>track_config_menu.querySelector("#conf_name_input")).value = current_context_track.title;
 }
 
-let current_context_track = null; // this will be set when the context menu is opened on one track (to the given track)
 
 // track context menu channel link menu
 let context_channel_items = globals.channels.map((v, i) => { return "Insert " + i; });
@@ -99,7 +101,7 @@ let channel_context = new ContextMenu(context_channel_items, context_channel_lis
 
 // track context menu
 let context_event_listeners = [
-	(e) => {
+	(e: MouseEvent) => {
 		showTrackConfig(e);
 		return true;
 	},
@@ -110,7 +112,7 @@ let context_event_listeners = [
 	null,
 	null,
 	null,
-	(e) => {
+	(e: MouseEvent) => {
 		channel_context.toggle(e);
 		return false;
 	},
@@ -155,7 +157,8 @@ let context_event_listeners = [
 	}
 ];
 
-let context_items = ["Rename, color and icon...",
+let context_items = [
+	"Rename, color and icon...",
 	"Change color...",
 	"Change icon...",
 	"Auto name",
@@ -209,7 +212,6 @@ drawBarLabels();
  * 
  *    class definition
  */
-function pixels_to_frames(px) { return (44100 * (60 / globals.bpm)) / (globals.xsnap * 4 / 8) * px; }
 export class Track {
 
 	element: HTMLElement;
@@ -233,11 +235,11 @@ export class Track {
 		globals.audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {
 			//this.audio_node = new AudioWorkletNode(audiocontext, "passthrough", {'c': () => {console.log("success");}});
 			this.audio_node = new AnalyserNode(globals.audiocontext);
-			this.passthrough_node = new PassthroughNode(globals.audiocontext, {
-				'callback': (volume) => {
+			this.passthrough_node = new PassthroughNode(globals.audiocontext, {}, 
+				(volume: number) => {
 					this.setPlayIndicator(volume);
 				}
-			});
+			);
 			this.audio_node.connect(this.passthrough_node);
 			this.passthrough_node.connect(globals.audiocontext.destination);
 		});
@@ -269,7 +271,7 @@ export class Track {
 		this.initializeEventListeners();
 	}
 
-	getFrames(size) {
+	getFrames(size: number) {
 		return;
 		// == process audio with plugins etc. ==
 		/*
@@ -294,7 +296,7 @@ export class Track {
 		});
 	}
 
-	connect(channel) {
+	connect(channel: Channel) {
 		this.channel = channel;
 
 		// connect the track to the first element of the 
@@ -305,7 +307,7 @@ export class Track {
 		this.channel.toggle();
 	}
 
-	setPlayIndicator(percent) {
+	setPlayIndicator(percent: number) {
 		// set the intensity (in %) of the play indicator
 		// to the right of the description
 		/* neutral color is rgb(51, 63, 70) */
@@ -400,7 +402,7 @@ export class Track {
 
 	}
 
-	resizeBackground(event) {
+	resizeBackground(event: any) {
 		var background = <HTMLElement>this.content.querySelector(".track_background");
 		background.style.width = background.clientWidth - event.deltaY * 5 + "px";
 		for (let i = 0; i < this.samples.length; i++) {
@@ -410,7 +412,7 @@ export class Track {
 		}
 	}
 
-	resizeHeight(delta) {
+	resizeHeight(delta: number) {
 		if (this.resize_locked) { return; }
 		this.element.style.height = this.element.clientHeight - delta + "px";
 	}
@@ -421,6 +423,10 @@ export class Track {
 			globals.header_help_text.innerHTML = this.title;
 		});
 
+		let drag_container = document.getElementById("drag_container");
+		let bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
+		let bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
+		let maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
 		this.content.addEventListener("wheel", (e) => {
 			if (e.shiftKey) {
 				e.preventDefault();
@@ -429,7 +435,8 @@ export class Track {
 				var currentOffset = (bars_scrollbar_handle.offsetLeft - 20) / maxX;
 				var newOffset = currentOffset + (e.deltaY / 100) / 50;
 				newOffset = Math.min(Math.max(newOffset, 0), 1);
-				tracks_scroll_to(newOffset, 0);
+				console.log("remove method")
+				//tracks_scroll_to(newOffset, 0);
 			} else if (globals.control_down) {
 				// delta = x*100
 				if (globals.xsnap - e.deltaY / 100 < 6) { return; } // TODO this may cause some issues in the future, but idc
@@ -460,7 +467,7 @@ export class Track {
 		this.content.addEventListener("mousemove", () => {
 			// sample preview
 			if (globals.current_drag_element !== null) {
-				this.sampleHover(globals.current_drag_element);
+				this.sampleHover(<Item> globals.current_drag_element);
 				drag_container.style.display = "none";
 			}
 		});
@@ -495,12 +502,12 @@ export class Track {
 		});
 	}
 
-	setTitle(title) {
+	setTitle(title: string) {
 		this.element.querySelector("#track_title").innerHTML = title;
 		this.title = title;
 	}
 
-	setColor(color) {
+	setColor(color: Color) {
 		this.color = color;
 		this.description.style.background = this.color.color;
 		this.description.style.borderColor = this.color.darken(8) + " " + this.color.lighten(10);
@@ -517,7 +524,7 @@ export class Track {
 		this.updateData();
 	}
 
-	sampleHover(item) {
+	sampleHover(item: Item) {
 		// call this function of a track, when currently dragging a sample
 		// from the sidebar, to display a track_sample representation of
 		// the sample on the track at the current position of the mouse
@@ -532,3 +539,5 @@ export class Track {
 
 // add track-button functionality
 // document.getElementById("track_add_label").addEventListener('click', () => {new Track();});
+
+//document.querySelectorAll(".radio_btn").forEach(btn => addRadioEventListener(btn)); // probably works, but idk

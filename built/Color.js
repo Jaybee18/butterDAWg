@@ -11,7 +11,7 @@ var Color = /** @class */ (function () {
         }
     }
     Color.prototype.fromRGB = function (r, g, b) {
-        return new Color(r.toString(16), g.toString(16), b.toString(16));
+        return new Color(r.toString(16), Number.parseInt(g.toString(16)), Number.parseInt(b.toString(16)));
     };
     Color.prototype.toRGB = function () {
         var r = Number.parseInt(this.color.substring(1, 3), 16);
