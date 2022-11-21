@@ -10,22 +10,26 @@ import { readFileSync } from "fs"
 
 export class Source {
 
-    path: string;
-    filename: string;
-    wavefile: WaveFile;
-    audio_buffer: AudioBuffer;
+    private path: string;
+    private filename: string;
+    private wavefile: WaveFile;
+    private audio_buffer: AudioBuffer;
+    private channels: number;
 
     constructor(path: string) {
         // path to the source file
         this.path = path;
-        this.filename = path.substring(path.lastIndexOf("/"))
+        this.filename = path.substring(path.lastIndexOf("/")+1)
         console.log(this.path, this.filename) // testing
 
         // WaveFile object of audio file
         this.wavefile = null;
 
-        // audio buffer holding the files audio data
+        // audio buffer holding the files' audio data
         this.audio_buffer = null;
+
+        // for this type of Source, always 2
+        this.channels = 2;
 
         this.loadData();
     }
@@ -46,7 +50,25 @@ export class Source {
         this.audio_buffer.copyToChannel(tmp, 1);
     }
 
+    getName() {
+        return this.filename.substring(0, this.filename.lastIndexOf("."));
+    }
+
+    getChannels() {
+        return this.channels;
+    }
+
+    getChannel(index: number) {
+        return this.audio_buffer.getChannelData(index);
+    }
+
     getAudioBuffer() {
         return this.audio_buffer;
+    }
+
+    getLength() {
+        // length = # samples / framerate = samples / samples/s = s
+        let sample_count = this.wavefile.getSamples(true).length
+        return sample_count / globals.sample_rate;
     }
 }

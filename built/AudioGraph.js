@@ -63,6 +63,79 @@ for (var i = 0; i < screen.width; i += rect.width) {
 }
 screen_context.stroke();
 // drag listener
+// base class for every object in the audio graph
+var AudioGraphObject = /** @class */ (function () {
+    function AudioGraphObject() {
+        this.initElement();
+        // make element unique
+        this.id = Math.round(Date.now() * Math.random()).toString();
+        this.element.id = this.id;
+        // add the generated element to the audio graph
+        document.getElementById("audiograph").appendChild(this.element);
+    }
+    AudioGraphObject.prototype.remove = function () {
+        document.getElementById(this.id).remove();
+    };
+    AudioGraphObject.prototype.getElement = function () {
+        return this.element;
+    };
+    return AudioGraphObject;
+}());
+/*
+    ================== Paths =====================
+*/
+var Connection = /** @class */ (function (_super) {
+    __extends(Connection, _super);
+    function Connection(from, to) {
+        var _this = _super.call(this) || this;
+        _this.from = from;
+        _this.to = to;
+        _this.path = "M 0 0 Z";
+        var pathobject = _this.element.querySelector("path");
+        pathobject.setAttribute("d", _this.path);
+        // connect update function to both nodes' movement update functions
+        // to update the path while the nodes are being moved
+        // (if the connection is with da mouse, the movement update callback will be
+        //  set up by the managing component, because the mouse event is needed as a parameter here)
+        if (_this.to !== null) {
+            from.addMoveCallback(function () { _this.update(); });
+            to.addMoveCallback(function () { _this.update(); });
+            _this.update();
+        }
+        return _this;
+    }
+    Connection.prototype.initElement = function () {
+        this.element = (0, globals_1.createElement)('<svg><path stroke-linejoin="bevel" stroke-width="2" stroke="#fff" fill="none"></path></svg>');
+        this.element.style.position = "absolute";
+        this.element.style.pointerEvents = "none";
+        this.element.style.filter = "blur(1px)";
+    };
+    Connection.prototype.update = function (e) {
+        // get the positions of the nodes
+        var from_pos = this.from.getPosition();
+        var to_pos = this.to === null ? e.getPosition() : this.to.getPosition();
+        // calculate connection to the to-node
+        var delta = [to_pos[0] - from_pos[0], to_pos[1] - from_pos[1]];
+        this.path = "M ".concat(delta[0] < 0 ? Math.abs(delta[0]) : 0, " ").concat(delta[1] < 0 ? Math.abs(delta[1]) : 0, "         c ").concat(delta[0] / 2, " ").concat(0, " ").concat(delta[0] / 2, " ").concat(delta[1], " ").concat(delta[0], " ").concat(delta[1]);
+        this.element.querySelector("path").setAttribute("d", this.path);
+        // offset the svg if necessary && indirectly update the from-position
+        var offset = [Math.min(0, delta[0]), Math.min(0, delta[1])];
+        this.element.style.left = (from_pos[0] + offset[0]).toString() + "px";
+        this.element.style.top = (from_pos[1] + offset[1]).toString() + "px";
+        // update the svg's size to match the new dimensions of the graph
+        this.element.setAttribute("width", Math.abs(delta[0]).toString() + 10);
+        this.element.setAttribute("height", Math.abs(delta[1]).toString() + 10);
+    };
+    Connection.prototype.setTo = function (newTo) {
+        var _this = this;
+        this.to = newTo;
+        if (newTo !== null) {
+            this.to.addMoveCallback(function () { _this.update(); });
+            this.update();
+        }
+    };
+    return Connection;
+}(AudioGraphObject));
 /*
     ================== Nodes =====================
 */
@@ -72,22 +145,27 @@ var baseNode = '<div class="item">\
                     </div>\
                     <div class="item_body"></div>\
                 </div>';
-var AudioGraphNode = /** @class */ (function () {
-    function AudioGraphNode() {
-        this.initElement();
-        this.initComponents();
+var AudioGraphNode = /** @class */ (function (_super) {
+    __extends(AudioGraphNode, _super);
+    function AudioGraphNode(callInitComponents) {
+        if (callInitComponents === void 0) { callInitComponents = true; }
+        var _this = _super.call(this) || this;
+        _this.movementCallbacks = [];
+        _this.components = [];
+        if (callInitComponents)
+            _this.initComponents();
+        return _this;
     }
     AudioGraphNode.prototype.initElement = function () {
         // create the HTML element
         this.element = (0, globals_1.createElement)(baseNode);
-        // attach it to the document
-        document.getElementById("audiograph").appendChild(this.element);
         // initialize move listeners
         var header = this.element.querySelector(".item_header");
         var tempthis = this;
         function nodemove(e) {
             tempthis.element.style.left = tempthis.element.offsetLeft + e.movementX + "px";
             tempthis.element.style.top = tempthis.element.offsetTop + e.movementY + "px";
+            tempthis.movementCallbacks.forEach(function (callback) { callback(); });
         }
         header.addEventListener("mousedown", function () {
             document.addEventListener("mousemove", nodemove);
@@ -101,18 +179,19 @@ var AudioGraphNode = /** @class */ (function () {
         a.setAttribute("retro", title);
         a.innerText = title;
     };
-    AudioGraphNode.prototype.initComponents = function () {
-        throw Error("initComponents has to be implemented when inheriting AudioGraphNode");
-    };
     AudioGraphNode.prototype.addComponent = function (component) {
         // component of type Node Component
         // aka Output, Input, Stat, ...
         var body = this.element.querySelector(".item_body");
         body.appendChild(component.getElement());
+        this.components.push(component);
         return component;
     };
+    AudioGraphNode.prototype.addMoveCallback = function (callback) {
+        this.movementCallbacks.push(callback);
+    };
     return AudioGraphNode;
-}());
+}(AudioGraphObject));
 var nodes = [];
 var nodeComponents = {
     "input": '<div class="input">\
@@ -121,9 +200,7 @@ var nodeComponents = {
                 </div>',
     "output": '<div class="output">\
                     <p retro="Output">Output</p>\
-                    <div class="connector">\
-                        <svg><path stroke-linejoin="bevel" stroke-width="2" stroke="#fff" fill="none"></path></svg>\
-                    </div>\
+                    <div class="connector"></div>\
                 </div>',
     "iconbutton": '<div class="playbutton">\
                         <i class="fa-solid fa-play"></i>\
@@ -136,7 +213,7 @@ var AudioGraphNodeComponent = /** @class */ (function () {
     function AudioGraphNodeComponent() {
     }
     AudioGraphNodeComponent.prototype.getElement = function () {
-        throw new Error("getElement has to be implemented by subclasses of AudioGraphNodeComponent");
+        return this.element;
     };
     return AudioGraphNodeComponent;
 }());
@@ -151,17 +228,15 @@ var Stat = /** @class */ (function (_super) {
         _this.element = tmp;
         return _this;
     }
-    Stat.prototype.getElement = function () {
-        return this.element;
-    };
     return Stat;
 }(AudioGraphNodeComponent));
 // the current input-connector that is being hovered
 var currentHoverConnector = null;
 var Input = /** @class */ (function (_super) {
     __extends(Input, _super);
-    function Input(label) {
+    function Input(parent, label) {
         var _this = _super.call(this) || this;
+        _this.parent = parent;
         var tmp = (0, globals_1.createElement)(nodeComponents["input"]);
         tmp.querySelector("p").setAttribute("retro", label);
         tmp.querySelector("p").innerText = label;
@@ -175,74 +250,62 @@ var Input = /** @class */ (function (_super) {
         _this.element = tmp;
         return _this;
     }
-    Input.prototype.getConnector = function () {
-        return this.element.querySelector(".connector");
+    Input.prototype.addMoveCallback = function (callback) {
+        this.parent.addMoveCallback(callback);
     };
-    Input.prototype.getElement = function () {
-        return this.element;
+    Input.prototype.getPosition = function () {
+        var connector = (0, globals_1.cumulativeOffset)(this.element.querySelector(".connector"));
+        return [connector.left - this.parent.getElement().clientWidth + 20, connector.top - this.parent.getElement().clientHeight + 8];
     };
     return Input;
 }(AudioGraphNodeComponent));
 var Output = /** @class */ (function (_super) {
     __extends(Output, _super);
-    function Output(label) {
+    function Output(parent, label) {
         var _this = _super.call(this) || this;
+        _this.parent = parent;
         var tmp = (0, globals_1.createElement)(nodeComponents["output"]);
         tmp.querySelector("p").setAttribute("retro", label);
         tmp.querySelector("p").innerText = label;
-        // list of connectors that this output is connected to
-        var knob = tmp.querySelector(".connector");
-        var path = tmp.querySelector("path");
-        var svg = tmp.querySelector("svg");
-        function updateConnection(e) {
-            var svg_padding = 5;
-            var yswap = e.clientY < (0, globals_1.cumulativeOffset)(knob).top;
-            var xswap = e.clientX < (0, globals_1.cumulativeOffset)(knob).left;
-            var both = xswap && yswap;
-            if (xswap) {
-                svg.style.left = e.clientX - (0, globals_1.cumulativeOffset)(knob).left - svg_padding + "px";
+        var tmp_connection = null;
+        var updateConnection = function (e) {
+            // check if in proximity of input-connector
+            if (currentHoverConnector !== null) {
+                tmp_connection.setTo(currentHoverConnector);
             }
             else {
-                svg.style.left = knob.clientWidth / 2 - svg_padding + "px";
+                tmp_connection.setTo(null);
             }
-            if (yswap) {
-                svg.style.top = e.clientY - (0, globals_1.cumulativeOffset)(knob).top - svg_padding + "px";
-            }
-            else {
-                svg.style.top = knob.clientHeight / 2 - svg_padding + "px";
-            }
-            var offset = (0, globals_1.cumulativeOffset)(tmp);
-            var a = Math.abs(e.clientX - offset.left - tmp.clientWidth);
-            var b = Math.abs(e.clientY - offset.top - tmp.clientHeight / 2);
-            path.setAttribute("d", "M ".concat(svg_padding, " ").concat(svg_padding, " C ").concat((a + svg_padding) / 2, " 0 ").concat((a + svg_padding) / 2, " ").concat(b, " ").concat(a, " ").concat(b));
-            if (!both) {
-                if (xswap) {
-                    path.setAttribute("d", "M ".concat(svg_padding, " ").concat(b, " C ").concat(a / 2, " ").concat(b, " ").concat(a / 2, " ").concat(svg_padding, " ").concat(a + svg_padding, " ").concat(svg_padding));
-                }
-                if (yswap) {
-                    path.setAttribute("d", "M ".concat(svg_padding, " ").concat(b, " C ").concat(a / 2, " ").concat(b, " ").concat(a / 2, " ").concat(svg_padding, " ").concat(a, " ").concat(svg_padding));
-                }
-            }
-            svg.setAttribute("width", (path.getBoundingClientRect().width + svg_padding * 2).toString());
-            svg.setAttribute("height", (path.getBoundingClientRect().height + svg_padding * 2).toString());
-        }
+            var impostor = { getPosition: function () {
+                    return [e.clientX - _this.parent.getElement().clientWidth + 17, e.clientY - _this.parent.getElement().clientHeight + 35];
+                } };
+            tmp_connection.update(impostor);
+        };
         tmp.querySelector(".connector").addEventListener("mousedown", function () {
+            tmp_connection = new Connection(_this, null);
             document.addEventListener("mousemove", updateConnection);
-            svg.style.display = "block";
         });
         document.addEventListener("mouseup", function () {
-            svg.style.display = "none";
-            svg.setAttribute("width", "0");
-            svg.setAttribute("height", "0");
+            document.removeEventListener("mousemove", updateConnection);
+            // if the mouse is currently hovering over an input connector
+            // create a new permanent Connection between these two nodes
+            if (currentHoverConnector !== null) {
+                new Connection(_this, currentHoverConnector);
+            }
+            if (tmp_connection != null) {
+                tmp_connection.remove();
+                tmp_connection = null;
+            }
         });
         _this.element = tmp;
         return _this;
     }
-    Output.prototype.updateConnections = function () {
-        //
+    Output.prototype.addMoveCallback = function (callback) {
+        this.parent.addMoveCallback(callback);
     };
-    Output.prototype.getElement = function () {
-        return this.element;
+    Output.prototype.getPosition = function () {
+        var connector = (0, globals_1.cumulativeOffset)(this.element.querySelector(".connector"));
+        return [connector.left - this.parent.getElement().clientWidth + 20, connector.top - this.parent.getElement().clientHeight + 35]; // +9
     };
     return Output;
 }(AudioGraphNodeComponent));
@@ -257,9 +320,6 @@ var IconButton = /** @class */ (function (_super) {
         _this.element = tmp;
         return _this;
     }
-    IconButton.prototype.getElement = function () {
-        return this.element;
-    };
     IconButton.prototype.changeIcon = function (newicon) {
         this.element.innerHTML = newicon;
     };
@@ -268,69 +328,96 @@ var IconButton = /** @class */ (function (_super) {
 var AudioGraphSourceNode = /** @class */ (function (_super) {
     __extends(AudioGraphSourceNode, _super);
     function AudioGraphSourceNode(source) {
-        var _this = _super.call(this) || this;
-        _this.is_playing = false;
+        var _this = _super.call(this, false) || this;
         _this.source = source;
+        _this.is_playing = false;
         _this.sample = null;
-        _this.setTitle(source.filename);
+        _this.setTitle(source.getName());
+        _this.initComponents();
         return _this;
     }
     AudioGraphSourceNode.prototype.initComponents = function () {
         var _this = this;
-        this.addComponent(new Output("outoput"));
-        this.addComponent(new Stat("length", "12s"));
+        for (var i = 0; i < this.source.getChannels() + 1; i++) {
+            this.addComponent(new Output(this, "channel " + i));
+        }
+        this.addComponent(new Stat("length", this.source.getLength().toFixed(2) + "s"));
         var playbutton = new IconButton('<i class="fa-solid fa-play"></i>', function () {
             // change the icon according to the play state
-            _this.is_playing = !_this.is_playing;
             if (_this.is_playing) {
-                playbutton.changeIcon('<i class="fa-solid fa-pause"></i>');
-                _this.play();
-            }
-            else {
                 playbutton.changeIcon('<i class="fa-solid fa-play"></i>');
                 _this.pause();
+            }
+            else {
+                playbutton.changeIcon('<i class="fa-solid fa-pause"></i>');
+                _this.play();
             }
         });
         this.addComponent(playbutton);
     };
     AudioGraphSourceNode.prototype.play = function () {
+        var _this = this;
         this.sample = globals_1.globals.audiocontext.createBufferSource();
         this.sample.buffer = this.source.getAudioBuffer();
         this.sample.connect(globals_1.globals.audiocontext.destination);
+        var playbutton = null;
+        this.components.forEach(function (component) {
+            if (component instanceof IconButton) {
+                playbutton = component;
+            }
+        });
+        this.sample.addEventListener("ended", function (e) {
+            playbutton.changeIcon('<i class="fa-solid fa-play"></i>');
+            _this.pause();
+        });
         this.sample.start();
+        this.is_playing = true;
     };
     AudioGraphSourceNode.prototype.pause = function () {
         this.sample.stop();
+        this.is_playing = false;
+    };
+    AudioGraphSourceNode.prototype.getOutput = function (index) {
+        return this.components[index];
     };
     return AudioGraphSourceNode;
 }(AudioGraphNode));
 var AudioGraphOutputNode = /** @class */ (function (_super) {
     __extends(AudioGraphOutputNode, _super);
-    function AudioGraphOutputNode() {
-        var _this = _super.call(this) || this;
+    function AudioGraphOutputNode(destination) {
+        var _this = _super.call(this, false) || this;
+        _this.destination = destination;
+        _this.initComponents();
         _this.setTitle("Output 1");
         return _this;
     }
     AudioGraphOutputNode.prototype.initComponents = function () {
-        this.addComponent(new Input("inputo"));
-        this.addComponent(new Stat("channels", "2"));
+        for (var i = 0; i < this.destination.channelCount; i++) {
+            this.addComponent(new Input(this, "channel " + i));
+        }
+        this.addComponent(new Stat("channels", this.destination.channelCount.toString()));
+    };
+    AudioGraphOutputNode.prototype.getInput = function (index) {
+        return this.components[index];
     };
     return AudioGraphOutputNode;
 }(AudioGraphNode));
-var Connection = /** @class */ (function () {
-    function Connection(output, input) {
-        // both parameters are I/O elements
-    }
-    return Connection;
-}());
+/* Delay Node */
+/*
+    given a amount of time in seconds, the delay is converted to frames
+    with respect to the samplerate. And when an input comes in, it gets
+    buffered (buffer has the previously calculated frame size), and for
+    the delay time, only frames with value 0 get output
+*/
 // add initial nodes to screen
 var source = new Source_1.Source("./files/0Current project/kick7.1.wav");
-var nodeee = new AudioGraphSourceNode(source);
-var outpotu = new AudioGraphOutputNode();
+var node1 = new AudioGraphSourceNode(source);
+var node2 = new AudioGraphOutputNode(globals_1.globals.audiocontext.destination);
+var node3 = new AudioGraphOutputNode(globals_1.globals.audiocontext.destination);
 // initialize screen drag listener
 function screendrag(e) {
     nodes.forEach(function (element) {
-        var tmp = element.element;
+        var tmp = element.getElement();
         tmp.style.left = tmp.offsetLeft + e.movementX + "px";
         tmp.style.top = tmp.offsetTop + e.movementY + "px";
     });

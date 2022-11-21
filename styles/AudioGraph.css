@@ -71,7 +71,8 @@
     top: 10%;
     left: 30%;
     width: 200px;
-    height: 250px;
+    /*height: 250px;*/
+    z-index: 1;
 }
 
 div.input > p {

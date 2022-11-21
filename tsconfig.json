@@ -8,7 +8,8 @@
       "moduleResolution": "node",
       "module": "CommonJS",
       "rootDir": "src",
-      "strict": true
+      "strict": true,
+      "watch": true
     },
     "exclude": ["node_modules", "src/AudioNodes"]
 }
