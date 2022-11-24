@@ -160,6 +160,7 @@ abstract class AudioGraphNode extends AudioGraphObject {
 
     private movementCallbacks: Array<Function>;
     protected components: Array<AudioGraphNodeComponent>;
+    protected audio_node: AudioNode;
 
     constructor(callInitComponents: boolean = true) {
         super();
@@ -182,9 +183,13 @@ abstract class AudioGraphNode extends AudioGraphObject {
             tempthis.movementCallbacks.forEach(callback => {callback();});
         }
         header.addEventListener("mousedown", () => {
+            // bring to front
+            this.element.style.zIndex = "2";
             document.addEventListener("mousemove", nodemove);
         });
         document.addEventListener("mouseup", () => {
+            // normalize
+            this.element.style.zIndex = "1";
             document.removeEventListener("mousemove", nodemove);
         });
     }
@@ -196,6 +201,14 @@ abstract class AudioGraphNode extends AudioGraphObject {
     }
 
     abstract initComponents(): void;
+
+    connect(to: AudioGraphNode): void {
+        this.audio_node.connect(to.getAudioNode());
+    }
+
+    getAudioNode() {
+        return this.audio_node;
+    }
 
     addComponent(component: AudioGraphNodeComponent) {
         // component of type Node Component
@@ -244,14 +257,20 @@ abstract class AudioGraphNodeComponent {
 class Stat extends AudioGraphNodeComponent {
 
     element: HTMLElement;
+    private label: string;
 
     constructor(label:string, value:string) {
         super();
+        this.label = label;
         let tmp = createElement(nodeComponents["stat"]);
         let text = label + ": " + value;
         tmp.querySelector("p").setAttribute("retro", text);
         tmp.querySelector("p").innerText = text;
         this.element = tmp;
+    }
+
+    setValue(value: string) {
+        this.element.querySelector("p").innerText = this.label + ": " + value;
     }
 }
 
@@ -286,9 +305,13 @@ class Input extends AudioGraphNodeComponent {
         this.parent.addMoveCallback(callback);
     }
 
+    getParent() {
+        return this.parent;
+    }
+
     getPosition() {
         let connector = cumulativeOffset(this.element.querySelector(".connector"));
-        return [connector.left - this.parent.getElement().clientWidth + 20, connector.top - this.parent.getElement().clientHeight + 8];
+        return [connector.left - this.parent.getElement().clientWidth + 20, connector.top - 107];
     }
 }
 
@@ -314,7 +337,7 @@ class Output extends AudioGraphNodeComponent {
             }
 
             let impostor = {getPosition: () => {
-                return [e.clientX - this.parent.getElement().clientWidth + 17, e.clientY - this.parent.getElement().clientHeight + 35];
+                return [e.clientX - this.parent.getElement().clientWidth + 17, e.clientY - 107 - 9];
             }};
             tmp_connection.update(impostor);
         };
@@ -324,17 +347,20 @@ class Output extends AudioGraphNodeComponent {
         });
         document.addEventListener("mouseup", () => {
             document.removeEventListener("mousemove", updateConnection);
-            
+            if (tmp_connection === null) return;
+
             // if the mouse is currently hovering over an input connector
             // create a new permanent Connection between these two nodes
             if (currentHoverConnector !== null) {
                 new Connection(this, currentHoverConnector);
+
+                // connect the audio nodes
+                this.parent.connect(currentHoverConnector.getParent());
             }
 
-            if (tmp_connection != null) {
-                tmp_connection.remove();
-                tmp_connection = null;
-            }
+            tmp_connection.remove();
+            tmp_connection = null;
+
         });
         this.element = tmp;
     }
@@ -345,7 +371,7 @@ class Output extends AudioGraphNodeComponent {
 
     getPosition() {
         let connector = cumulativeOffset(this.element.querySelector(".connector"));
-        return [connector.left - this.parent.getElement().clientWidth + 20, connector.top - this.parent.getElement().clientHeight + 35]; // +9
+        return [connector.left - this.parent.getElement().clientWidth + 20, connector.top - 107];// - this.parent.getElement().clientHeight + 16 + 10 + 9]; // +9
     }
 }
 
@@ -372,21 +398,19 @@ class AudioGraphSourceNode extends AudioGraphNode {
 
     is_playing: boolean;
     source: Source;
-    sample: AudioBufferSourceNode;
+    private destination: AudioNode;
 
     constructor(source: Source) {
         super(false);
         this.source = source;
         this.is_playing = false;
-        this.sample = null;
+        this.audio_node = globals.audiocontext.createBufferSource();
         this.setTitle(source.getName());
         this.initComponents();
     }
 
     initComponents() {
-        for(let i = 0; i < this.source.getChannels() + 1; i++) {
-            this.addComponent(new Output(this, "channel " + i));
-        }
+        this.addComponent(new Output(this, "output"));
         this.addComponent(new Stat("length", this.source.getLength().toFixed(2) + "s"));
         let playbutton = new IconButton('<i class="fa-solid fa-play"></i>', () => {
             // change the icon according to the play state
@@ -402,25 +426,31 @@ class AudioGraphSourceNode extends AudioGraphNode {
     }
 
     play() {
-        this.sample = globals.audiocontext.createBufferSource();
-        this.sample.buffer = this.source.getAudioBuffer();
-        this.sample.connect(globals.audiocontext.destination);
+        this.audio_node = new AudioBufferSourceNode(globals.audiocontext, {buffer: this.source.getAudioBuffer()});
+        //this.audio_node = globals.audiocontext.createBufferSource();
+        //(<AudioBufferSourceNode> this.audio_node).buffer = this.source.getAudioBuffer();
+        //this.audio_node.connect(globals.audiocontext.destination);
+        this.audio_node.connect(this.destination);
         let playbutton: IconButton = null;
         this.components.forEach(component => {
             if (component instanceof IconButton) {
                 playbutton = component;
             }
         });
-        this.sample.addEventListener("ended", (e: Event) => {
+        this.audio_node.addEventListener("ended", (e: Event) => {
             playbutton.changeIcon('<i class="fa-solid fa-play"></i>');
             this.pause();
         });
-        this.sample.start();
+        (<AudioBufferSourceNode> this.audio_node).start();
         this.is_playing = true;
     }
 
+    connect(to: AudioGraphNode): void {
+        this.destination = to.getAudioNode();
+    }
+
     pause() {
-        this.sample.stop();
+        (<AudioBufferSourceNode> this.audio_node).stop();
         this.is_playing = false;
     }
 
@@ -430,25 +460,34 @@ class AudioGraphSourceNode extends AudioGraphNode {
 }
 
 class AudioGraphOutputNode extends AudioGraphNode {
-
-    private destination: AudioDestinationNode;
-
+    
     constructor(destination: AudioDestinationNode) {
         super(false);
-        this.destination = destination;
+        this.audio_node = destination;
         this.initComponents();
         this.setTitle("Output 1");
     }
-
+    
     initComponents() {
-        for(let i = 0; i < this.destination.channelCount; i++) {
-            this.addComponent(new Input(this, "channel " + i));
-        }
-        this.addComponent(new Stat("channels", this.destination.channelCount.toString()));
+        this.addComponent(new Input(this, "input"));
+        this.addComponent(new Stat("channels", this.audio_node.channelCount.toString()));
     }
-
+    
     getInput(index: number) {
         return <Input> this.components[index];
+    }
+}
+
+class AudioGraphAnalyzerNode extends AudioGraphNode {
+
+    constructor(){
+        super();
+        this.audio_node = new AnalyserNode(globals.audiocontext);
+    }
+
+    initComponents(): void {
+        this.addComponent(new Input(this, "input"));
+        this.addComponent(new Output(this, "output"));
     }
 }
 
@@ -460,11 +499,16 @@ class AudioGraphOutputNode extends AudioGraphNode {
     the delay time, only frames with value 0 get output
 */
 
+/* Channel splitter Node */
+/*
+    Splits a given combined Input/Output into its respective channels
+*/
+
 // add initial nodes to screen
 let source = new Source("./files/0Current project/kick7.1.wav");
 let node1 = new AudioGraphSourceNode(source);
 let node2 = new AudioGraphOutputNode(globals.audiocontext.destination);
-let node3 = new AudioGraphOutputNode(globals.audiocontext.destination);
+let node3 = new AudioGraphAnalyzerNode();
 
 // initialize screen drag listener
 function screendrag(e: MouseEvent) {

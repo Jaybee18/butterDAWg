@@ -133,6 +133,7 @@ p::after {
     box-shadow: -1px 0px 4px 2px red;
     mix-blend-mode: screen;
     position: relative;
+    cursor: grab;
 }
 
 .input > .connector {
