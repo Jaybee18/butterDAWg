@@ -115,11 +115,11 @@ export function createElement(HTML: string) {
 
 
 // Audio stuff
-globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthrough.js").then(() => { console.log("loaded passthrough module"); });
+//globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthrough.js").then(() => { console.log("loaded passthrough module"); });
 //audiocontext.suspend();
 
 // temp
-export class PassthroughNode extends AudioWorkletNode {
+/*export class PassthroughNode extends AudioWorkletNode {
 	constructor(context: BaseAudioContext, options: AudioWorkletNodeOptions, callback: Function) {
 		// set options here
 		super(context, 'passthrough', options);
@@ -130,7 +130,7 @@ export class PassthroughNode extends AudioWorkletNode {
 		});
 		this.port.start();
 	}
-}
+}*/
 
 export var sidebar_folder_colors: { [name: string]: string } = {
 	"0Current project": "#aa8070",

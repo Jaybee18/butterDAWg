@@ -11,5 +11,5 @@
       "strict": true,
       "watch": true
     },
-    "exclude": ["node_modules", "src/AudioNodes"]
+    "exclude": ["node_modules", "AudioNodes"]
 }

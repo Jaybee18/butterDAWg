@@ -197,11 +197,11 @@ p::after {
     box-shadow: 0 0 14px 3px #9797974d;
     border: solid 1px #91919126;
     /*height: calc(100% - 20px);*/
-    padding-top: 10px;
+    /*padding-top: 10px;*/
 
     /* temporary change, bc idk what to do with the header shadow TODO*/
-    padding-top: 29px;
-    margin-top: -29px;
+    /*padding-top: 29px;
+    margin-top: -29px;*/
 }
 
 /* playbutton component */
@@ -238,4 +238,50 @@ p::after {
 .item_body path {
     border: 1px solid blue;
     filter: blur(1px);
+}
+
+/* indicator component */
+.item_body > .node_indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item_body > .node_indicator > .lamp {
+    width: 8px;
+    height: 8px;
+    background-color: lime;
+    border-radius: 10px;
+    filter: blur(1px);
+    margin: 3px 0;
+}
+
+/* canvas component */
+.item_body .canvas_wrapper {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    border-radius: 10px;
+    margin: 9px;
+    overflow: hidden;
+    outline: solid 1px #bfbfbf4f;
+}
+
+.item_body .canvas_wrapper > div {
+    width: 100%;
+    height: 100%;
+    box-shadow: #0000006e 0px 0px 9px 3px inset, inset 0 0 2px 2px #00000073;
+    position: absolute;
+    border-radius: 10px;
+    background: radial-gradient(circle at center, #9b9b9b21 0%, #12121230 70%, #00000075 100%) #242f3566;
+}
+
+/* checkbox component */
+.item_body > .node_checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.item_body > .node_checkbox > p {
+    margin: 0 10px 0 5px;
 }

@@ -1,5 +1,5 @@
 import { Source } from "./Source";
-import { createElement, cumulativeOffset, globals } from "./globals";
+import { addRadioEventListener, createElement, cumulativeOffset, globals, ms_to_pixels } from "./globals";
 
 let screen = <HTMLCanvasElement> document.querySelector(".grid_background")!;
 let screen_context = screen.getContext("2d");
@@ -240,6 +240,19 @@ let nodeComponents = {
     "stat": '<div class="stat">\
                 <p retro="length: 12s">length: 12s</p>\
             </div>',
+    "indicator": '<div class="node_indicator">\
+            <div class="lamp"></div>\
+        </div>',
+    "canvas": '<div class="node_canvas">\
+                    <div class="canvas_wrapper">\
+                        <div></div>\
+                        <canvas></canvas>\
+                    </div>\
+                </div>',
+    "checkbox": '<div class="node_checkbox">\
+    <p retro="loop">loop</p>\
+    <div class="radio_btn" style="position: relative; box-shadow: 0 0 1px 0px #ffffff8a;"><div class="radio_btn_green" style="filter: blur(1px);"></div></div>\
+    </div>',
 };
 
 
@@ -256,7 +269,6 @@ abstract class AudioGraphNodeComponent {
 
 class Stat extends AudioGraphNodeComponent {
 
-    element: HTMLElement;
     private label: string;
 
     constructor(label:string, value:string) {
@@ -279,7 +291,6 @@ var currentHoverConnector: Input = null;
 
 class Input extends AudioGraphNodeComponent {
 
-    element: HTMLElement;
     private parent: AudioGraphNode;
 
     constructor(parent: AudioGraphNode, label:string) {
@@ -317,7 +328,6 @@ class Input extends AudioGraphNodeComponent {
 
 class Output extends AudioGraphNodeComponent {
 
-    element: HTMLElement;
     private parent: AudioGraphNode;
 
     constructor(parent: AudioGraphNode, label:string) {
@@ -375,9 +385,74 @@ class Output extends AudioGraphNodeComponent {
     }
 }
 
-class IconButton extends AudioGraphNodeComponent {
+class Indicator extends AudioGraphNodeComponent {
+    constructor() {
+        super();
+        let temp = createElement(nodeComponents["indicator"]);
+        this.element = temp;
+    }
 
-    element: HTMLElement;
+    setValue(value: number) {
+        let lamp = <HTMLElement> this.element.querySelector(".lamp");
+        lamp.style.backgroundColor = "#00ff00" + value.toString(16).padStart(2, "0");
+    }
+}
+
+class NodeCanvas extends AudioGraphNodeComponent {
+    constructor() {
+        super();
+        let tmp = createElement(nodeComponents["canvas"]);
+
+        let c = <HTMLCanvasElement> tmp.querySelector("canvas");
+        c.width = 180;
+        let ctx = c.getContext("2d");
+        let cwidth = c.width;
+        let cheight = c.height;
+        ctx.fillStyle = "#3f484d";
+        ctx.fillRect(0, 0, cwidth, cheight);
+
+        this.element = tmp;
+    }
+
+    getCanvas() {
+        return (<HTMLCanvasElement> this.element.querySelector("canvas"))
+    }
+
+    clear() {
+        let c = this.element.querySelector("canvas");
+        let ctx = c.getContext("2d");
+        ctx.fillRect(0, 0, c.width, c.height);
+    }
+}
+
+class Checkbox extends AudioGraphNodeComponent {
+
+    public checked: boolean;
+    private changeListener: Function;
+
+    constructor() {
+        super();
+        let tmp = createElement(nodeComponents["checkbox"]);
+        this.checked = false;
+
+        let radio_btn = tmp.querySelector(".radio_btn");
+        let radio_btn_green = <HTMLElement> radio_btn.querySelector(".radio_btn_green");
+        radio_btn_green.style.backgroundColor = globals.grey;
+        radio_btn.addEventListener("click", () => {
+            this.checked = !this.checked;
+            radio_btn_green.style.backgroundColor = this.checked ? globals.green : globals.grey;
+            this.changeListener();
+        });
+
+        this.element = tmp;
+    }
+
+    addChangeListener(listener: Function) {
+        this.changeListener = listener;
+    }
+}
+
+class IconButton extends AudioGraphNodeComponent {
 
     constructor(icon:string, onclick:any) {
         super();
@@ -399,6 +474,7 @@ class AudioGraphSourceNode extends AudioGraphNode {
     is_playing: boolean;
     source: Source;
     private destination: AudioNode;
+    private loop: boolean;
 
     constructor(source: Source) {
         super(false);
@@ -412,6 +488,13 @@ class AudioGraphSourceNode extends AudioGraphNode {
     initComponents() {
         this.addComponent(new Output(this, "output"));
         this.addComponent(new Stat("length", this.source.getLength().toFixed(2) + "s"));
+
+        let checkbox = new Checkbox();
+        checkbox.addChangeListener(() => {
+            this.loop = checkbox.checked;
+        });
+        this.addComponent(checkbox);
+
         let playbutton = new IconButton('<i class="fa-solid fa-play"></i>', () => {
             // change the icon according to the play state
             if (this.is_playing) {
@@ -426,7 +509,10 @@ class AudioGraphSourceNode extends AudioGraphNode {
     }
 
     play() {
-        this.audio_node = new AudioBufferSourceNode(globals.audiocontext, {buffer: this.source.getAudioBuffer()});
+        this.audio_node = new AudioBufferSourceNode(globals.audiocontext, {
+            buffer: this.source.getAudioBuffer(), 
+            loop: this.loop
+        });
         //this.audio_node = globals.audiocontext.createBufferSource();
         //(<AudioBufferSourceNode> this.audio_node).buffer = this.source.getAudioBuffer();
         //this.audio_node.connect(globals.audiocontext.destination);
@@ -480,9 +566,67 @@ class AudioGraphOutputNode extends AudioGraphNode {
 
 class AudioGraphAnalyzerNode extends AudioGraphNode {
 
+    private indicator: Indicator;
+    private canvas: NodeCanvas;
+
     constructor(){
-        super();
+        super(true);
         this.audio_node = new AnalyserNode(globals.audiocontext);
+
+        this.setTitle("Analyser")
+
+        let temp_this = this;
+        const maxY = 150;
+        const maxX = 200;
+        async function execute1() {
+            while (true) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+                
+                (<AnalyserNode> temp_this.audio_node).fftSize = 2**10;
+                const bufferLength = (<AnalyserNode> temp_this.audio_node).frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                (<AnalyserNode> temp_this.audio_node).getByteFrequencyData(dataArray);
+
+                let tmp_array: Array<number> = [];
+                dataArray.forEach(v => tmp_array.push((1-v/255)*maxY));
+
+                // draw on canvas
+                temp_this.canvas.clear();
+                let canvas_element = temp_this.canvas.getCanvas();
+                let ctx = canvas_element.getContext("2d");
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#fff";
+                ctx.beginPath();
+                let scale = maxX / Math.log10(bufferLength);
+                tmp_array.forEach((v, i) => {
+                    ctx.lineTo(Math.log10(i)*scale, v);
+                });
+                ctx.stroke();
+            }
+        }
+        
+        execute1();
+    }
+
+    initComponents(): void {
+        this.addComponent(new Input(this, "input"));
+        this.addComponent(new Output(this, "output"));
+        this.canvas = new NodeCanvas();
+        this.addComponent(this.canvas);
+    }
+
+    setValue(value: number) {
+        this.indicator.setValue(value);
+    }
+}
+
+class PassthroughNode extends AudioGraphNode {
+    constructor() {
+        super();
+        globals.audiocontext.audioWorklet.addModule("AudioNodes/passthrough.js").then(() => {
+            console.log("passthroug module loaded")
+            this.audio_node = new AudioWorkletNode(globals.audiocontext, "passthrough");
+        });
     }
 
     initComponents(): void {
@@ -509,6 +653,7 @@ let source = new Source("./files/0Current project/kick7.1.wav");
 let node1 = new AudioGraphSourceNode(source);
 let node2 = new AudioGraphOutputNode(globals.audiocontext.destination);
 let node3 = new AudioGraphAnalyzerNode();
+let node4 = new PassthroughNode();
 
 // initialize screen drag listener
 function screendrag(e: MouseEvent) {

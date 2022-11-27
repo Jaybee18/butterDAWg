@@ -1,21 +1,6 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addRadioEventListener = exports.currently_hovered_track = exports.insertAfter = exports.sidebar_folder_colors = exports.PassthroughNode = exports.createElement = exports.sleep = exports.ms_to_pixels = exports.pixels_to_ms = exports.Draggable = exports.cumulativeOffset = exports.globals = void 0;
+exports.addRadioEventListener = exports.currently_hovered_track = exports.insertAfter = exports.sidebar_folder_colors = exports.createElement = exports.sleep = exports.ms_to_pixels = exports.pixels_to_ms = exports.Draggable = exports.cumulativeOffset = exports.globals = void 0;
 var Globals = /** @class */ (function () {
     function Globals() {
         this.tracks = [];
@@ -116,25 +101,21 @@ function createElement(HTML) {
 }
 exports.createElement = createElement;
 // Audio stuff
-exports.globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthrough.js").then(function () { console.log("loaded passthrough module"); });
+//globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthrough.js").then(() => { console.log("loaded passthrough module"); });
 //audiocontext.suspend();
 // temp
-var PassthroughNode = /** @class */ (function (_super) {
-    __extends(PassthroughNode, _super);
-    function PassthroughNode(context, options, callback) {
-        var _this = 
+/*export class PassthroughNode extends AudioWorkletNode {
+    constructor(context: BaseAudioContext, options: AudioWorkletNodeOptions, callback: Function) {
         // set options here
-        _super.call(this, context, 'passthrough', options) || this;
+        super(context, 'passthrough', options);
+
         // configure port for communication with the audioprocessor
-        _this.port.addEventListener("message", function (m) {
+        this.port.addEventListener("message", (m) => {
             callback(m.data.volume);
         });
-        _this.port.start();
-        return _this;
+        this.port.start();
     }
-    return PassthroughNode;
-}(AudioWorkletNode));
-exports.PassthroughNode = PassthroughNode;
+}*/
 exports.sidebar_folder_colors = {
     "0Current project": "#aa8070",
     "1Recent files": "#7ca366",
