@@ -53,6 +53,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Source_1 = require("./Source");
 var globals_1 = require("./globals");
+var Plugin_1 = require("./Plugin");
 var screen = document.querySelector(".grid_background");
 var screen_context = screen.getContext("2d");
 screen_context.clearRect(0, 0, screen.width, screen.height);
@@ -627,6 +628,33 @@ var PassthroughNode = /** @class */ (function (_super) {
     };
     return PassthroughNode;
 }(AudioGraphNode));
+var PluginNode = /** @class */ (function (_super) {
+    __extends(PluginNode, _super);
+    function PluginNode(plugin) {
+        var _this = _super.call(this, false) || this;
+        _this.plugin = plugin;
+        _this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, plugin.getName());
+        _this.initComponents();
+        return _this;
+    }
+    PluginNode.prototype.initComponents = function () {
+        var _this = this;
+        // I/O
+        for (var i = 0; i < this.audio_node.numberOfInputs; i++) {
+            this.addComponent(new Input(this, "input " + i.toString()));
+        }
+        for (var i = 0; i < this.audio_node.numberOfOutputs; i++) {
+            this.addComponent(new Output(this, "output " + i.toString()));
+        }
+        // parameters
+        console.log(this.audio_node.parameters);
+        this.audio_node.parameters.forEach(function (element) {
+            console.log(element);
+            _this.addComponent(new Stat("idk", element.value.toString()));
+        });
+    };
+    return PluginNode;
+}(AudioGraphNode));
 /* Delay Node */
 /*
     given a amount of time in seconds, the delay is converted to frames
@@ -644,6 +672,11 @@ var node1 = new AudioGraphSourceNode(source);
 var node2 = new AudioGraphOutputNode(globals_1.globals.audiocontext.destination);
 var node3 = new AudioGraphAnalyzerNode();
 var node4 = new PassthroughNode();
+//globals.audiocontext.audioWorklet.addModule("AudioNodes/bitcrusher.js").then(() => {
+//    console.log("bitcrusher module loaded")
+//    let node5 = new PluginNode(new Plugin("AudioNodes/bitcrusher.js"));
+//});
+var node5 = new PluginNode(new Plugin_1.Plugin("AudioNodes/bitcrusher.js"));
 // initialize screen drag listener
 function screendrag(e) {
     nodes.forEach(function (element) {

@@ -1,5 +1,6 @@
 import { Source } from "./Source";
 import { addRadioEventListener, createElement, cumulativeOffset, globals, ms_to_pixels } from "./globals";
+import { Plugin } from "./Plugin";
 
 let screen = <HTMLCanvasElement> document.querySelector(".grid_background")!;
 let screen_context = screen.getContext("2d");
@@ -635,6 +636,34 @@ class PassthroughNode extends AudioGraphNode {
     }
 }
 
+class PluginNode extends AudioGraphNode {
+
+    private plugin: Plugin
+
+    constructor(plugin: Plugin) {
+        super(false);
+        this.plugin = plugin;
+        this.audio_node = new AudioWorkletNode(globals.audiocontext, plugin.getName());
+        this.initComponents();
+    }
+    initComponents(): void {
+        // I/O
+        for (let i = 0; i < this.audio_node.numberOfInputs; i++) {
+            this.addComponent(new Input(this, "input " + i.toString()));
+        }
+        for (let i = 0; i < this.audio_node.numberOfOutputs; i++) {
+            this.addComponent(new Output(this, "output " + i.toString()));
+        }
+
+        // parameters
+        console.log((<AudioParamMap> (<any> this.audio_node).parameters));
+        (<AudioParamMap> (<any> this.audio_node).parameters).forEach(element => {
+            console.log(element);
+            this.addComponent(new Stat("idk", element.value.toString()));
+        });
+    }
+}
+
 /* Delay Node */
 /*
     given a amount of time in seconds, the delay is converted to frames
@@ -654,6 +683,11 @@ let node1 = new AudioGraphSourceNode(source);
 let node2 = new AudioGraphOutputNode(globals.audiocontext.destination);
 let node3 = new AudioGraphAnalyzerNode();
 let node4 = new PassthroughNode();
+//globals.audiocontext.audioWorklet.addModule("AudioNodes/bitcrusher.js").then(() => {
+//    console.log("bitcrusher module loaded")
+//    let node5 = new PluginNode(new Plugin("AudioNodes/bitcrusher.js"));
+//});
+let node5 = new PluginNode(new Plugin("AudioNodes/bitcrusher.js"));
 
 // initialize screen drag listener
 function screendrag(e: MouseEvent) {
