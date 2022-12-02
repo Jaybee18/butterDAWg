@@ -6,6 +6,7 @@ var Globals = /** @class */ (function () {
         this.tracks = [];
         this.channels = [];
         this.context_menus = []; // all open context menus
+        this.audio_graph_nodes = [];
         this.deactivate_space_to_play = false;
         // contains the currently dragged element
         this.current_drag_element = null;
@@ -35,7 +36,6 @@ var Globals = /** @class */ (function () {
     return Globals;
 }());
 exports.globals = new Globals();
-var fs = require("fs");
 var WaveFile = require("wavefile").WaveFile;
 //const wavefile = require("wavefile");
 //const Speaker = require("speaker");
@@ -103,6 +103,14 @@ exports.createElement = createElement;
 // Audio stuff
 //globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthrough.js").then(() => { console.log("loaded passthrough module"); });
 //audiocontext.suspend();
+/*const plugin_src_folder = "./AudioNodes";
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+readdirSync(plugin_src_folder, {withFileTypes: true}).forEach((file) => {
+    console.log(plugin_src_folder + "/" + file.name)
+    globals.audiocontext.audioWorklet.addModule(plugin_src_folder + "/" + file.name).then(() => {
+        console.log("successfully loaded " + file.name.split(".")[0] + "-plugin");
+    });
+});*/
 // temp
 /*export class PassthroughNode extends AudioWorkletNode {
     constructor(context: BaseAudioContext, options: AudioWorkletNodeOptions, callback: Function) {

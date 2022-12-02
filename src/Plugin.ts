@@ -1,21 +1,21 @@
+import { globals } from "./globals";
+
 export class Plugin {
 
     private path: string
     private audiocontext_name: string
     private name: string
-    private audiocontext: AudioContext
 
     constructor(path: string) {
         this.path = path;
-        this.name = "<placeholder>"
-
-        this.loadPlugin()
+        console.log(this.path);
+        this.name = this.path.match("^.*/(.*)\\.(.*)$")[1]
+        console.log(this.name);
     }
 
-    loadPlugin() {
-        this.audiocontext.audioWorklet.addModule(this.path).then(() => {
-            console.log("successfully loaded " + this.name + "-plugin");
-        });
+    async loadPlugin() {
+        await globals.audiocontext.audioWorklet.addModule(this.path);
+        console.log("successfully loaded " + this.name + "-plugin");
     }
     
     getName() {

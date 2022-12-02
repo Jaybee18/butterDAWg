@@ -9,7 +9,10 @@
     position: relative;
 
     /* just for testing of the mixer */
-    height: 100%!important;
+    height: 60%!important;
+    width: 80%;
+    left: 20px;
+    top: 80px;
 }
 
 .audio_graph_toolbar {
@@ -68,8 +71,6 @@
 
 .audio_graph_screen > .item {
     position: absolute;
-    top: 10%;
-    left: 30%;
     width: 200px;
     /*height: 250px;*/
     z-index: 1;

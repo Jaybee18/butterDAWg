@@ -1,13 +1,15 @@
 // white-noise-processor.js
-export class Passthrough extends AudioWorkletProcessor {
+class Passthrough extends AudioWorkletProcessor {
 	process(inputs, outputs) {
 		const input = inputs[0];
 		const output = outputs[0];
-		output.forEach((channel) => {
-			for (let i = 0; i < channel.length; i++) {
-				channel[i] = input[i]; //Math.random() * 2 - 1;
+		
+		for (let channel = 0; channel < input.length; channel++) {
+			for (let i = 0; i < input[channel].length; i++) {
+				output[channel][i] = input[channel][i];
 			}
-		});
+		}
+
 		return true;
 	}
 }

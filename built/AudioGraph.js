@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -51,9 +51,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AudioGraphNode = void 0;
 var Source_1 = require("./Source");
 var globals_1 = require("./globals");
 var Plugin_1 = require("./Plugin");
+var fs_1 = require("fs");
 var screen = document.querySelector(".grid_background");
 var screen_context = screen.getContext("2d");
 screen_context.clearRect(0, 0, screen.width, screen.height);
@@ -80,26 +82,72 @@ for (let x = 0; x < screen.width; x+= rect.width) {
 }
 screen_context.stroke();
 */
-var warp = 15; // screen warp in percent
-var parab = function (x) { return (0.00001 * warp) * Math.pow(x - 500, 2); };
-screen_context.strokeStyle = "#00000000";
+/*let warp = 15; // screen warp in percent
+var parab = (x:number) => {return (0.00001 * warp) * Math.pow(x - 500, 2);};
+screen_context.strokeStyle = "#00FF0000";
 screen_context.lineWidth = 2;
-var cross_width = rect.width * 0.04;
-for (var i = 0; i < screen.width; i += rect.width) {
-    var temp3 = 0;
-    var temp = i / screen.height - 0.5;
-    for (temp3; temp3 < screen.height; temp3 += rect.height) {
-        var temp2 = temp3 / screen.width - 0.5;
-        var y = temp3 - parab(i) * temp2 + 0;
-        var x = i - parab(temp3) * temp + 10;
-        screen_context.moveTo(0 + x, 0 + y - cross_width);
-        screen_context.lineTo(0 + x, 0 + y + cross_width);
-        screen_context.moveTo(0 + x - cross_width, 0 + y);
-        screen_context.lineTo(0 + x + cross_width, 0 + y);
+const cross_width = rect.width * 0.04;
+for (let i = 0; i < screen.width; i+= rect.width) {
+    let temp3 = 0;
+    let temp = i/screen.height-0.5;
+    for (temp3; temp3 < screen.height; temp3+= rect.height) {
+        let temp2 = temp3/screen.width-0.5;
+        let y = temp3-parab(i)*temp2 + 0;
+        let x = i-parab(temp3)*temp + 10;
+        screen_context.moveTo(0+x, 0+y-cross_width);
+        screen_context.lineTo(0+x, 0+y+cross_width);
+        screen_context.moveTo(0+x-cross_width, 0+y);
+        screen_context.lineTo(0+x+cross_width, 0+y);
     }
 }
-screen_context.stroke();
-// drag listener
+screen_context.stroke();*/
+var overlapping = function (node1, node2) {
+    var pos1 = node1.getPosition();
+    var pos2 = node2.getPosition();
+    var d1 = node1.getDimensions();
+    var d2 = node2.getDimensions();
+    var res = true;
+    if (pos1[0] > pos2[0] + d2[0]) {
+        res = false;
+    }
+    if (pos1[0] + d1[0] < pos2[0]) {
+        res = false;
+    }
+    if (pos1[1] > pos2[1] + d2[1]) {
+        res = false;
+    }
+    if (pos1[1] + d1[1] < pos2[1]) {
+        res = false;
+    }
+    return res;
+};
+var minimal_offset = function (node1, node2) {
+    // calculate the minimal distance node2 has to be moved, to not collide with node1 anymore
+    var pos1 = node1.getPosition();
+    var pos2 = node2.getPosition();
+    var d1 = node1.getDimensions();
+    var d2 = node2.getDimensions();
+    var delta1 = (pos1[0] - pos2[0]) + d2[0];
+    var delta2 = pos2[0] - (pos1[0] + d1[0]);
+    var delta3 = pos1[1] - (pos2[1] + d2[1]);
+    var delta4 = pos2[1] - (pos1[1] + d1[1]);
+    var min = Math.min(delta1, delta2, delta3, delta4);
+    //console.log(delta1, delta2, delta3, delta4)
+    var offset = 20;
+    switch (min) {
+        case delta1:
+            return [Math.abs(delta1) + offset, 0];
+        case delta2:
+            return [-(Math.abs(delta2) + offset), 0];
+        case delta3:
+            return [0, Math.abs(delta3) + offset];
+        case delta4:
+            return [0, -(Math.abs(delta4) + offset)];
+        default:
+            return [10, 10];
+            break;
+    }
+};
 // base class for every object in the audio graph
 var AudioGraphObject = /** @class */ (function () {
     function AudioGraphObject() {
@@ -109,12 +157,32 @@ var AudioGraphObject = /** @class */ (function () {
         this.element.id = this.id;
         // add the generated element to the audio graph
         document.getElementById("audiograph").appendChild(this.element);
+        // rudimentary positioning, by just placing every node to the right of the last placed node
+        if (globals_1.globals.audio_graph_nodes.length > 0) {
+            var last_node = globals_1.globals.audio_graph_nodes[globals_1.globals.audio_graph_nodes.length - 1];
+            var tmp_pos = last_node.getPosition();
+            this.moveTo(tmp_pos[0] + last_node.getDimensions()[0] + 40, tmp_pos[1]);
+        }
     }
+    AudioGraphObject.prototype.moveTo = function (x, y) {
+        this.element.style.left = x + "px";
+        this.element.style.top = y + "px";
+    };
+    AudioGraphObject.prototype.move = function (deltax, deltay) {
+        this.element.style.left = this.element.clientLeft + deltax + "px";
+        this.element.style.top = this.element.clientTop + deltay + "px";
+    };
     AudioGraphObject.prototype.remove = function () {
         document.getElementById(this.id).remove();
     };
     AudioGraphObject.prototype.getElement = function () {
         return this.element;
+    };
+    AudioGraphObject.prototype.getPosition = function () {
+        return [this.element.offsetLeft, this.element.offsetTop];
+    };
+    AudioGraphObject.prototype.getDimensions = function () {
+        return [this.element.clientWidth, this.element.clientHeight];
     };
     return AudioGraphObject;
 }());
@@ -191,6 +259,7 @@ var AudioGraphNode = /** @class */ (function (_super) {
         _this.components = [];
         if (callInitComponents)
             _this.initComponents();
+        globals_1.globals.audio_graph_nodes.push(_this);
         return _this;
     }
     AudioGraphNode.prototype.initElement = function () {
@@ -240,6 +309,7 @@ var AudioGraphNode = /** @class */ (function (_super) {
     };
     return AudioGraphNode;
 }(AudioGraphObject));
+exports.AudioGraphNode = AudioGraphNode;
 var nodes = [];
 var nodeComponents = {
     "input": '<div class="input">\
@@ -547,7 +617,11 @@ var AudioGraphAnalyzerNode = /** @class */ (function (_super) {
     function AudioGraphAnalyzerNode() {
         var _this = _super.call(this, true) || this;
         _this.audio_node = new AnalyserNode(globals_1.globals.audiocontext);
+        _this.frequency = false;
         _this.setTitle("Analyser");
+        // TODO maybe make these parameters optionally customizable?
+        var fftSize = Math.pow(2, 10);
+        var timeout = 10;
         var temp_this = _this;
         var maxY = 150;
         var maxX = 200;
@@ -561,13 +635,18 @@ var AudioGraphAnalyzerNode = /** @class */ (function (_super) {
                                 var bufferLength, dataArray, tmp_array, canvas_element, ctx, scale;
                                 return __generator(this, function (_b) {
                                     switch (_b.label) {
-                                        case 0: return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, 10); })];
+                                        case 0: return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, timeout); })];
                                         case 1:
                                             _b.sent();
-                                            temp_this.audio_node.fftSize = Math.pow(2, 10);
+                                            temp_this.audio_node.fftSize = fftSize;
                                             bufferLength = temp_this.audio_node.frequencyBinCount;
                                             dataArray = new Uint8Array(bufferLength);
-                                            temp_this.audio_node.getByteFrequencyData(dataArray);
+                                            if (temp_this.frequency) {
+                                                temp_this.audio_node.getByteFrequencyData(dataArray);
+                                            }
+                                            else {
+                                                temp_this.audio_node.getByteTimeDomainData(dataArray);
+                                            }
                                             tmp_array = [];
                                             dataArray.forEach(function (v) { return tmp_array.push((1 - v / 255) * maxY); });
                                             // draw on canvas
@@ -579,7 +658,7 @@ var AudioGraphAnalyzerNode = /** @class */ (function (_super) {
                                             ctx.beginPath();
                                             scale = maxX / Math.log10(bufferLength);
                                             tmp_array.forEach(function (v, i) {
-                                                ctx.lineTo(Math.log10(i) * scale, v);
+                                                ctx.lineTo(temp_this.frequency ? Math.log10(i) * scale : i, v);
                                             });
                                             ctx.stroke();
                                             return [2 /*return*/];
@@ -612,29 +691,39 @@ var AudioGraphAnalyzerNode = /** @class */ (function (_super) {
     };
     return AudioGraphAnalyzerNode;
 }(AudioGraphNode));
-var PassthroughNode = /** @class */ (function (_super) {
-    __extends(PassthroughNode, _super);
-    function PassthroughNode() {
-        var _this = _super.call(this) || this;
-        globals_1.globals.audiocontext.audioWorklet.addModule("AudioNodes/passthrough.js").then(function () {
-            console.log("passthroug module loaded");
-            _this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, "passthrough");
+/*class PassthroughNode extends AudioGraphNode {
+    constructor() {
+        super();
+        globals.audiocontext.audioWorklet.addModule("AudioNodes/passthrough.js").then(() => {
+            console.log("passthroug module loaded")
+            this.audio_node = new AudioWorkletNode(globals.audiocontext, "passthrough");
         });
-        return _this;
     }
-    PassthroughNode.prototype.initComponents = function () {
+
+    initComponents(): void {
         this.addComponent(new Input(this, "input"));
         this.addComponent(new Output(this, "output"));
-    };
-    return PassthroughNode;
-}(AudioGraphNode));
+    }
+}*/
 var PluginNode = /** @class */ (function (_super) {
     __extends(PluginNode, _super);
     function PluginNode(plugin) {
         var _this = _super.call(this, false) || this;
         _this.plugin = plugin;
-        _this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, plugin.getName());
-        _this.initComponents();
+        // try initialising the audio node
+        try {
+            // audio module has already been added, so just create the audio node
+            _this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, _this.plugin.getName());
+            _this.initComponents();
+        }
+        catch (error) {
+            console.log("error");
+            // audio module has to be registered first before using it
+            _this.plugin.loadPlugin().then(function () {
+                _this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, _this.plugin.getName());
+                _this.initComponents();
+            });
+        }
         return _this;
     }
     PluginNode.prototype.initComponents = function () {
@@ -647,11 +736,11 @@ var PluginNode = /** @class */ (function (_super) {
             this.addComponent(new Output(this, "output " + i.toString()));
         }
         // parameters
-        console.log(this.audio_node.parameters);
+        //console.log((<AudioParamMap> (<any> this.audio_node).parameters));
         this.audio_node.parameters.forEach(function (element) {
-            console.log(element);
             _this.addComponent(new Stat("idk", element.value.toString()));
         });
+        //this.position();
     };
     return PluginNode;
 }(AudioGraphNode));
@@ -666,20 +755,25 @@ var PluginNode = /** @class */ (function (_super) {
 /*
     Splits a given combined Input/Output into its respective channels
 */
-// add initial nodes to screen
-var source = new Source_1.Source("./files/0Current project/kick7.1.wav");
-var node1 = new AudioGraphSourceNode(source);
-var node2 = new AudioGraphOutputNode(globals_1.globals.audiocontext.destination);
-var node3 = new AudioGraphAnalyzerNode();
-var node4 = new PassthroughNode();
-//globals.audiocontext.audioWorklet.addModule("AudioNodes/bitcrusher.js").then(() => {
-//    console.log("bitcrusher module loaded")
-//    let node5 = new PluginNode(new Plugin("AudioNodes/bitcrusher.js"));
-//});
-var node5 = new PluginNode(new Plugin_1.Plugin("AudioNodes/bitcrusher.js"));
+// first load all possible audio plugins, then initialise some testing audio nodes
+var plugin_promises = (0, fs_1.readdirSync)("AudioNodes").map(function (v) {
+    return globals_1.globals.audiocontext.audioWorklet.addModule("AudioNodes/" + v);
+});
+Promise.allSettled(plugin_promises).then(function () {
+    var source = new Source_1.Source("./files/0Current project/kick7.1.wav");
+    var node1 = new AudioGraphSourceNode(source);
+    var node4 = new PluginNode(new Plugin_1.Plugin("AudioNodes/passthrough.js"));
+    var node5 = new PluginNode(new Plugin_1.Plugin("AudioNodes/bitcrusher.js"));
+    var node3 = new AudioGraphAnalyzerNode();
+    var node2 = new AudioGraphOutputNode(globals_1.globals.audiocontext.destination);
+    node1.connect(node4);
+    node4.connect(node5);
+    node5.connect(node3);
+    node3.connect(node2);
+});
 // initialize screen drag listener
 function screendrag(e) {
-    nodes.forEach(function (element) {
+    globals_1.globals.audio_graph_nodes.forEach(function (element) {
         var tmp = element.getElement();
         tmp.style.left = tmp.offsetLeft + e.movementX + "px";
         tmp.style.top = tmp.offsetTop + e.movementY + "px";

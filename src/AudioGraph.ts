@@ -1,6 +1,7 @@
 import { Source } from "./Source";
 import { addRadioEventListener, createElement, cumulativeOffset, globals, ms_to_pixels } from "./globals";
 import { Plugin } from "./Plugin";
+import { readdirSync } from "fs";
 
 let screen = <HTMLCanvasElement> document.querySelector(".grid_background")!;
 let screen_context = screen.getContext("2d");
@@ -28,9 +29,9 @@ for (let x = 0; x < screen.width; x+= rect.width) {
 }
 screen_context.stroke();
 */
-let warp = 15; // screen warp in percent
+/*let warp = 15; // screen warp in percent
 var parab = (x:number) => {return (0.00001 * warp) * Math.pow(x - 500, 2);};
-screen_context.strokeStyle = "#00000000";
+screen_context.strokeStyle = "#00FF0000";
 screen_context.lineWidth = 2;
 const cross_width = rect.width * 0.04;
 for (let i = 0; i < screen.width; i+= rect.width) {
@@ -46,9 +47,52 @@ for (let i = 0; i < screen.width; i+= rect.width) {
         screen_context.lineTo(0+x+cross_width, 0+y);
     }
 }
-screen_context.stroke();
+screen_context.stroke();*/
 
-// drag listener
+const overlapping = (node1: AudioGraphObject, node2: AudioGraphObject) => {
+    let pos1 = node1.getPosition();
+    let pos2 = node2.getPosition();
+    let d1 = node1.getDimensions();
+    let d2 = node2.getDimensions();
+
+    let res = true;
+    if (pos1[0] > pos2[0] + d2[0]) { res = false; }
+    if (pos1[0] + d1[0] < pos2[0]) { res = false; }
+    if (pos1[1] > pos2[1] + d2[1]) { res = false; }
+    if (pos1[1] + d1[1] < pos2[1]) { res = false; }
+
+    return res;
+};
+
+const minimal_offset = (node1: AudioGraphObject, node2: AudioGraphObject) => {
+    // calculate the minimal distance node2 has to be moved, to not collide with node1 anymore
+    let pos1 = node1.getPosition();
+    let pos2 = node2.getPosition();
+    let d1 = node1.getDimensions();
+    let d2 = node2.getDimensions();
+
+    let delta1 = (pos1[0] - pos2[0]) + d2[0];
+    let delta2 = pos2[0] - (pos1[0] + d1[0]);
+    let delta3 = pos1[1] - (pos2[1] + d2[1]);
+    let delta4 = pos2[1] - (pos1[1] + d1[1]);
+
+    let min = Math.min(delta1, delta2, delta3, delta4);
+    //console.log(delta1, delta2, delta3, delta4)
+    let offset = 20;
+    switch (min) {
+        case delta1:
+            return [Math.abs(delta1) + offset, 0];
+        case delta2:
+            return [-(Math.abs(delta2) + offset), 0];
+        case delta3:
+            return [0, Math.abs(delta3) + offset];
+        case delta4:
+            return [0, -(Math.abs(delta4) + offset)];
+        default:
+            return [10, 10];
+            break;
+    }
+};
 
 // base class for every object in the audio graph
 abstract class AudioGraphObject {
@@ -65,6 +109,23 @@ abstract class AudioGraphObject {
 
         // add the generated element to the audio graph
         document.getElementById("audiograph").appendChild(this.element);
+
+        // rudimentary positioning, by just placing every node to the right of the last placed node
+        if (globals.audio_graph_nodes.length > 0) {
+            let last_node = globals.audio_graph_nodes[globals.audio_graph_nodes.length-1];
+            let tmp_pos = last_node.getPosition();
+            this.moveTo(tmp_pos[0] + last_node.getDimensions()[0] + 40, tmp_pos[1]);
+        }
+    }
+
+    moveTo(x: number, y: number) {
+        this.element.style.left = x + "px";
+        this.element.style.top = y + "px";
+    }
+
+    move(deltax: number, deltay: number) {
+        this.element.style.left = this.element.clientLeft + deltax + "px";
+        this.element.style.top = this.element.clientTop + deltay + "px";
     }
 
     remove() {
@@ -73,6 +134,14 @@ abstract class AudioGraphObject {
 
     getElement() {
         return this.element;
+    }
+
+    getPosition(): [number, number] {
+        return [this.element.offsetLeft, this.element.offsetTop];
+    }
+
+    getDimensions(): [number, number] {
+        return [this.element.clientWidth, this.element.clientHeight];
     }
 
     // every sublass has to implement this method populating the this.element attribute
@@ -157,7 +226,7 @@ let baseNode = '<div class="item">\
                     </div>\
                     <div class="item_body"></div>\
                 </div>';
-abstract class AudioGraphNode extends AudioGraphObject {
+export abstract class AudioGraphNode extends AudioGraphObject {
 
     private movementCallbacks: Array<Function>;
     protected components: Array<AudioGraphNodeComponent>;
@@ -169,6 +238,8 @@ abstract class AudioGraphNode extends AudioGraphObject {
         this.components = [];
         if (callInitComponents)
             this.initComponents();
+        
+        globals.audio_graph_nodes.push(this);
     }
 
     initElement() {
@@ -569,24 +640,34 @@ class AudioGraphAnalyzerNode extends AudioGraphNode {
 
     private indicator: Indicator;
     private canvas: NodeCanvas;
+    private frequency: boolean; // show frequency- (or wave-) data?
 
     constructor(){
         super(true);
         this.audio_node = new AnalyserNode(globals.audiocontext);
+        this.frequency = false;
 
         this.setTitle("Analyser")
+
+        // TODO maybe make these parameters optionally customizable?
+        const fftSize = 2**10;
+        const timeout = 10;
 
         let temp_this = this;
         const maxY = 150;
         const maxX = 200;
         async function execute1() {
             while (true) {
-                await new Promise(resolve => setTimeout(resolve, 10));
+                await new Promise(resolve => setTimeout(resolve, timeout));
                 
-                (<AnalyserNode> temp_this.audio_node).fftSize = 2**10;
+                (<AnalyserNode> temp_this.audio_node).fftSize = fftSize;
                 const bufferLength = (<AnalyserNode> temp_this.audio_node).frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
-                (<AnalyserNode> temp_this.audio_node).getByteFrequencyData(dataArray);
+                if (temp_this.frequency) {
+                    (<AnalyserNode> temp_this.audio_node).getByteFrequencyData(dataArray);
+                } else {
+                    (<AnalyserNode> temp_this.audio_node).getByteTimeDomainData(dataArray);
+                }
 
                 let tmp_array: Array<number> = [];
                 dataArray.forEach(v => tmp_array.push((1-v/255)*maxY));
@@ -600,7 +681,7 @@ class AudioGraphAnalyzerNode extends AudioGraphNode {
                 ctx.beginPath();
                 let scale = maxX / Math.log10(bufferLength);
                 tmp_array.forEach((v, i) => {
-                    ctx.lineTo(Math.log10(i)*scale, v);
+                    ctx.lineTo(temp_this.frequency ? Math.log10(i)*scale : i, v);
                 });
                 ctx.stroke();
             }
@@ -621,7 +702,7 @@ class AudioGraphAnalyzerNode extends AudioGraphNode {
     }
 }
 
-class PassthroughNode extends AudioGraphNode {
+/*class PassthroughNode extends AudioGraphNode {
     constructor() {
         super();
         globals.audiocontext.audioWorklet.addModule("AudioNodes/passthrough.js").then(() => {
@@ -634,7 +715,7 @@ class PassthroughNode extends AudioGraphNode {
         this.addComponent(new Input(this, "input"));
         this.addComponent(new Output(this, "output"));
     }
-}
+}*/
 
 class PluginNode extends AudioGraphNode {
 
@@ -643,9 +724,22 @@ class PluginNode extends AudioGraphNode {
     constructor(plugin: Plugin) {
         super(false);
         this.plugin = plugin;
-        this.audio_node = new AudioWorkletNode(globals.audiocontext, plugin.getName());
-        this.initComponents();
+
+        // try initialising the audio node
+        try {
+            // audio module has already been added, so just create the audio node
+            this.audio_node = new AudioWorkletNode(globals.audiocontext, this.plugin.getName());
+            this.initComponents();
+        } catch (error) {
+            console.log("error");
+            // audio module has to be registered first before using it
+            this.plugin.loadPlugin().then(() => {
+                this.audio_node = new AudioWorkletNode(globals.audiocontext, this.plugin.getName());
+                this.initComponents();
+            });
+        }
     }
+
     initComponents(): void {
         // I/O
         for (let i = 0; i < this.audio_node.numberOfInputs; i++) {
@@ -656,11 +750,12 @@ class PluginNode extends AudioGraphNode {
         }
 
         // parameters
-        console.log((<AudioParamMap> (<any> this.audio_node).parameters));
+        //console.log((<AudioParamMap> (<any> this.audio_node).parameters));
         (<AudioParamMap> (<any> this.audio_node).parameters).forEach(element => {
-            console.log(element);
             this.addComponent(new Stat("idk", element.value.toString()));
         });
+
+        //this.position();
     }
 }
 
@@ -677,21 +772,27 @@ class PluginNode extends AudioGraphNode {
     Splits a given combined Input/Output into its respective channels
 */
 
-// add initial nodes to screen
-let source = new Source("./files/0Current project/kick7.1.wav");
-let node1 = new AudioGraphSourceNode(source);
-let node2 = new AudioGraphOutputNode(globals.audiocontext.destination);
-let node3 = new AudioGraphAnalyzerNode();
-let node4 = new PassthroughNode();
-//globals.audiocontext.audioWorklet.addModule("AudioNodes/bitcrusher.js").then(() => {
-//    console.log("bitcrusher module loaded")
-//    let node5 = new PluginNode(new Plugin("AudioNodes/bitcrusher.js"));
-//});
-let node5 = new PluginNode(new Plugin("AudioNodes/bitcrusher.js"));
+// first load all possible audio plugins, then initialise some testing audio nodes
+let plugin_promises = readdirSync("AudioNodes").map((v) => {
+    return globals.audiocontext.audioWorklet.addModule("AudioNodes/" + v);
+});
+Promise.allSettled(plugin_promises).then(() => {
+    let source = new Source("./files/0Current project/kick7.1.wav");
+    let node1 = new AudioGraphSourceNode(source);
+    let node4 = new PluginNode(new Plugin("AudioNodes/passthrough.js"));
+    let node5 = new PluginNode(new Plugin("AudioNodes/bitcrusher.js"));
+    let node3 = new AudioGraphAnalyzerNode();
+    let node2 = new AudioGraphOutputNode(globals.audiocontext.destination);
+
+    node1.connect(node4);
+    node4.connect(node5);
+    node5.connect(node3);
+    node3.connect(node2);
+});
 
 // initialize screen drag listener
 function screendrag(e: MouseEvent) {
-    nodes.forEach(element => {
+    globals.audio_graph_nodes.forEach(element => {
         let tmp = element.getElement();
         tmp.style.left = tmp.offsetLeft + e.movementX + "px";
         tmp.style.top = tmp.offsetTop + e.movementY + "px";
