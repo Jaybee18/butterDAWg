@@ -6,12 +6,12 @@ exports.Window = void 0;
 var globals_1 = require("./globals");
 var Window = /** @class */ (function () {
     function Window() {
-        this.initElement();
         this.id = Math.round(Date.now() * Math.random()).toString();
+        this.initElement();
     }
     Window.prototype.initElement = function () {
         var _this = this;
-        var tmp = (0, globals_1.createElement)("<div class=\"wrapper\">\
+        var tmp = (0, globals_1.createElement)("<div class=\"wrapper\" id=\"" + this.id + "\">\
                 <div class=\"se_resize\"></div>\
                 <div class=\"sw_resize\"></div>\
                 <div class=\"nw_resize\"></div>\
@@ -62,11 +62,23 @@ var Window = /** @class */ (function () {
             temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
             temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
         });
+        this.initialiseContent();
     };
     Window.prototype.getToolbar = function () {
         return this.element.querySelector(".toolbar");
     };
+    Window.prototype.getContent = function () {
+        return this.element.querySelector(".content");
+    };
+    Window.prototype.setContent = function (content) {
+        var tmp = (0, globals_1.createElement)(content);
+        this.element.querySelector(".content").appendChild(tmp);
+    };
+    Window.prototype.setContentSize = function (width, height) {
+        var content = this.element.querySelector(".content");
+        content.style.width = width + "px";
+        content.style.height = height + "px";
+    };
     return Window;
 }());
 exports.Window = Window;
-new Window();

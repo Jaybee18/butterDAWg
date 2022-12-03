@@ -3,7 +3,7 @@ import { addRadioEventListener, createElement, cumulativeOffset, globals, ms_to_
 import { Plugin } from "./Plugin";
 import { readdirSync } from "fs";
 
-let screen = <HTMLCanvasElement> document.querySelector(".grid_background")!;
+/*let screen = <HTMLCanvasElement> document.querySelector(".grid_background")!;
 let screen_context = screen.getContext("2d");
 screen_context.clearRect(0, 0, screen.width, screen.height);
 let rect = {"width": 30, "height": 30};
@@ -541,7 +541,7 @@ class IconButton extends AudioGraphNodeComponent {
 }
 
 
-class AudioGraphSourceNode extends AudioGraphNode {
+export class AudioGraphSourceNode extends AudioGraphNode {
 
     is_playing: boolean;
     source: Source;
@@ -617,7 +617,7 @@ class AudioGraphSourceNode extends AudioGraphNode {
     }
 }
 
-class AudioGraphOutputNode extends AudioGraphNode {
+export class AudioGraphOutputNode extends AudioGraphNode {
     
     constructor(destination: AudioDestinationNode) {
         super(false);
@@ -636,7 +636,7 @@ class AudioGraphOutputNode extends AudioGraphNode {
     }
 }
 
-class AudioGraphAnalyzerNode extends AudioGraphNode {
+export class AudioGraphAnalyzerNode extends AudioGraphNode {
 
     private indicator: Indicator;
     private canvas: NodeCanvas;
@@ -717,7 +717,7 @@ class AudioGraphAnalyzerNode extends AudioGraphNode {
     }
 }*/
 
-class PluginNode extends AudioGraphNode {
+export class PluginNode extends AudioGraphNode {
 
     private plugin: Plugin
 
@@ -772,37 +772,3 @@ class PluginNode extends AudioGraphNode {
     Splits a given combined Input/Output into its respective channels
 */
 
-// first load all possible audio plugins, then initialise some testing audio nodes
-let plugin_promises = readdirSync("AudioNodes").map((v) => {
-    return globals.audiocontext.audioWorklet.addModule("AudioNodes/" + v);
-});
-Promise.allSettled(plugin_promises).then(() => {
-    let source = new Source("./files/0Current project/kick7.1.wav");
-    let node1 = new AudioGraphSourceNode(source);
-    let node4 = new PluginNode(new Plugin("AudioNodes/passthrough.js"));
-    let node5 = new PluginNode(new Plugin("AudioNodes/bitcrusher.js"));
-    let node3 = new AudioGraphAnalyzerNode();
-    let node2 = new AudioGraphOutputNode(globals.audiocontext.destination);
-
-    node1.connect(node4);
-    node4.connect(node5);
-    node5.connect(node3);
-    node3.connect(node2);
-});
-
-// initialize screen drag listener
-function screendrag(e: MouseEvent) {
-    globals.audio_graph_nodes.forEach(element => {
-        let tmp = element.getElement();
-        tmp.style.left = tmp.offsetLeft + e.movementX + "px";
-        tmp.style.top = tmp.offsetTop + e.movementY + "px";
-    });
-}
-document.addEventListener("mousedown", (e) => {
-    if (e.button === 1) {
-        document.addEventListener("mousemove", screendrag);
-    }
-});
-document.addEventListener("mouseup", () => {
-    document.removeEventListener("mousemove", screendrag);
-});

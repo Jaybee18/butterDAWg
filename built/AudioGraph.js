@@ -51,15 +51,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AudioGraphNode = void 0;
-var Source_1 = require("./Source");
+exports.PluginNode = exports.AudioGraphAnalyzerNode = exports.AudioGraphOutputNode = exports.AudioGraphSourceNode = exports.AudioGraphNode = void 0;
 var globals_1 = require("./globals");
-var Plugin_1 = require("./Plugin");
-var fs_1 = require("fs");
-var screen = document.querySelector(".grid_background");
-var screen_context = screen.getContext("2d");
+/*let screen = <HTMLCanvasElement> document.querySelector(".grid_background")!;
+let screen_context = screen.getContext("2d");
 screen_context.clearRect(0, 0, screen.width, screen.height);
-var rect = { "width": 30, "height": 30 };
+let rect = {"width": 30, "height": 30};
 /*
 const dpi = window.devicePixelRatio;
 screen_context.scale(dpi, dpi);
@@ -594,6 +591,7 @@ var AudioGraphSourceNode = /** @class */ (function (_super) {
     };
     return AudioGraphSourceNode;
 }(AudioGraphNode));
+exports.AudioGraphSourceNode = AudioGraphSourceNode;
 var AudioGraphOutputNode = /** @class */ (function (_super) {
     __extends(AudioGraphOutputNode, _super);
     function AudioGraphOutputNode(destination) {
@@ -612,6 +610,7 @@ var AudioGraphOutputNode = /** @class */ (function (_super) {
     };
     return AudioGraphOutputNode;
 }(AudioGraphNode));
+exports.AudioGraphOutputNode = AudioGraphOutputNode;
 var AudioGraphAnalyzerNode = /** @class */ (function (_super) {
     __extends(AudioGraphAnalyzerNode, _super);
     function AudioGraphAnalyzerNode() {
@@ -691,6 +690,7 @@ var AudioGraphAnalyzerNode = /** @class */ (function (_super) {
     };
     return AudioGraphAnalyzerNode;
 }(AudioGraphNode));
+exports.AudioGraphAnalyzerNode = AudioGraphAnalyzerNode;
 /*class PassthroughNode extends AudioGraphNode {
     constructor() {
         super();
@@ -744,6 +744,7 @@ var PluginNode = /** @class */ (function (_super) {
     };
     return PluginNode;
 }(AudioGraphNode));
+exports.PluginNode = PluginNode;
 /* Delay Node */
 /*
     given a amount of time in seconds, the delay is converted to frames
@@ -755,35 +756,3 @@ var PluginNode = /** @class */ (function (_super) {
 /*
     Splits a given combined Input/Output into its respective channels
 */
-// first load all possible audio plugins, then initialise some testing audio nodes
-var plugin_promises = (0, fs_1.readdirSync)("AudioNodes").map(function (v) {
-    return globals_1.globals.audiocontext.audioWorklet.addModule("AudioNodes/" + v);
-});
-Promise.allSettled(plugin_promises).then(function () {
-    var source = new Source_1.Source("./files/0Current project/kick7.1.wav");
-    var node1 = new AudioGraphSourceNode(source);
-    var node4 = new PluginNode(new Plugin_1.Plugin("AudioNodes/passthrough.js"));
-    var node5 = new PluginNode(new Plugin_1.Plugin("AudioNodes/bitcrusher.js"));
-    var node3 = new AudioGraphAnalyzerNode();
-    var node2 = new AudioGraphOutputNode(globals_1.globals.audiocontext.destination);
-    node1.connect(node4);
-    node4.connect(node5);
-    node5.connect(node3);
-    node3.connect(node2);
-});
-// initialize screen drag listener
-function screendrag(e) {
-    globals_1.globals.audio_graph_nodes.forEach(function (element) {
-        var tmp = element.getElement();
-        tmp.style.left = tmp.offsetLeft + e.movementX + "px";
-        tmp.style.top = tmp.offsetTop + e.movementY + "px";
-    });
-}
-document.addEventListener("mousedown", function (e) {
-    if (e.button === 1) {
-        document.addEventListener("mousemove", screendrag);
-    }
-});
-document.addEventListener("mouseup", function () {
-    document.removeEventListener("mousemove", screendrag);
-});

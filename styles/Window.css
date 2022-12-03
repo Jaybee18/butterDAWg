@@ -19,38 +19,33 @@
     min-width: 100px;
     min-height: 60px;
     margin-top: 3px;
-    background-color: var(--bg-dark);
 }
 
 .se_resize, .ne_resize, .sw_resize, .nw_resize {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     position: absolute;
 }
 
 .se_resize {
-    background: blue;
     right: 0px;
     bottom: 0px;
     cursor: nwse-resize;
 }
 
 .ne_resize {
-    background: blue;
     left: 0px;
     top: 0px;
     cursor: nwse-resize;
 }
 
 .sw_resize {
-    background: blue;
     left: 0px;
     bottom: 0px;
     cursor: nesw-resize;
 }
 
 .nw_resize {
-    background: blue;
     right: 0px;
     top: 0px;
     cursor: nesw-resize;

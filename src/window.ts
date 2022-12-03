@@ -3,23 +3,22 @@
 
 import { createElement } from "./globals";
 
-export class Window {
+export abstract class Window {
     
     /* general Wrapper for every window-type in the whole app */
     
     private title: string
     private id: string
-    private element: HTMLElement
+    protected element: HTMLElement
 
     constructor() {
-        this.initElement();
-
         this.id = Math.round(Date.now() * Math.random()).toString();
+        this.initElement();
     }
 
     initElement() {
         let tmp = createElement(
-            "<div class=\"wrapper\">\
+            "<div class=\"wrapper\" id=\""+this.id+"\">\
                 <div class=\"se_resize\"></div>\
                 <div class=\"sw_resize\"></div>\
                 <div class=\"nw_resize\"></div>\
@@ -72,11 +71,28 @@ export class Window {
             temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
             temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
         });
+
+        this.initialiseContent();
     }
 
     getToolbar() {
         return this.element.querySelector(".toolbar");
     }
-}
 
-new Window();
+    abstract initialiseContent(): void;
+
+    getContent() {
+        return this.element.querySelector(".content");
+    }
+
+    setContent(content: string) {
+        let tmp = createElement(content);
+        this.element.querySelector(".content").appendChild(tmp);
+    }
+
+    setContentSize(width: number, height: number) {
+        let content = <HTMLElement> this.element.querySelector(".content");
+        content.style.width = width + "px";
+        content.style.height = height + "px";
+    }
+}
