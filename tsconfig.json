@@ -7,7 +7,7 @@
       "strictNullChecks": false,
       "moduleResolution": "node",
       "module": "CommonJS",
-      "rootDir": "src",
+      //"rootDir": "src",
       "strict": true,
       "watch": true
     },

@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcRenderer, ipcMain } = require('electron')
 const path = require('path')
 
+var wind = null;
+
 const createWindow = () => {
     const win = new BrowserWindow({
       width: 1800,
@@ -12,6 +14,7 @@ const createWindow = () => {
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: true,
         contextIsolation: false,
+        nodeIntegrationInSubFrames: true,
         enableRemoteModule: true,
       },
         titleBarOverlay: {
@@ -20,15 +23,17 @@ const createWindow = () => {
         }
     });
 
-    win.webContents.setWindowOpenHandler(({ url }) => {
+    /*win.webContents.setWindowOpenHandler(({ url }) => {
         return {action: 'allow',
     overrideBrowserWindowOptions: {
         frame: false,
         autoHideMenuBar: true,
     }};
-    });
+    });*/
   
     win.loadFile('index.html')
+
+    wind = win;
 }
 
 app.whenReady().then(() => {
@@ -41,7 +46,11 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })
 
-function openWindow(event, title, options) {
+function openWindow(event, title, options, folder) {
     const tmp = new BrowserWindow(options);
+    tmp.setParentWindow(wind);
     tmp.setTitle(title);
+    tmp.loadFile(folder+"/index.html");
+    //tmp.webContents.send(title);
+    //ipcMain.emit(this.id);
 }

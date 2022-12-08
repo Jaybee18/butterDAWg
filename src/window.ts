@@ -2,7 +2,8 @@
 // - make pop-out possible
 
 import { createElement } from "./globals";
-
+import { BrowserViewConstructorOptions, BrowserWindow, ipcRenderer } from "electron";
+import { join } from "path";
 export abstract class Window {
     
     /* general Wrapper for every window-type in the whole app */
@@ -13,6 +14,13 @@ export abstract class Window {
 
     constructor() {
         this.id = Math.round(Date.now() * Math.random()).toString();
+        //ipcRenderer.on(this.id, (e) => {
+        //    alert("test");
+        //});
+        ipcRenderer.invoke("test", this.id, <BrowserViewConstructorOptions> {
+            width: 800,
+            height: 500,
+        }, "TestWindow");
         this.initElement();
     }
 
