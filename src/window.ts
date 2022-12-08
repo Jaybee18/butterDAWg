@@ -95,4 +95,9 @@ export abstract class Window {
         content.style.width = width + "px";
         content.style.height = height + "px";
     }
+
+    // TODO somehow implement
+    popOut() {
+        throw Error("not implemented");
+    }
 }

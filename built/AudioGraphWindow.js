@@ -71,7 +71,10 @@ var audio_graph = new AudioGraph();
 //let tet = window.open("");
 //tet.document.write(audio_graph.getContent().innerHTML);
 var electron_1 = require("electron");
-electron_1.ipcRenderer.invoke("test", "penis", {
-    width: 200,
-    height: 100,
-});
+/*ipcRenderer.invoke("test", <BrowserWindowConstructorOptions> {
+    width: 600,
+    height: 200,
+    autoHideMenuBar: true,
+    title: "nopenis2",
+});*/
+electron_1.ipcRenderer.invoke("plugin:open", "Plugin1");

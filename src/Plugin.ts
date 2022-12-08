@@ -2,7 +2,7 @@ import { globals } from "./globals";
 
 export class Plugin {
 
-    private path: string
+    private path: string // TODO make this the plugins' folder
     private audiocontext_name: string
     private name: string
 

@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcRenderer, ipcMain } = require('electron')
 const path = require('path')
 
+let subwindows = [];
+
 const createWindow = () => {
     const win = new BrowserWindow({
       width: 1800,
@@ -12,7 +14,6 @@ const createWindow = () => {
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: true,
         contextIsolation: false,
-        enableRemoteModule: true,
       },
         titleBarOverlay: {
             color: '#2f3241',
@@ -20,28 +21,49 @@ const createWindow = () => {
         }
     });
 
-    win.webContents.setWindowOpenHandler(({ url }) => {
-        return {action: 'allow',
-    overrideBrowserWindowOptions: {
-        frame: false,
-        autoHideMenuBar: true,
-    }};
+    win.addListener("close", (e) => {
+        subwindows.map(v => {
+            try {
+                v.close();
+            } catch (error) {
+                console.log("already destroyed")
+            }
+        });
     });
   
     win.loadFile('index.html')
 }
 
 app.whenReady().then(() => {
-    ipcMain.handle("test", openWindow)
+    ipcMain.handle("plugin:open", openPlugin)
 
     createWindow()
 })
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit()
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 })
 
-function openWindow(event, title, options) {
-    const tmp = new BrowserWindow(options);
-    tmp.setTitle(title);
+function openPlugin(event, name) {
+    const tmp = new BrowserWindow({
+        width: 600,
+        height: 200,
+        autoHideMenuBar: true,
+        title: name,
+    });
+    tmp.loadFile("./"+name+"/index.html");
+    subwindows.push(tmp);
+}
+
+function openWindow(event) {
+    const tmp = new BrowserWindow({
+        width: 600,
+        height: 200,
+        autoHideMenuBar: true,
+        title: "name",
+    });
+    // put those other windows in folders with index.html files too
+    tmp.webContents
 }

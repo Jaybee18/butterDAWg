@@ -79,6 +79,10 @@ var Window = /** @class */ (function () {
         content.style.width = width + "px";
         content.style.height = height + "px";
     };
+    // TODO somehow implement
+    Window.prototype.popOut = function () {
+        throw Error("not implemented");
+    };
     return Window;
 }());
 exports.Window = Window;
