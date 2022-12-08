@@ -70,19 +70,8 @@ var AudioGraph = /** @class */ (function (_super) {
 var audio_graph = new AudioGraph();
 //let tet = window.open("");
 //tet.document.write(audio_graph.getContent().innerHTML);
-<<<<<<< HEAD
-var electron_1 = require("electron");
-/*ipcRenderer.invoke("test", <BrowserWindowConstructorOptions> {
-    width: 600,
-    height: 200,
-    autoHideMenuBar: true,
-    title: "nopenis2",
-});*/
-electron_1.ipcRenderer.invoke("plugin:open", "Plugin1");
-=======
 /*import { BrowserViewConstructorOptions, ipcRenderer } from "electron";
 ipcRenderer.invoke("test", "penis", <BrowserViewConstructorOptions> {
     width: 200,
     height: 100,
 });*/ 
->>>>>>> a829dc9522ef19ecad2e408c35839aed2f724d05

@@ -59,11 +59,8 @@ let audio_graph = new AudioGraph();
 //let tet = window.open("");
 //tet.document.write(audio_graph.getContent().innerHTML);
 
-import { BrowserWindowConstructorOptions, ipcRenderer } from "electron";
-/*ipcRenderer.invoke("test", <BrowserWindowConstructorOptions> {
-    width: 600,
-    height: 200,
-    autoHideMenuBar: true,
-    title: "nopenis2",
+/*import { BrowserViewConstructorOptions, ipcRenderer } from "electron";
+ipcRenderer.invoke("test", "penis", <BrowserViewConstructorOptions> {
+    width: 200,
+    height: 100,
 });*/
-ipcRenderer.invoke("plugin:open", "Plugin1");

@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcRenderer, ipcMain } = require('electron')
 const path = require('path')
 
+var wind = null;
+
 let subwindows = [];
 
 const createWindow = () => {
@@ -32,6 +34,8 @@ const createWindow = () => {
     });
   
     win.loadFile('index.html')
+
+    wind = win;
 }
 
 app.whenReady().then(() => {
@@ -57,13 +61,11 @@ function openPlugin(event, name) {
     subwindows.push(tmp);
 }
 
-function openWindow(event) {
-    const tmp = new BrowserWindow({
-        width: 600,
-        height: 200,
-        autoHideMenuBar: true,
-        title: "name",
-    });
+function openWindow(event, title, options, folder) {
+    const tmp = new BrowserWindow(options);
+    tmp.setParentWindow(wind);
     // put those other windows in folders with index.html files too
-    tmp.webContents
+    tmp.loadFile(folder+"/index.html");
+    //tmp.webContents.send(title);
+    //ipcMain.emit(this.id);
 }

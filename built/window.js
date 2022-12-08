@@ -4,9 +4,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Window = void 0;
 var globals_1 = require("./globals");
+var electron_1 = require("electron");
 var Window = /** @class */ (function () {
     function Window() {
         this.id = Math.round(Date.now() * Math.random()).toString();
+        //ipcRenderer.on(this.id, (e) => {
+        //    alert("test");
+        //});
+        electron_1.ipcRenderer.invoke("test", this.id, {
+            width: 800,
+            height: 500,
+        }, "TestWindow");
         this.initElement();
     }
     Window.prototype.initElement = function () {
