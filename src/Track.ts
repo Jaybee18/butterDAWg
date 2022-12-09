@@ -4,7 +4,7 @@
 import { TrackSample } from "./TrackSample";
 import { Color } from "./Color";
 import { Channel } from "./Channel";
-import { addRadioEventListener, cumulativeOffset, globals, PassthroughNode, pixels_to_ms } from "./globals";
+import { addRadioEventListener, cumulativeOffset, globals, pixels_to_ms } from "./globals";
 import { ContextMenu } from "./ContextMenu";
 import { color_picker } from "./ColorPicker";
 import { Item } from "./PaletteItem";
@@ -13,7 +13,7 @@ import { Item } from "./PaletteItem";
 var bars = document.querySelector(".tracks_top_bar_bars_wrapper");
 var track_view = document.getElementById("tracks");
 
-var drag_mouse_down_pos_x = 0;
+/*var drag_mouse_down_pos_x = 0;
 var drag_mouse_down_pos_y = 0;
 var wheel_down = false;
 var delta_delta_x = 0;
@@ -25,8 +25,8 @@ track_view.addEventListener("mousedown", (e) => {
 		drag_mouse_down_pos_y = e.clientY;
 		wheel_down = true;
 	}
-});
-document.addEventListener("mouseup", () => { wheel_down = false; delta_delta_x = 0; delta_delta_y = 0; });
+});*/
+/*document.addEventListener("mouseup", () => { wheel_down = false; delta_delta_x = 0; delta_delta_y = 0; });
 track_view.addEventListener("mousemove", (e) => {
 	if (wheel_down) {
 		var deltaX = drag_mouse_down_pos_x - e.clientX;
@@ -36,7 +36,7 @@ track_view.addEventListener("mousemove", (e) => {
 		delta_delta_x = deltaX;
 		delta_delta_y = deltaY;
 	}
-});
+});*/
 
 /*
 *     ██████╗ ██████╗ ███╗   ██╗████████╗███████╗██╗  ██╗████████╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
@@ -229,10 +229,10 @@ export class Track {
 	sound_indicator: HTMLElement;
 	radio_btn: HTMLElement;
 	audio_node: AudioNode;
-	passthrough_node: PassthroughNode;
+	//passthrough_node: PassthroughNode;
 
 	constructor() {
-		globals.audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {
+		/*globals.audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {
 			//this.audio_node = new AudioWorkletNode(audiocontext, "passthrough", {'c': () => {console.log("success");}});
 			this.audio_node = new AnalyserNode(globals.audiocontext);
 			this.passthrough_node = new PassthroughNode(globals.audiocontext, {}, 
@@ -242,7 +242,7 @@ export class Track {
 			);
 			this.audio_node.connect(this.passthrough_node);
 			this.passthrough_node.connect(globals.audiocontext.destination);
-		});
+		});*/
 
 		// construct own element
 		// TODO refactor with new createElement method from globals.ts
@@ -251,8 +251,9 @@ export class Track {
 
 		// add self to track view
 		var track_view = document.getElementById("tracks")!;
-		track_view.insertBefore(clone, document.getElementById("track_add"));
-		this.element = <HTMLElement>track_view.children[track_view.childElementCount - 2];
+		track_view.appendChild(clone);
+		//track_view.insertBefore(clone, document.getElementById("track_add"));
+		this.element = <HTMLElement>track_view.children[track_view.childElementCount - 1];
 		//this.id = Date.now().toString();
 		this.element.id = this.id;
 
@@ -301,7 +302,7 @@ export class Track {
 
 		// connect the track to the first element of the 
 		// channel audio node pipeline
-		this.passthrough_node.connect(channel.getFirstAudioNode());
+		//this.passthrough_node.connect(channel.getFirstAudioNode());
 
 		// finally enable the channel
 		this.channel.toggle();
@@ -382,24 +383,27 @@ export class Track {
 
 	initializeResizing() {
 		// TODO maybe optimize this
-		var resize_handle = <HTMLElement>this.element.querySelector("#track_resize");
-		/*var l = this.element;
+		let resize_handle = <HTMLElement>this.element.querySelector("#track_resize");
+		let resizing_track: HTMLElement = null;
+		let l = this.element;
 		let temp_this = this;
-		resize_handle.onmousedown = function () {
-			if (temp_this.resize_locked) { return false; }
-			resizing_track = l;
-			return false;
-		};
-
-		document.getElementById("tracks").onmousemove = function (e) {
+		function movefunc(e: MouseEvent) {
 			if (resizing_track === null || temp_this.resize_locked) {
 				return false;
 			}
 
 			var new_height = e.clientY - cumulativeOffset(resizing_track).top; //resizing_track.offsetTop;
 			resizing_track.style.height = new_height + "px";
-		};*/
-
+		}
+		resize_handle.onmousedown = function () {
+			document.addEventListener("mousemove", movefunc);
+			if (temp_this.resize_locked) { return false; }
+			resizing_track = l;
+			return false;
+		};
+		document.addEventListener("mouseup", () => {
+			document.removeEventListener("mousemove", movefunc);
+		});
 	}
 
 	resizeBackground(event: any) {

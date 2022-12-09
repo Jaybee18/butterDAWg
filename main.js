@@ -16,6 +16,7 @@ const createWindow = () => {
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: true,
         contextIsolation: false,
+        nodeIntegrationInSubFrames: true,
       },
         titleBarOverlay: {
             color: '#2f3241',
@@ -40,6 +41,7 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
     ipcMain.handle("plugin:open", openPlugin)
+    ipcMain.handle("test", openWindow)
 
     createWindow()
 })

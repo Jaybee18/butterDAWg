@@ -500,7 +500,7 @@
                   </div>
                 </div>
               </div>
-              <div class="tracks" id="tracks">
+              <div class="tracks" id="trackss">
                 <div class="line_cursor"></div>
               <!-- track template -->
                 <template id="track_template">
@@ -648,23 +648,25 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-      require("./built/globals.js");
-      require("./built/window.js");
-      require("./built/ContextMenu.js");
-      require("./built/Color.js");
-      require("./built/ColorPicker.js");
-      require("./built/Channel.js");
-      require("./built/Track.js");
-      require("./built/PaletteItem.js");
-      require("./built/Palette.js");
-      require("./built/TrackSample.js");
-      require("./built/Header.js");
-      require("./built/Audio.js");
-      require("./built/Keybinds.js");
-      require("./built/Mixer.js");
-      require("./built/Source.js");
-      require("./built/AudioGraph.js");
-      require("./built/AudioGraphWindow.js");
+      // TODO only import one script: renderer.js!
+      require("./built/src/globals.js");
+      require("./built/src/window.js");
+      require("./built/src/ContextMenu.js");
+      //require("./built/src/Color.js");
+      require("./built/src/ColorPicker.js");
+      require("./built/src/Channel.js");
+      require("./built/src/Track.js");
+      require("./built/src/PaletteItem.js");
+      require("./built/src/Palette.js");
+      require("./built/src/TrackSample.js");
+      require("./built/src/Header.js");
+      require("./built/src/Audio.js");
+      require("./built/src/Keybinds.js");
+      require("./built/src/Mixer.js");
+      require("./built/src/Source.js");
+      require("./built/src/AudioGraph.js");
+      require("./built/src/AudioGraphWindow.js");
+      require("./built/src/TracksWindow.js");
       require("./renderer.js");
     </script>
   </body>

@@ -2,14 +2,16 @@
     "compilerOptions": {
       "allowJs": false,
       "target": "ES5",
+      "lib": ["DOM"],
       "outDir": "built",
       "preserveConstEnums": true,
       "strictNullChecks": false,
       "moduleResolution": "node",
       "module": "CommonJS",
-      //"rootDir": "src",
+      "rootDir": ".",
       "strict": true,
-      "watch": true
+      "watch": true,
+      "skipLibCheck": true
     },
-    "exclude": ["node_modules", "AudioNodes"]
+    "exclude": ["AudioNodes", "./src/free-queue.ts", "./src/test.ts", "./src/AudioGraph.ts"]
 }

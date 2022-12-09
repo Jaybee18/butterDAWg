@@ -106,7 +106,7 @@ updateHeaderWaveview();
 
 
 // add event listeners to bars-bar
-var top_bar = document.getElementById("tracks_top_bar_inner");
+/*var top_bar = document.getElementById("tracks_top_bar_inner");
 var top_bar_bars = document.querySelector(".tracks_top_bar_bars");
 function bars_cursor_move_listener(e) {
   if (e.clientX - cumulativeOffset(top_bar).left <= 0) {cursor.style.left = -10; return;}
@@ -122,11 +122,11 @@ top_bar_bars.addEventListener("mousedown", (e) => {
 });
 document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", bars_cursor_move_listener);
-});
+});*/
 
 // add event listener to bars scrollbar handle
 // TODO make a function that can handle scrollbars (bars_cursor, horizontal scrollbars, ...)
-var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
+/*var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
 var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
 var maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
 var initial_handle_offset = 0;
@@ -144,9 +144,9 @@ bars_scrollbar_handle.addEventListener("mousedown", (e) => {
 });
 document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", bars_scrollbar_handle_listener);
-});
+});*/
 
-// song pos slider functionality
+// (header) song pos slider functionality
 // TODO make more general slider classes, that have onmove functions etc.
 var pos_slider_handle = document.querySelector(".handle_h");
 function pos_slider_handle_listener(e) {
@@ -178,19 +178,11 @@ tools.forEach(btn => {
 });
 
 // initialize a testing ui
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
+/*const Track = require("./built/Track").Track;
+const track_count = 10;
+for (let i = 0; i < track_count; i++) {
+  new Track();
+}*/
 
 //let items = ["test1", "test2", "test3", "[spacer]", "test4"];
 //let listeners = [() => {alert("test1")}, () => {alert("test2")}, () => {alert("test3")}, () => {alert("test4")}];

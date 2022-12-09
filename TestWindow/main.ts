@@ -3,7 +3,7 @@ import { addRadioEventListener, createElement, cumulativeOffset, globals, ms_to_
 import { Plugin } from "../src/Plugin";
 import { readdirSync } from "fs";
 
-alert("test");
+export let audio_graph_nodes: Array<AudioGraphNode> = [];
 
 /*let screen = <HTMLCanvasElement> document.querySelector(".grid_background")!;
 let screen_context = screen.getContext("2d");
@@ -113,8 +113,8 @@ abstract class AudioGraphObject {
         document.getElementById("audiograph").appendChild(this.element);
 
         // rudimentary positioning, by just placing every node to the right of the last placed node
-        if (globals.audio_graph_nodes.length > 0) {
-            let last_node = globals.audio_graph_nodes[globals.audio_graph_nodes.length-1];
+        if (audio_graph_nodes.length > 0) {
+            let last_node = audio_graph_nodes[audio_graph_nodes.length-1];
             let tmp_pos = last_node.getPosition();
             this.moveTo(tmp_pos[0] + last_node.getDimensions()[0] + 40, tmp_pos[1]);
         }
@@ -241,7 +241,7 @@ export abstract class AudioGraphNode extends AudioGraphObject {
         if (callInitComponents)
             this.initComponents();
         
-        globals.audio_graph_nodes.push(this);
+        audio_graph_nodes.push(this);
     }
 
     initElement() {
@@ -718,6 +718,7 @@ export class AudioGraphAnalyzerNode extends AudioGraphNode {
         this.addComponent(new Output(this, "output"));
     }
 }*/
+
 
 export class PluginNode extends AudioGraphNode {
 

@@ -18,9 +18,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var window_1 = require("./window");
 var fs_1 = require("fs");
 var Source_1 = require("./Source");
-var AudioGraph_1 = require("./AudioGraph");
+var main_1 = require("../TestWindow/main");
 var Plugin_1 = require("./Plugin");
 var globals_1 = require("./globals");
+var main_2 = require("../TestWindow/main");
 var AudioGraph = /** @class */ (function (_super) {
     __extends(AudioGraph, _super);
     function AudioGraph() {
@@ -37,11 +38,11 @@ var AudioGraph = /** @class */ (function (_super) {
         });
         Promise.allSettled(plugin_promises).then(function () {
             var source = new Source_1.Source("./files/0Current project/kick7.1.wav");
-            var node1 = new AudioGraph_1.AudioGraphSourceNode(source);
-            var node4 = new AudioGraph_1.PluginNode(new Plugin_1.Plugin("AudioNodes/passthrough.js"));
-            var node5 = new AudioGraph_1.PluginNode(new Plugin_1.Plugin("AudioNodes/bitcrusher.js"));
-            var node3 = new AudioGraph_1.AudioGraphAnalyzerNode();
-            var node2 = new AudioGraph_1.AudioGraphOutputNode(globals_1.globals.audiocontext.destination);
+            var node1 = new main_1.AudioGraphSourceNode(source);
+            var node4 = new main_1.PluginNode(new Plugin_1.Plugin("AudioNodes/passthrough.js"));
+            var node5 = new main_1.PluginNode(new Plugin_1.Plugin("AudioNodes/bitcrusher.js"));
+            var node3 = new main_1.AudioGraphAnalyzerNode();
+            var node2 = new main_1.AudioGraphOutputNode(globals_1.globals.audiocontext.destination);
             node1.connect(node4);
             node4.connect(node5);
             node5.connect(node3);
@@ -49,13 +50,13 @@ var AudioGraph = /** @class */ (function (_super) {
         });
         // initialize screen drag listener
         function screendrag(e) {
-            globals_1.globals.audio_graph_nodes.forEach(function (element) {
+            main_2.audio_graph_nodes.forEach(function (element) {
                 var tmp = element.getElement();
                 tmp.style.left = tmp.offsetLeft + e.movementX + "px";
                 tmp.style.top = tmp.offsetTop + e.movementY + "px";
             });
         }
-        this.element.querySelector(".content").addEventListener("mousedown", function (e) {
+        this.get(".content").addEventListener("mousedown", function (e) {
             if (e.button === 1) {
                 document.addEventListener("mousemove", screendrag);
             }
@@ -67,7 +68,7 @@ var AudioGraph = /** @class */ (function (_super) {
     };
     return AudioGraph;
 }(window_1.Window));
-var audio_graph = new AudioGraph();
+//new AudioGraph();
 //let tet = window.open("");
 //tet.document.write(audio_graph.getContent().innerHTML);
 /*import { BrowserViewConstructorOptions, ipcRenderer } from "electron";

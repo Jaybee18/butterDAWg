@@ -11,30 +11,30 @@ var ColorPicker_1 = require("./ColorPicker");
 //
 var bars = document.querySelector(".tracks_top_bar_bars_wrapper");
 var track_view = document.getElementById("tracks");
-var drag_mouse_down_pos_x = 0;
+/*var drag_mouse_down_pos_x = 0;
 var drag_mouse_down_pos_y = 0;
 var wheel_down = false;
 var delta_delta_x = 0;
 var delta_delta_y = 0;
-track_view.addEventListener("mousedown", function (e) {
+track_view.addEventListener("mousedown", (e) => {
     e.preventDefault();
     if (e.button === 1) {
         drag_mouse_down_pos_x = e.clientX;
         drag_mouse_down_pos_y = e.clientY;
         wheel_down = true;
     }
-});
-document.addEventListener("mouseup", function () { wheel_down = false; delta_delta_x = 0; delta_delta_y = 0; });
-track_view.addEventListener("mousemove", function (e) {
+});*/
+/*document.addEventListener("mouseup", () => { wheel_down = false; delta_delta_x = 0; delta_delta_y = 0; });
+track_view.addEventListener("mousemove", (e) => {
     if (wheel_down) {
         var deltaX = drag_mouse_down_pos_x - e.clientX;
         var deltaY = drag_mouse_down_pos_y - e.clientY;
-        console.log("removed method");
+        console.log("removed method")
         //tracks_scroll_by_px(deltaX - delta_delta_x, deltaY - delta_delta_y);
         delta_delta_x = deltaX;
         delta_delta_y = deltaY;
     }
-});
+});*/
 /*
 *     ██████╗ ██████╗ ███╗   ██╗████████╗███████╗██╗  ██╗████████╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
 *    ██╔════╝██╔═══██╗████╗  ██║╚══██╔══╝██╔════╝╚██╗██╔╝╚══██╔══╝    ████╗ ████║██╔════╝████╗  ██║██║   ██║
@@ -205,8 +205,19 @@ drawBarLabels();
  *    class definition
  */
 var Track = /** @class */ (function () {
+    //passthrough_node: PassthroughNode;
     function Track() {
-        var _this = this;
+        /*globals.audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {
+            //this.audio_node = new AudioWorkletNode(audiocontext, "passthrough", {'c': () => {console.log("success");}});
+            this.audio_node = new AnalyserNode(globals.audiocontext);
+            this.passthrough_node = new PassthroughNode(globals.audiocontext, {},
+                (volume: number) => {
+                    this.setPlayIndicator(volume);
+                }
+            );
+            this.audio_node.connect(this.passthrough_node);
+            this.passthrough_node.connect(globals.audiocontext.destination);
+        });*/
         this.id = Date.now().toString();
         this.samples = [];
         this.hover_buffer = null;
@@ -216,23 +227,15 @@ var Track = /** @class */ (function () {
         this.enabled = true;
         this.resize_locked = false;
         this.channel = null;
-        globals_1.globals.audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(function () {
-            //this.audio_node = new AudioWorkletNode(audiocontext, "passthrough", {'c': () => {console.log("success");}});
-            _this.audio_node = new AnalyserNode(globals_1.globals.audiocontext);
-            _this.passthrough_node = new globals_1.PassthroughNode(globals_1.globals.audiocontext, {}, function (volume) {
-                _this.setPlayIndicator(volume);
-            });
-            _this.audio_node.connect(_this.passthrough_node);
-            _this.passthrough_node.connect(globals_1.globals.audiocontext.destination);
-        });
         // construct own element
         // TODO refactor with new createElement method from globals.ts
         var template = document.getElementById("track_template");
         var clone = template.content.cloneNode(true);
         // add self to track view
         var track_view = document.getElementById("tracks");
-        track_view.insertBefore(clone, document.getElementById("track_add"));
-        this.element = track_view.children[track_view.childElementCount - 2];
+        track_view.appendChild(clone);
+        //track_view.insertBefore(clone, document.getElementById("track_add"));
+        this.element = track_view.children[track_view.childElementCount - 1];
         //this.id = Date.now().toString();
         this.element.id = this.id;
         this.content = this.element.querySelector(".track_content");
@@ -274,7 +277,7 @@ var Track = /** @class */ (function () {
         this.channel = channel;
         // connect the track to the first element of the 
         // channel audio node pipeline
-        this.passthrough_node.connect(channel.getFirstAudioNode());
+        //this.passthrough_node.connect(channel.getFirstAudioNode());
         // finally enable the channel
         this.channel.toggle();
     };
@@ -346,22 +349,27 @@ var Track = /** @class */ (function () {
     Track.prototype.initializeResizing = function () {
         // TODO maybe optimize this
         var resize_handle = this.element.querySelector("#track_resize");
-        /*var l = this.element;
-        let temp_this = this;
-        resize_handle.onmousedown = function () {
-            if (temp_this.resize_locked) { return false; }
-            resizing_track = l;
-            return false;
-        };
-
-        document.getElementById("tracks").onmousemove = function (e) {
+        var resizing_track = null;
+        var l = this.element;
+        var temp_this = this;
+        function movefunc(e) {
             if (resizing_track === null || temp_this.resize_locked) {
                 return false;
             }
-
-            var new_height = e.clientY - cumulativeOffset(resizing_track).top; //resizing_track.offsetTop;
+            var new_height = e.clientY - (0, globals_1.cumulativeOffset)(resizing_track).top; //resizing_track.offsetTop;
             resizing_track.style.height = new_height + "px";
-        };*/
+        }
+        resize_handle.onmousedown = function () {
+            document.addEventListener("mousemove", movefunc);
+            if (temp_this.resize_locked) {
+                return false;
+            }
+            resizing_track = l;
+            return false;
+        };
+        document.addEventListener("mouseup", function () {
+            document.removeEventListener("mousemove", movefunc);
+        });
     };
     Track.prototype.resizeBackground = function (event) {
         var background = this.content.querySelector(".track_background");

@@ -1,9 +1,10 @@
 import { Window } from "./window";
 import { readdirSync } from "fs";
 import { Source } from "./Source";
-import { AudioGraphAnalyzerNode, AudioGraphOutputNode, AudioGraphSourceNode, PluginNode } from "./AudioGraph";
+import { AudioGraphAnalyzerNode, AudioGraphOutputNode, AudioGraphSourceNode, PluginNode } from "../TestWindow/main";
 import { Plugin } from "./Plugin";
 import { globals } from "./globals";
+import { audio_graph_nodes } from "../TestWindow/main";
 
 class AudioGraph extends Window {
     constructor() {
@@ -36,13 +37,13 @@ class AudioGraph extends Window {
 
         // initialize screen drag listener
         function screendrag(e: MouseEvent) {
-            globals.audio_graph_nodes.forEach(element => {
+            audio_graph_nodes.forEach(element => {
                 let tmp = element.getElement();
                 tmp.style.left = tmp.offsetLeft + e.movementX + "px";
                 tmp.style.top = tmp.offsetTop + e.movementY + "px";
             });
         }
-        (<HTMLElement> this.element.querySelector(".content")).addEventListener("mousedown", (e: MouseEvent) => {
+        (<HTMLElement> this.get(".content")).addEventListener("mousedown", (e: MouseEvent) => {
             if (e.button === 1) {
                 document.addEventListener("mousemove", screendrag);
             }
@@ -55,7 +56,8 @@ class AudioGraph extends Window {
     }
 }
 
-let audio_graph = new AudioGraph();
+//new AudioGraph();
+
 //let tet = window.open("");
 //tet.document.write(audio_graph.getContent().innerHTML);
 

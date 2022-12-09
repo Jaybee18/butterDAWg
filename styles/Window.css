@@ -5,12 +5,49 @@
     flex-direction: column;
     overflow: hidden;
     position: absolute;
+    box-sizing: border-box;
     padding: 3px;
 }
 
 .wrapper > .toolbar {
     height: 20px;
-    border: dashed 1px black;
+    display: flex;
+    justify-content: space-between;
+}
+
+.wrapper > .toolbar > .tools, .wrapper > .toolbar > .window_buttons {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.wrapper > .toolbar .toolbutton {
+    width: 15px;
+    height: 15px;
+    margin: 0 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #b2d0d3;
+    outline: solid 2px transparent;
+    outline-offset: 1.5px;
+    border-radius: 5px;
+    transition: outline-color 0.2s, color 0.15s, outline-offset 0.2s, outline-width 0.1s;
+}
+
+.wrapper > .toolbar .toolbutton i {
+    margin: 0 0 0 -1px;
+}
+
+/* 
+   note that the property --custom is undefined here
+   and has to be defined when creating a toolbutton in
+   the toolbutton's css scope 
+*/
+.wrapper > .toolbar .toolbutton:hover {
+    outline: solid 2px var(--custom);
+    color: var(--custom);
+    outline-offset: 0px;
 }
 
 .wrapper > .content {
@@ -49,4 +86,10 @@
     right: 0px;
     top: 0px;
     cursor: nesw-resize;
+}
+
+/* toolbar buttons */
+.toolbar > .tool_button {
+    width: 15px;
+    height: 15px;
 }
