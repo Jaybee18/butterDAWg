@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.color_picker = void 0;
 var Color_1 = require("./Color");
+var globals_1 = require("./globals");
 // new color picker
 exports.color_picker = document.getElementById("color_picker");
 var color_picker_buttons = document.querySelectorAll(".color_picker > #bottom > .btn");
@@ -107,8 +108,7 @@ function updateColorPickerPreview() {
 }
 updateColorPickerPreview();
 color_picker_confirm.addEventListener("click", function () {
-    console.log("is this even called?");
-    //current_context_track.setColor(new Color(current_color.r, current_color.g, current_color.b));
+    globals_1.globals.current_context_track.setColor(new Color_1.Color(current_color.r, current_color.g, current_color.b));
     exports.color_picker.style.display = "none";
 });
 var canvas_min = 75;

@@ -128,7 +128,7 @@ function mapFolder(folder) {
     });
     return res;
 }
-var hirachy = mapFolder("./files");
+var hirachy = mapFolder(__dirname + "/../../files");
 hirachy.forEach(function (element, key) {
     var a = new PaletteItem_1.Item(key, element);
     a.appendToSidebar();

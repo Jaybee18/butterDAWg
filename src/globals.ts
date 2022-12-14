@@ -15,6 +15,10 @@ class Globals {
 	// contains the currently dragged element
 	current_drag_element: Draggable | null = null;
 
+	// the track that the current context menu, if any,
+	// was opened on
+	current_context_track: Track;
+
 	// current progression in the track in ms
 	current_time: number = 0;
 	cursor_pos: number = 0; // in px

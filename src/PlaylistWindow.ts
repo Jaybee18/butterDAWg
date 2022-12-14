@@ -1,7 +1,9 @@
-import { Window } from "./window";
+import { Window, toolbarButtonOptions } from "./window";
 import { cumulativeOffset, globals, pixels_to_ms } from "./globals";
 import { Track } from "./Track";
 import { BrowserWindow } from "electron";
+import { Color } from "./Color";
+import { readdirSync } from "fs";
 
 class Playlist extends Window {
 	constructor() {
@@ -139,9 +141,17 @@ class Playlist extends Window {
         </div>
         `;
 
-		for (let i = 0; i < 10; i++) {
-			new Track();
-		}
+    // first load all possible audio plugins, then initialise the tracks so the
+    // tracks can be sure that every module is loaded and they don't have to
+    // import any
+    let plugin_promises = readdirSync("AudioNodes").map((v) => {
+      return globals.audiocontext.audioWorklet.addModule("AudioNodes/" + v);
+    });
+    Promise.allSettled(plugin_promises).then(() => {
+      for (let i = 0; i < 10; i++) {
+        new Track();
+      }
+    });
 
 		// add mouse wheel dragging
 		let drag_mouse_down_pos_x = 0;
@@ -237,6 +247,25 @@ class Playlist extends Window {
 			document.removeEventListener("mousemove", bars_cursor_move_listener);
 		});
 
+    // tool buttons
+    let options = <toolbarButtonOptions> {customCss: "transform: scale(0.8);"};
+    this.addToolbarButton("fa-solid fa-magnet", new Color("#7eefa9"), () => {}, <toolbarButtonOptions> {
+      customCss: "transform: scale(0.8) rotate(180deg) translate(-1px, 1px);"
+    });
+    this.addToolbarButton("fa-solid fa-pencil", new Color("#fcba40"), () => {}, <toolbarButtonOptions> {
+      customCss: "transform: scale(0.8) translate(1px, 0px);"
+    });
+    this.addToolbarButton("fa-solid fa-brush", new Color("#7bcefd"), () => {}, options);
+    this.addToolbarButton("fa-solid fa-ban", new Color("#ff5b53"), () => {}, <toolbarButtonOptions> {
+      customCss: "transform: scale(0.9) translate(1px, 0px);"
+    });
+    this.addToolbarButton("fa-solid fa-volume-xmark", new Color("#ff54b0"), () => {}, options);
+    this.addToolbarButton("fa-solid fa-arrows-left-right", new Color("#ffa64a"), () => {}, options);
+    this.addToolbarButton("fa-solid fa-spoon", new Color("#85b3ff"), () => {}, options);
+    this.addToolbarButton("fa-solid fa-expand", new Color("#ffab60"), () => {}, options);
+    this.addToolbarButton("fa-solid fa-magnifying-glass", new Color("#85b3ff"), () => {}, options);
+    this.addToolbarButton("fa-solid fa-volume-high", new Color("#ffa64a"), () => {}, options);
+    
 		this.setContentSize(1200, 700);
 	}
 }

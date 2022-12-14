@@ -140,15 +140,13 @@ var TrackSample = /** @class */ (function () {
         //this.sample_source.buffer = this.sample_buffer;
     };
     TrackSample.prototype.play = function () {
-        console.log("start");
         this.sample_source = globals_1.globals.audiocontext.createBufferSource();
         this.sample_source.buffer = this.sample_buffer;
-        console.log(this.track.audio_node);
         this.sample_source.connect(this.track.audio_node);
         this.sample_source.start();
     };
     TrackSample.prototype.stop = function () {
-        //this.sample_source.stop();
+        this.sample_source.stop();
     };
     return TrackSample;
 }());

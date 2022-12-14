@@ -1,4 +1,5 @@
 import { Color } from "./Color";
+import { globals } from "./globals";
 
 // new color picker
 export var color_picker = document.getElementById("color_picker");
@@ -109,8 +110,7 @@ function updateColorPickerPreview() {
 updateColorPickerPreview();
 
 color_picker_confirm.addEventListener("click", () => {
-	console.log("is this even called?")
-	//current_context_track.setColor(new Color(current_color.r, current_color.g, current_color.b));
+	globals.current_context_track.setColor(new Color(current_color.r, current_color.g, current_color.b));
 	color_picker.style.display = "none";
 });
 

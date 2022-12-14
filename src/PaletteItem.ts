@@ -61,7 +61,6 @@ export class Item extends Draggable {
 	}
 
 	loadData() {
-		console.log(typeof this.contents) // assure with if that this.contents is in fact a string
 		// Load a wav file buffer as a WaveFile object
 		this.file = new WaveFile(readFileSync(<string> this.contents));
 		if (this.file.bitDepth !== "32f") {
@@ -131,8 +130,7 @@ export class Item extends Draggable {
 		globals.sidebar.appendChild(this.element);
 	}
 
-	appendAfter(element: any) {
-		// TODO any type
+	appendAfter(element: HTMLElement) {
 		this.element.style.color = element.style.color;
 		insertAfter(this.element, element);
 	}

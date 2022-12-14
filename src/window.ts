@@ -5,7 +5,7 @@ import { createElement, cumulativeOffset } from "./globals";
 import { BrowserWindowConstructorOptions, BrowserWindow, ipcRenderer } from "electron";
 import { Color } from "./Color";
 
-interface toolbarButtonOptions {
+export interface toolbarButtonOptions {
     tool: boolean,
     customCss: string,
 }
@@ -76,16 +76,13 @@ export abstract class Window {
             this.anti_minimize();
         });
         addListener(this.get(".ne_resize"), (e: MouseEvent) => {
-            temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
-            temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
+            console.log("not implemented");
         });
         addListener(this.get(".sw_resize"), (e: MouseEvent) => {
-            temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
-            temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
+            console.log("not implemented");
         });
         addListener(this.get(".nw_resize"), (e: MouseEvent) => {
-            temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
-            temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
+            console.log("not implemented");
         });
 
         // add basic toolbar buttons

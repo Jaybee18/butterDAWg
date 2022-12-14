@@ -69,7 +69,6 @@ var Item = /** @class */ (function (_super) {
         return _this;
     }
     Item.prototype.loadData = function () {
-        console.log(typeof this.contents); // assure with if that this.contents is in fact a string
         // Load a wav file buffer as a WaveFile object
         this.file = new wavefile_1.WaveFile((0, fs_1.readFileSync)(this.contents));
         if (this.file.bitDepth !== "32f") {
@@ -137,7 +136,6 @@ var Item = /** @class */ (function (_super) {
         globals_1.globals.sidebar.appendChild(this.element);
     };
     Item.prototype.appendAfter = function (element) {
-        // TODO any type
         this.element.style.color = element.style.color;
         (0, globals_1.insertAfter)(this.element, element);
     };

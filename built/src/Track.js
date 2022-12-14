@@ -47,7 +47,6 @@ track_view.addEventListener("mousemove", (e) => {
 *    listeners
 *    etc.
 */
-var current_context_track = null; // this will be set when the context menu is opened on one track (to the given track)
 var track_config_menu = document.getElementById("track_config_menu");
 var track_config_xoffset = 0;
 var track_config_yoffset = 0;
@@ -66,7 +65,7 @@ document.addEventListener("mouseup", function () {
     document.removeEventListener("mousemove", track_config_movement);
 });
 track_config_menu.querySelector("#conf_check").addEventListener("click", function () {
-    current_context_track.setTitle(track_config_menu.querySelector("#conf_name_input").value);
+    globals_1.globals.current_context_track.setTitle(track_config_menu.querySelector("#conf_name_input").value);
     track_config_menu.style.display = "none";
     globals_1.globals.deactivate_space_to_play = false;
 });
@@ -75,19 +74,19 @@ track_config_menu.querySelector("#conf_xmark").addEventListener("click", functio
     globals_1.globals.deactivate_space_to_play = false;
 });
 function showTrackConfig(e) {
-    track_config_menu.querySelector("#conf_bottom p").innerText = current_context_track.title;
+    track_config_menu.querySelector("#conf_bottom p").innerText = globals_1.globals.current_context_track.title;
     track_config_menu.style.left = e.clientX + "px";
     track_config_menu.style.top = e.clientY + "px";
     track_config_menu.style.display = "flex";
     globals_1.globals.deactivate_space_to_play = true;
-    track_config_menu.querySelector("#conf_name_input").value = current_context_track.title;
+    track_config_menu.querySelector("#conf_name_input").value = globals_1.globals.current_context_track.title;
 }
 // track context menu channel link menu
 var context_channel_items = globals_1.globals.channels.map(function (v, i) { return "Insert " + i; });
 var context_channel_listeners = globals_1.globals.channels.map(function (v, i) {
     return function () {
         // connect the current track to the selected channel and close the context menu
-        current_context_track.connect(v);
+        globals_1.globals.current_context_track.connect(v);
         return true;
     };
 });
@@ -112,7 +111,7 @@ var context_event_listeners = [
     null,
     null,
     function () {
-        current_context_track.resize_locked = !current_context_track.resize_locked;
+        globals_1.globals.current_context_track.resize_locked = !globals_1.globals.current_context_track.resize_locked;
         return true;
     },
     null,
@@ -125,13 +124,13 @@ var context_event_listeners = [
     null,
     null,
     function () {
-        var a = globals_1.globals.tracks.indexOf(current_context_track);
-        var b = globals_1.globals.tracks.indexOf(current_context_track) - 1;
+        var a = globals_1.globals.tracks.indexOf(globals_1.globals.current_context_track);
+        var b = globals_1.globals.tracks.indexOf(globals_1.globals.current_context_track) - 1;
         if (b < 0) {
             return;
         }
         // swap HTML elements
-        track_view.insertBefore(current_context_track.element, globals_1.globals.tracks[globals_1.globals.tracks.indexOf(current_context_track) - 1].element);
+        track_view.insertBefore(globals_1.globals.current_context_track.element, globals_1.globals.tracks[globals_1.globals.tracks.indexOf(globals_1.globals.current_context_track) - 1].element);
         // swap tracks-array entries
         var tmp = globals_1.globals.tracks[a];
         globals_1.globals.tracks[a] = globals_1.globals.tracks[b];
@@ -139,13 +138,13 @@ var context_event_listeners = [
         return true;
     },
     function () {
-        var a = globals_1.globals.tracks.indexOf(current_context_track);
-        var b = globals_1.globals.tracks.indexOf(current_context_track) + 1;
+        var a = globals_1.globals.tracks.indexOf(globals_1.globals.current_context_track);
+        var b = globals_1.globals.tracks.indexOf(globals_1.globals.current_context_track) + 1;
         if (b === globals_1.globals.tracks.length) {
             return;
         }
         // swap HTML elements
-        track_view.insertBefore(current_context_track.element, globals_1.globals.tracks[globals_1.globals.tracks.indexOf(current_context_track) + 2].element);
+        track_view.insertBefore(globals_1.globals.current_context_track.element, globals_1.globals.tracks[globals_1.globals.tracks.indexOf(globals_1.globals.current_context_track) + 2].element);
         // swap tracks-array entries
         var tmp = globals_1.globals.tracks[a];
         globals_1.globals.tracks[a] = globals_1.globals.tracks[b];
@@ -227,6 +226,10 @@ var Track = /** @class */ (function () {
         this.enabled = true;
         this.resize_locked = false;
         this.channel = null;
+        // all audio modules should've been loaded in the Playlist Window class
+        // so they can be used without checking if they have been imported first
+        this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, "passthrough");
+        this.audio_node.connect(globals_1.globals.audiocontext.destination);
         // construct own element
         // TODO refactor with new createElement method from globals.ts
         var template = document.getElementById("track_template");
@@ -463,7 +466,7 @@ var Track = /** @class */ (function () {
         // context menu
         this.description.addEventListener("contextmenu", function (e) {
             e.preventDefault();
-            current_context_track = _this;
+            globals_1.globals.current_context_track = _this;
             new_context_menu.toggle(e);
             //toggle_track_context_menu(e, this);
         });

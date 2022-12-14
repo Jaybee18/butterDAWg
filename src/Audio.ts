@@ -10,7 +10,7 @@ export function play() {
         globals.audiocontext.suspend();
         clearInterval(cursor_anim);
         track_bar_cursor.style.display = "none";
-        console.log("stopped");
+        console.log("playback stopped");
     } else {
         // start
         globals.audiocontext.resume();
@@ -26,7 +26,7 @@ export function play() {
             globals.current_time += 10;
         }, 10);
         //track_bar_cursor.style.display = "block";
-        console.log("started");
+        console.log("playback started");
     }
     globals.is_playing = !globals.is_playing;
 }

@@ -169,15 +169,13 @@ export class TrackSample {
 	}
 
 	play() {
-		console.log("start")
 		this.sample_source = globals.audiocontext.createBufferSource();
 		this.sample_source.buffer = this.sample_buffer;
-		console.log(this.track.audio_node);
 		this.sample_source.connect(this.track.audio_node);
 		this.sample_source.start();
 	}
 
 	stop() {
-		//this.sample_source.stop();
+		this.sample_source.stop();
 	}
 }

@@ -124,7 +124,7 @@ function mapFolder(folder: string) {
 	});
 	return res;
 }
-let hirachy = <Map<string, string>> mapFolder("./files");
+let hirachy = <Map<string, string>> mapFolder(__dirname + "/../../files");
 
 hirachy.forEach((element, key) => {
 	var a = new Item(key, element);

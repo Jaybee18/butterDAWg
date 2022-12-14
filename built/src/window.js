@@ -59,16 +59,13 @@ var Window = /** @class */ (function () {
             _this.anti_minimize();
         });
         addListener(this.get(".ne_resize"), function (e) {
-            temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
-            temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
+            console.log("not implemented");
         });
         addListener(this.get(".sw_resize"), function (e) {
-            temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
-            temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
+            console.log("not implemented");
         });
         addListener(this.get(".nw_resize"), function (e) {
-            temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
-            temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
+            console.log("not implemented");
         });
         // add basic toolbar buttons
         // caret for window options

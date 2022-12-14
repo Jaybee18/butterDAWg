@@ -50,7 +50,6 @@ track_view.addEventListener("mousemove", (e) => {
 *    listeners
 *    etc.
 */
-let current_context_track: Track = null; // this will be set when the context menu is opened on one track (to the given track)
 let track_config_menu = document.getElementById("track_config_menu");
 let track_config_xoffset = 0;
 let track_config_yoffset = 0;
@@ -68,7 +67,7 @@ document.addEventListener("mouseup", () => {
 	document.removeEventListener("mousemove", track_config_movement);
 });
 track_config_menu.querySelector("#conf_check").addEventListener("click", () => {
-	current_context_track.setTitle((<HTMLInputElement>track_config_menu.querySelector("#conf_name_input")).value);
+	globals.current_context_track.setTitle((<HTMLInputElement>track_config_menu.querySelector("#conf_name_input")).value);
 	track_config_menu.style.display = "none";
 	globals.deactivate_space_to_play = false;
 });
@@ -77,14 +76,14 @@ track_config_menu.querySelector("#conf_xmark").addEventListener("click", () => {
 	globals.deactivate_space_to_play = false;
 });
 function showTrackConfig(e: MouseEvent) {
-	(<HTMLElement>track_config_menu.querySelector("#conf_bottom p")).innerText = current_context_track.title;
+	(<HTMLElement>track_config_menu.querySelector("#conf_bottom p")).innerText = globals.current_context_track.title;
 
 	track_config_menu.style.left = e.clientX + "px";
 	track_config_menu.style.top = e.clientY + "px";
 	track_config_menu.style.display = "flex";
 
 	globals.deactivate_space_to_play = true;
-	(<HTMLInputElement>track_config_menu.querySelector("#conf_name_input")).value = current_context_track.title;
+	(<HTMLInputElement>track_config_menu.querySelector("#conf_name_input")).value = globals.current_context_track.title;
 }
 
 
@@ -93,7 +92,7 @@ let context_channel_items = globals.channels.map((v, i) => { return "Insert " + 
 let context_channel_listeners = globals.channels.map((v, i) => {
 	return () => {
 		// connect the current track to the selected channel and close the context menu
-		current_context_track.connect(v);
+		globals.current_context_track.connect(v);
 		return true;
 	};
 });
@@ -119,7 +118,7 @@ let context_event_listeners = [
 	null,
 	null,
 	() => {
-		current_context_track.resize_locked = !current_context_track.resize_locked;
+		globals.current_context_track.resize_locked = !globals.current_context_track.resize_locked;
 		return true;
 	},
 	null,
@@ -132,11 +131,11 @@ let context_event_listeners = [
 	null,
 	null,
 	() => {
-		let a = globals.tracks.indexOf(current_context_track);
-		let b = globals.tracks.indexOf(current_context_track) - 1;
+		let a = globals.tracks.indexOf(globals.current_context_track);
+		let b = globals.tracks.indexOf(globals.current_context_track) - 1;
 		if (b < 0) { return; }
 		// swap HTML elements
-		track_view.insertBefore(current_context_track.element, globals.tracks[globals.tracks.indexOf(current_context_track) - 1].element);
+		track_view.insertBefore(globals.current_context_track.element, globals.tracks[globals.tracks.indexOf(globals.current_context_track) - 1].element);
 		// swap tracks-array entries
 		let tmp = globals.tracks[a];
 		globals.tracks[a] = globals.tracks[b];
@@ -144,11 +143,11 @@ let context_event_listeners = [
 		return true;
 	},
 	() => {
-		let a = globals.tracks.indexOf(current_context_track);
-		let b = globals.tracks.indexOf(current_context_track) + 1;
+		let a = globals.tracks.indexOf(globals.current_context_track);
+		let b = globals.tracks.indexOf(globals.current_context_track) + 1;
 		if (b === globals.tracks.length) { return; }
 		// swap HTML elements
-		track_view.insertBefore(current_context_track.element, globals.tracks[globals.tracks.indexOf(current_context_track) + 2].element);
+		track_view.insertBefore(globals.current_context_track.element, globals.tracks[globals.tracks.indexOf(globals.current_context_track) + 2].element);
 		// swap tracks-array entries
 		let tmp = globals.tracks[a];
 		globals.tracks[a] = globals.tracks[b];
@@ -243,6 +242,11 @@ export class Track {
 			this.audio_node.connect(this.passthrough_node);
 			this.passthrough_node.connect(globals.audiocontext.destination);
 		});*/
+
+		// all audio modules should've been loaded in the Playlist Window class
+		// so they can be used without checking if they have been imported first
+		this.audio_node = new AudioWorkletNode(globals.audiocontext, "passthrough");
+		this.audio_node.connect(globals.audiocontext.destination);
 
 		// construct own element
 		// TODO refactor with new createElement method from globals.ts
@@ -500,7 +504,7 @@ export class Track {
 		// context menu
 		this.description.addEventListener("contextmenu", (e) => {
 			e.preventDefault();
-			current_context_track = this;
+			globals.current_context_track = this;
 			new_context_menu.toggle(e);
 			//toggle_track_context_menu(e, this);
 		});
