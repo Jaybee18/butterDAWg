@@ -120,6 +120,9 @@ var Window = /** @class */ (function () {
             if (options.customCss !== undefined) {
                 tmp.querySelector("i").style.cssText += options.customCss;
             }
+            if (options.customParentCss !== undefined) {
+                tmp.style.cssText += options.customParentCss;
+            }
             // if the button is a tool, add it to the tool side
             // else its a window control button
             if (options.tool === undefined || options.tool) {

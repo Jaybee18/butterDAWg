@@ -248,23 +248,23 @@ class Playlist extends Window {
 		});
 
     // tool buttons
-    let options = <toolbarButtonOptions> {customCss: "transform: scale(0.8);"};
     this.addToolbarButton("fa-solid fa-magnet", new Color("#7eefa9"), () => {}, <toolbarButtonOptions> {
-      customCss: "transform: scale(0.8) rotate(180deg) translate(-1px, 1px);"
+      customCss: "transform: rotate(180deg) translate(0.5px, 1px);",
+      customParentCss: "margin-right: 17px;"
     });
-    this.addToolbarButton("fa-solid fa-pencil", new Color("#fcba40"), () => {}, <toolbarButtonOptions> {
-      customCss: "transform: scale(0.8) translate(1px, 0px);"
+    this.addToolbarButton("fa-solid fa-pencil", new Color("#fcba40"), () => {});
+    this.addToolbarButton("fa-solid fa-brush", new Color("#7bcefd"), () => {}, <toolbarButtonOptions> {
+      customCss: "transform: translate(1px, 0.5px) rotate(-45deg);"
     });
-    this.addToolbarButton("fa-solid fa-brush", new Color("#7bcefd"), () => {}, options);
-    this.addToolbarButton("fa-solid fa-ban", new Color("#ff5b53"), () => {}, <toolbarButtonOptions> {
-      customCss: "transform: scale(0.9) translate(1px, 0px);"
+    this.addToolbarButton("fa-solid fa-ban", new Color("#ff5b53"), () => {});
+    this.addToolbarButton("fa-solid fa-volume-xmark", new Color("#ff54b0"), () => {});
+    this.addToolbarButton("fa-solid fa-arrows-left-right", new Color("#ffa64a"), () => {});
+    this.addToolbarButton("fa-solid fa-spoon", new Color("#85b3ff"), () => {});
+    this.addToolbarButton("fa-solid fa-expand", new Color("#ffab60"), () => {});
+    this.addToolbarButton("fa-solid fa-magnifying-glass", new Color("#85b3ff"), () => {});
+    this.addToolbarButton("fa-solid fa-volume-high", new Color("#ffa64a"), () => {}, <toolbarButtonOptions> {
+      customCss: "transform: scale(0.9);"
     });
-    this.addToolbarButton("fa-solid fa-volume-xmark", new Color("#ff54b0"), () => {}, options);
-    this.addToolbarButton("fa-solid fa-arrows-left-right", new Color("#ffa64a"), () => {}, options);
-    this.addToolbarButton("fa-solid fa-spoon", new Color("#85b3ff"), () => {}, options);
-    this.addToolbarButton("fa-solid fa-expand", new Color("#ffab60"), () => {}, options);
-    this.addToolbarButton("fa-solid fa-magnifying-glass", new Color("#85b3ff"), () => {}, options);
-    this.addToolbarButton("fa-solid fa-volume-high", new Color("#ffa64a"), () => {}, options);
     
 		this.setContentSize(1200, 700);
 	}

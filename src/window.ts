@@ -6,8 +6,9 @@ import { BrowserWindowConstructorOptions, BrowserWindow, ipcRenderer } from "ele
 import { Color } from "./Color";
 
 export interface toolbarButtonOptions {
-    tool: boolean,
-    customCss: string,
+    tool: boolean
+    customCss: string
+    customParentCss: string
 }
 
 export abstract class Window {
@@ -147,6 +148,10 @@ export abstract class Window {
         if (options !== undefined) {
             if (options.customCss !== undefined) {
                 tmp.querySelector("i").style.cssText += options.customCss;
+            }
+
+            if (options.customParentCss !== undefined) {
+                tmp.style.cssText += options.customParentCss;
             }
     
             // if the button is a tool, add it to the tool side

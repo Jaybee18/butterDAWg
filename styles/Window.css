@@ -22,8 +22,8 @@
 }
 
 .wrapper > .toolbar .toolbutton {
-    width: 15px;
-    height: 15px;
+    width: 17px;
+    height: 17px;
     margin: 0 2px;
     display: flex;
     justify-content: center;
@@ -36,7 +36,7 @@
 }
 
 .wrapper > .toolbar .toolbutton i {
-    margin: 0 0 0 -1px;
+    margin: 0 0 0 0px;
 }
 
 /* 
@@ -86,10 +86,4 @@
     right: 0px;
     top: 0px;
     cursor: nesw-resize;
-}
-
-/* toolbar buttons */
-.toolbar > .tool_button {
-    width: 15px;
-    height: 15px;
 }

@@ -132,23 +132,23 @@ var Playlist = /** @class */ (function (_super) {
             document.removeEventListener("mousemove", bars_cursor_move_listener);
         });
         // tool buttons
-        var options = { customCss: "transform: scale(0.8);" };
         this.addToolbarButton("fa-solid fa-magnet", new Color_1.Color("#7eefa9"), function () { }, {
-            customCss: "transform: scale(0.8) rotate(180deg) translate(-1px, 1px);"
+            customCss: "transform: rotate(180deg) translate(0.5px, 1px);",
+            customParentCss: "margin-right: 17px;"
         });
-        this.addToolbarButton("fa-solid fa-pencil", new Color_1.Color("#fcba40"), function () { }, {
-            customCss: "transform: scale(0.8) translate(1px, 0px);"
+        this.addToolbarButton("fa-solid fa-pencil", new Color_1.Color("#fcba40"), function () { });
+        this.addToolbarButton("fa-solid fa-brush", new Color_1.Color("#7bcefd"), function () { }, {
+            customCss: "transform: translate(1px, 0.5px) rotate(-45deg);"
         });
-        this.addToolbarButton("fa-solid fa-brush", new Color_1.Color("#7bcefd"), function () { }, options);
-        this.addToolbarButton("fa-solid fa-ban", new Color_1.Color("#ff5b53"), function () { }, {
-            customCss: "transform: scale(0.9) translate(1px, 0px);"
+        this.addToolbarButton("fa-solid fa-ban", new Color_1.Color("#ff5b53"), function () { });
+        this.addToolbarButton("fa-solid fa-volume-xmark", new Color_1.Color("#ff54b0"), function () { });
+        this.addToolbarButton("fa-solid fa-arrows-left-right", new Color_1.Color("#ffa64a"), function () { });
+        this.addToolbarButton("fa-solid fa-spoon", new Color_1.Color("#85b3ff"), function () { });
+        this.addToolbarButton("fa-solid fa-expand", new Color_1.Color("#ffab60"), function () { });
+        this.addToolbarButton("fa-solid fa-magnifying-glass", new Color_1.Color("#85b3ff"), function () { });
+        this.addToolbarButton("fa-solid fa-volume-high", new Color_1.Color("#ffa64a"), function () { }, {
+            customCss: "transform: scale(0.9);"
         });
-        this.addToolbarButton("fa-solid fa-volume-xmark", new Color_1.Color("#ff54b0"), function () { }, options);
-        this.addToolbarButton("fa-solid fa-arrows-left-right", new Color_1.Color("#ffa64a"), function () { }, options);
-        this.addToolbarButton("fa-solid fa-spoon", new Color_1.Color("#85b3ff"), function () { }, options);
-        this.addToolbarButton("fa-solid fa-expand", new Color_1.Color("#ffab60"), function () { }, options);
-        this.addToolbarButton("fa-solid fa-magnifying-glass", new Color_1.Color("#85b3ff"), function () { }, options);
-        this.addToolbarButton("fa-solid fa-volume-high", new Color_1.Color("#ffa64a"), function () { }, options);
         this.setContentSize(1200, 700);
     };
     return Playlist;
