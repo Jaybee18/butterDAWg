@@ -15,13 +15,14 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AudioGraph = void 0;
 var window_1 = require("./window");
 var fs_1 = require("fs");
 var Source_1 = require("./Source");
-var main_1 = require("../TestWindow/main");
+var main_1 = require("../AudioGraph/main");
 var Plugin_1 = require("./Plugin");
 var globals_1 = require("./globals");
-var main_2 = require("../TestWindow/main");
+var main_2 = require("../AudioGraph/main");
 var AudioGraph = /** @class */ (function (_super) {
     __extends(AudioGraph, _super);
     function AudioGraph() {
@@ -68,7 +69,8 @@ var AudioGraph = /** @class */ (function (_super) {
     };
     return AudioGraph;
 }(window_1.Window));
-//new AudioGraph();
+exports.AudioGraph = AudioGraph;
+new AudioGraph();
 //let tet = window.open("");
 //tet.document.write(audio_graph.getContent().innerHTML);
 /*import { BrowserViewConstructorOptions, ipcRenderer } from "electron";

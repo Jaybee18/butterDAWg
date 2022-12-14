@@ -1,7 +1,7 @@
 // TODO
 // - make pop-out possible
 
-import { createElement, cumulativeOffset } from "./globals";
+import { createElement, cumulativeOffset, globals } from "./globals";
 import { BrowserWindowConstructorOptions, BrowserWindow, ipcRenderer } from "electron";
 import { Color } from "./Color";
 
@@ -27,6 +27,7 @@ export abstract class Window {
         this.initElement();
         this.toolbar = this.element.querySelector(".toolbar");
         this.content = this.element.querySelector(".content");
+        globals.windows.push(this);
     }
 
     initElement() {
@@ -47,18 +48,22 @@ export abstract class Window {
 
         // initialise movement/dragging listeners
         let temp_this = this;
+        const sidebar_width = document.getElementById("sidebar").clientWidth;
+        const header_height = document.querySelector("header").clientHeight;
         function windowmove(e: MouseEvent) {
-            temp_this.element.style.left = Math.max(temp_this.element.offsetLeft + e.movementX, 0) + "px";
-            temp_this.element.style.top = Math.max(temp_this.element.offsetTop + e.movementY, 0) + "px";
+            temp_this.element.style.left = Math.max(temp_this.element.offsetLeft + e.movementX, sidebar_width) + "px";
+            temp_this.element.style.top = Math.max(temp_this.element.offsetTop + e.movementY, header_height) + "px";
         }
         this.get(".toolbar").addEventListener("mousedown", () => {
             // bring to front
-            this.element.style.zIndex = "2";
+            globals.windows.forEach((w) => {
+                w.setZIndex(1);
+            });
+            this.element.style.zIndex = "10";
             document.addEventListener("mousemove", windowmove);
         });
         document.addEventListener("mouseup", () => {
             // normalize
-            this.element.style.zIndex = "1";
             document.removeEventListener("mousemove", windowmove);
         });
 
@@ -129,6 +134,10 @@ export abstract class Window {
     setContent(content: string) {
         let tmp = createElement(content);
         this.get(".content").appendChild(tmp);
+    }
+
+    setZIndex(index: number) {
+        this.element.style.zIndex = index.toString();
     }
 
     setContentSize(width: number, height: number) {

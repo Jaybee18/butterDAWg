@@ -4,6 +4,7 @@ import { Track } from "./Track";
 import { BrowserWindow } from "electron";
 import { Color } from "./Color";
 import { readdirSync } from "fs";
+import { AudioGraph } from "./AudioGraphWindow";
 
 class Playlist extends Window {
 	constructor() {

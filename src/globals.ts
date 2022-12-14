@@ -2,12 +2,14 @@ import { Channel } from "./Channel";
 import { Track } from "./Track";
 import { ContextMenu } from "./ContextMenu"
 import { readdirSync } from "fs"
+import { Window } from "./window";
 
 
 class Globals {
 	tracks: Array<Track> = [];
 	channels: Array<Channel> = [];
 	context_menus: Array<ContextMenu> = []; // all open context menus
+	windows: Array<Window> = [];
 	//audio_graph_nodes: Array<AudioGraphNode> = [];
 
 	deactivate_space_to_play: boolean = false;

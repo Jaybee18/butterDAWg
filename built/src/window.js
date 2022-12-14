@@ -12,6 +12,7 @@ var Window = /** @class */ (function () {
         this.initElement();
         this.toolbar = this.element.querySelector(".toolbar");
         this.content = this.element.querySelector(".content");
+        globals_1.globals.windows.push(this);
     }
     Window.prototype.initElement = function () {
         var _this = this;
@@ -30,18 +31,22 @@ var Window = /** @class */ (function () {
         document.querySelector(".main_content").appendChild(this.element);
         // initialise movement/dragging listeners
         var temp_this = this;
+        var sidebar_width = document.getElementById("sidebar").clientWidth;
+        var header_height = document.querySelector("header").clientHeight;
         function windowmove(e) {
-            temp_this.element.style.left = Math.max(temp_this.element.offsetLeft + e.movementX, 0) + "px";
-            temp_this.element.style.top = Math.max(temp_this.element.offsetTop + e.movementY, 0) + "px";
+            temp_this.element.style.left = Math.max(temp_this.element.offsetLeft + e.movementX, sidebar_width) + "px";
+            temp_this.element.style.top = Math.max(temp_this.element.offsetTop + e.movementY, header_height) + "px";
         }
         this.get(".toolbar").addEventListener("mousedown", function () {
             // bring to front
-            _this.element.style.zIndex = "2";
+            globals_1.globals.windows.forEach(function (w) {
+                w.setZIndex(1);
+            });
+            _this.element.style.zIndex = "10";
             document.addEventListener("mousemove", windowmove);
         });
         document.addEventListener("mouseup", function () {
             // normalize
-            _this.element.style.zIndex = "1";
             document.removeEventListener("mousemove", windowmove);
         });
         // initialise resizing listeners
@@ -104,6 +109,9 @@ var Window = /** @class */ (function () {
     Window.prototype.setContent = function (content) {
         var tmp = (0, globals_1.createElement)(content);
         this.get(".content").appendChild(tmp);
+    };
+    Window.prototype.setZIndex = function (index) {
+        this.element.style.zIndex = index.toString();
     };
     Window.prototype.setContentSize = function (width, height) {
         this.element.style.width = width + "px";

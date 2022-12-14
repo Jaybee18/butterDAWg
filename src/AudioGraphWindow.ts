@@ -1,12 +1,12 @@
 import { Window } from "./window";
 import { readdirSync } from "fs";
 import { Source } from "./Source";
-import { AudioGraphAnalyzerNode, AudioGraphOutputNode, AudioGraphSourceNode, PluginNode } from "../TestWindow/main";
+import { AudioGraphAnalyzerNode, AudioGraphOutputNode, AudioGraphSourceNode, PluginNode } from "../AudioGraph/main";
 import { Plugin } from "./Plugin";
 import { globals } from "./globals";
-import { audio_graph_nodes } from "../TestWindow/main";
+import { audio_graph_nodes } from "../AudioGraph/main";
 
-class AudioGraph extends Window {
+export class AudioGraph extends Window {
     constructor() {
         super();
     }
@@ -56,7 +56,7 @@ class AudioGraph extends Window {
     }
 }
 
-//new AudioGraph();
+new AudioGraph();
 
 //let tet = window.open("");
 //tet.document.write(audio_graph.getContent().innerHTML);
