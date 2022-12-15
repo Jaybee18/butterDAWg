@@ -50,16 +50,27 @@ export abstract class Window {
         let temp_this = this;
         const sidebar_width = document.getElementById("sidebar").clientWidth;
         const header_height = document.querySelector("header").clientHeight;
+        let cursor_down = {"x": 0, "y": 0};
+        let window_down = {"x": 0, "y": 0};
+        let cursor_delta = {"x": 0, "y": 0};
         function windowmove(e: MouseEvent) {
-            temp_this.element.style.left = Math.max(temp_this.element.offsetLeft + e.movementX, sidebar_width) + "px";
-            temp_this.element.style.top = Math.max(temp_this.element.offsetTop + e.movementY, header_height) + "px";
+            //temp_this.element.style.left = Math.max(temp_this.element.offsetLeft + e.movementX, sidebar_width) + "px";
+            //temp_this.element.style.top = Math.max(temp_this.element.offsetTop + e.movementY, header_height) + "px";
+            temp_this.element.style.left = Math.max(e.clientX - cursor_down.x + window_down.x, sidebar_width) + "px";
+            temp_this.element.style.top = Math.max(e.clientY - cursor_down.y + window_down.y, header_height) + "px";
         }
-        this.get(".toolbar").addEventListener("mousedown", () => {
+        this.get(".toolbar").addEventListener("mousedown", (e) => {
             // bring to front
             globals.windows.forEach((w) => {
                 w.setZIndex(1);
             });
             this.element.style.zIndex = "10";
+            cursor_down.x = e.clientX;
+            cursor_down.y = e.clientY;
+            window_down.x = this.element.offsetLeft;
+            window_down.y = this.element.offsetTop;
+            cursor_delta.x = cursor_down.x - window_down.x;
+            cursor_delta.y = cursor_down.y - window_down.y;
             document.addEventListener("mousemove", windowmove);
         });
         document.addEventListener("mouseup", () => {
