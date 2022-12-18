@@ -7,6 +7,15 @@ there are some deviations from the original that I believe improve the UX
 Audio functionality partially implemented
  
  
+version 0.4.2:
++ Added Audio Graph bc idk
++ we now got windows in this bitch
++ custom plugins now possible
++ generalized internal codebase for easier integration and development
+
+![butterDAWg_v4 2](https://user-images.githubusercontent.com/64578396/207967816-20bcf9ed-d39a-4359-a71a-7f9733af2c68.png)
+ 
+ 
 version 0.4.1:
 + Tracks can be routed through channels
 + channels have volume indicators
