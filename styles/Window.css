@@ -70,7 +70,7 @@
     cursor: nwse-resize;
 }
 
-.ne_resize {
+.nw_resize {
     left: 0px;
     top: 0px;
     cursor: nwse-resize;
@@ -82,7 +82,7 @@
     cursor: nesw-resize;
 }
 
-.nw_resize {
+.ne_resize {
     right: 0px;
     top: 0px;
     cursor: nesw-resize;

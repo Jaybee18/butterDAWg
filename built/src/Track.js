@@ -181,18 +181,6 @@ var context_items = [
     "Move down"
 ];
 var new_context_menu = new ContextMenu_1.ContextMenu(context_items, context_event_listeners);
-// generate bar labels
-function drawBarLabels() {
-    var bars = document.querySelector(".tracks_top_bar_bars");
-    for (var i = 0; i < 126; i++) {
-        var label = document.createElement("p");
-        var font_size = (i % 4 == 0) ? 15 : 10;
-        label.style.cssText += "font-size: " + font_size + "px; width: " + globals_1.globals.xsnap * 4 + "px;";
-        label.innerHTML = (i + 1).toString();
-        bars.appendChild(label);
-    }
-}
-drawBarLabels();
 /*
  *    ████████╗██████╗  █████╗  ██████╗██╗  ██╗
  *    ╚══██╔══╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝

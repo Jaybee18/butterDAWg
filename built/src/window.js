@@ -37,8 +37,6 @@ var Window = /** @class */ (function () {
         var window_down = { "x": 0, "y": 0 };
         var cursor_delta = { "x": 0, "y": 0 };
         function windowmove(e) {
-            //temp_this.element.style.left = Math.max(temp_this.element.offsetLeft + e.movementX, sidebar_width) + "px";
-            //temp_this.element.style.top = Math.max(temp_this.element.offsetTop + e.movementY, header_height) + "px";
             temp_this.element.style.left = Math.max(e.clientX - cursor_down.x + window_down.x, sidebar_width) + "px";
             temp_this.element.style.top = Math.max(e.clientY - cursor_down.y + window_down.y, header_height) + "px";
         }
@@ -75,13 +73,23 @@ var Window = /** @class */ (function () {
             _this.anti_minimize();
         });
         addListener(this.get(".ne_resize"), function (e) {
-            console.log("not implemented");
+            temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
+            temp_this.element.style.height = temp_this.element.clientHeight - e.movementY + "px";
+            temp_this.element.style.top = temp_this.element.offsetTop + e.movementY + "px";
+            _this.anti_minimize();
         });
         addListener(this.get(".sw_resize"), function (e) {
-            console.log("not implemented");
+            temp_this.element.style.width = temp_this.element.clientWidth - e.movementX + "px";
+            temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
+            temp_this.element.style.left = temp_this.element.offsetLeft + e.movementX + "px";
+            _this.anti_minimize();
         });
         addListener(this.get(".nw_resize"), function (e) {
-            console.log("not implemented");
+            temp_this.element.style.width = temp_this.element.clientWidth - e.movementX + "px";
+            temp_this.element.style.height = temp_this.element.clientHeight - e.movementY + "px";
+            temp_this.element.style.left = temp_this.element.offsetLeft + e.movementX + "px";
+            temp_this.element.style.top = temp_this.element.offsetTop + e.movementY + "px";
+            _this.anti_minimize();
         });
         // add basic toolbar buttons
         // caret for window options

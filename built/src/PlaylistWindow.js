@@ -20,6 +20,7 @@ var globals_1 = require("./globals");
 var Track_1 = require("./Track");
 var Color_1 = require("./Color");
 var fs_1 = require("fs");
+var Palette_1 = require("./Palette");
 var Playlist = /** @class */ (function (_super) {
     __extends(Playlist, _super);
     function Playlist() {
@@ -149,6 +150,15 @@ var Playlist = /** @class */ (function (_super) {
         this.addToolbarButton("fa-solid fa-volume-high", new Color_1.Color("#ffa64a"), function () { }, {
             customCss: "transform: scale(0.9);"
         });
+        // generate bar labels
+        for (var i = 0; i < 126; i++) {
+            var label = document.createElement("p");
+            var font_size = (i % 4 == 0) ? 15 : 10;
+            label.style.cssText += "font-size: " + font_size + "px; width: " + globals_1.globals.xsnap * 4 + "px;";
+            label.innerHTML = (i + 1).toString();
+            this.get(".tracks_top_bar_bars").appendChild(label);
+        }
+        (0, Palette_1.setupPalette)();
         this.setContentSize(1200, 700);
     };
     return Playlist;

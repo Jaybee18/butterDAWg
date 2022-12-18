@@ -5,6 +5,7 @@ import { BrowserWindow } from "electron";
 import { Color } from "./Color";
 import { readdirSync } from "fs";
 import { AudioGraph } from "./AudioGraphWindow";
+import { setupPalette } from "./Palette";
 
 class Playlist extends Window {
 	constructor() {
@@ -142,17 +143,17 @@ class Playlist extends Window {
         </div>
         `;
 
-    // first load all possible audio plugins, then initialise the tracks so the
-    // tracks can be sure that every module is loaded and they don't have to
-    // import any
-    let plugin_promises = readdirSync("AudioNodes").map((v) => {
-      return globals.audiocontext.audioWorklet.addModule("AudioNodes/" + v);
-    });
-    Promise.allSettled(plugin_promises).then(() => {
-      for (let i = 0; i < 10; i++) {
-        new Track();
-      }
-    });
+		// first load all possible audio plugins, then initialise the tracks so the
+		// tracks can be sure that every module is loaded and they don't have to
+		// import any
+		let plugin_promises = readdirSync("AudioNodes").map((v) => {
+			return globals.audiocontext.audioWorklet.addModule("AudioNodes/" + v);
+		});
+		Promise.allSettled(plugin_promises).then(() => {
+			for (let i = 0; i < 10; i++) {
+				new Track();
+			}
+		});
 
 		// add mouse wheel dragging
 		let drag_mouse_down_pos_x = 0;
@@ -248,25 +249,36 @@ class Playlist extends Window {
 			document.removeEventListener("mousemove", bars_cursor_move_listener);
 		});
 
-    // tool buttons
-    this.addToolbarButton("fa-solid fa-magnet", new Color("#7eefa9"), () => {}, <toolbarButtonOptions> {
-      customCss: "transform: rotate(180deg) translate(0.5px, 1px);",
-      customParentCss: "margin-right: 17px;"
-    });
-    this.addToolbarButton("fa-solid fa-pencil", new Color("#fcba40"), () => {});
-    this.addToolbarButton("fa-solid fa-brush", new Color("#7bcefd"), () => {}, <toolbarButtonOptions> {
-      customCss: "transform: translate(1px, 0.5px) rotate(-45deg);"
-    });
-    this.addToolbarButton("fa-solid fa-ban", new Color("#ff5b53"), () => {});
-    this.addToolbarButton("fa-solid fa-volume-xmark", new Color("#ff54b0"), () => {});
-    this.addToolbarButton("fa-solid fa-arrows-left-right", new Color("#ffa64a"), () => {});
-    this.addToolbarButton("fa-solid fa-spoon", new Color("#85b3ff"), () => {});
-    this.addToolbarButton("fa-solid fa-expand", new Color("#ffab60"), () => {});
-    this.addToolbarButton("fa-solid fa-magnifying-glass", new Color("#85b3ff"), () => {});
-    this.addToolbarButton("fa-solid fa-volume-high", new Color("#ffa64a"), () => {}, <toolbarButtonOptions> {
-      customCss: "transform: scale(0.9);"
-    });
-    
+		// tool buttons
+		this.addToolbarButton("fa-solid fa-magnet", new Color("#7eefa9"), () => { }, <toolbarButtonOptions>{
+			customCss: "transform: rotate(180deg) translate(0.5px, 1px);",
+			customParentCss: "margin-right: 17px;"
+		});
+		this.addToolbarButton("fa-solid fa-pencil", new Color("#fcba40"), () => { });
+		this.addToolbarButton("fa-solid fa-brush", new Color("#7bcefd"), () => { }, <toolbarButtonOptions>{
+			customCss: "transform: translate(1px, 0.5px) rotate(-45deg);"
+		});
+		this.addToolbarButton("fa-solid fa-ban", new Color("#ff5b53"), () => { });
+		this.addToolbarButton("fa-solid fa-volume-xmark", new Color("#ff54b0"), () => { });
+		this.addToolbarButton("fa-solid fa-arrows-left-right", new Color("#ffa64a"), () => { });
+		this.addToolbarButton("fa-solid fa-spoon", new Color("#85b3ff"), () => { });
+		this.addToolbarButton("fa-solid fa-expand", new Color("#ffab60"), () => { });
+		this.addToolbarButton("fa-solid fa-magnifying-glass", new Color("#85b3ff"), () => { });
+		this.addToolbarButton("fa-solid fa-volume-high", new Color("#ffa64a"), () => { }, <toolbarButtonOptions>{
+			customCss: "transform: scale(0.9);"
+		});
+
+		// generate bar labels
+		for (let i = 0; i < 126; i++) {
+			let label = document.createElement("p");
+			let font_size = (i % 4 == 0) ? 15 : 10;
+			label.style.cssText += "font-size: " + font_size + "px; width: " + globals.xsnap * 4 + "px;";
+			label.innerHTML = (i + 1).toString();
+			this.get(".tracks_top_bar_bars").appendChild(label);
+		}
+
+		setupPalette();
+
 		this.setContentSize(1200, 700);
 	}
 }

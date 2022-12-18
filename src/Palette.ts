@@ -4,7 +4,8 @@ import { Item } from "./PaletteItem";
 
 // palette functionality
 
-
+// TODO THIS SHOULD ONLY BE A VERY VERY TEMPORARY FIX
+export function setupPalette() {
 // TODO event listeners setup may be a bit inefficient
 var palette = document.querySelector(".palette");
 var palette_current_scope = 0;
@@ -130,3 +131,5 @@ hirachy.forEach((element, key) => {
 	var a = new Item(key, element);
 	a.appendToSidebar();
 });
+
+}

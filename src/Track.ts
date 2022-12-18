@@ -187,20 +187,6 @@ let context_items = [
 
 let new_context_menu = new ContextMenu(context_items, context_event_listeners);
 
-// generate bar labels
-function drawBarLabels() {
-	var bars = document.querySelector(".tracks_top_bar_bars");
-
-	for (let i = 0; i < 126; i++) {
-		var label = document.createElement("p");
-		var font_size = (i % 4 == 0) ? 15 : 10;
-		label.style.cssText += "font-size: " + font_size + "px; width: " + globals.xsnap * 4 + "px;";
-		label.innerHTML = (i + 1).toString();
-		bars.appendChild(label);
-	}
-}
-drawBarLabels();
-
 /*
  *    ████████╗██████╗  █████╗  ██████╗██╗  ██╗
  *    ╚══██╔══╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝
