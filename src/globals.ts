@@ -92,6 +92,22 @@ export class Draggable {
 }
 
 
+// cheaty hacky stuff for using tsx
+// (tsc compiles the tsx code to js by replacing every html element with Reacts
+//  createElement function, but i don't use React. So i have to emulate the React
+//  module with this class and give it a (!) createElement method)
+class ReactSubstitution {
+	createElement(tagName: any, attrs = {}, ...children: any) {
+		const elem = Object.assign(document.createElement(tagName), attrs)
+		for (const child of children) {
+			if (Array.isArray(child)) elem.append(...child)
+			else elem.append(child)
+		}
+		return elem
+	}
+}
+export const React = new ReactSubstitution();
+
 // conversion functions
 //var ms_to_pixels_factor = xsnap*4/8 / (1/(bpm/60000));
 export function pixels_to_ms(px: number) { return px / (globals.xsnap * 4 / 8 / (1 / (globals.bpm / 60000))); }
@@ -190,7 +206,7 @@ export function currently_hovered_track() {
 
 // add event listeners to all toggle buttons
 export function addRadioEventListener(btn: HTMLElement, track: Track) {
-	var light = <HTMLElement> btn.querySelector(".radio_btn_green");
+	var light = <HTMLElement>btn.querySelector(".radio_btn_green");
 	btn.addEventListener("click", (e) => {
 		e.preventDefault();
 		if (e.button === 0) {

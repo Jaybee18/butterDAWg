@@ -4,7 +4,7 @@
 import { TrackSample } from "./TrackSample";
 import { Color } from "./Color";
 import { Channel } from "./Channel";
-import { addRadioEventListener, cumulativeOffset, globals, pixels_to_ms } from "./globals";
+import { React, globals, pixels_to_ms, cumulativeOffset, addRadioEventListener } from "./globals";
 import { ContextMenu } from "./ContextMenu";
 import { color_picker } from "./ColorPicker";
 import { Item } from "./PaletteItem";
@@ -67,7 +67,7 @@ document.addEventListener("mouseup", () => {
 	document.removeEventListener("mousemove", track_config_movement);
 });
 track_config_menu.querySelector("#conf_check").addEventListener("click", () => {
-	globals.current_context_track.setTitle((<HTMLInputElement>track_config_menu.querySelector("#conf_name_input")).value);
+	globals.current_context_track.setTitle((track_config_menu.querySelector("#conf_name_input") as HTMLInputElement).value);
 	track_config_menu.style.display = "none";
 	globals.deactivate_space_to_play = false;
 });
@@ -76,14 +76,14 @@ track_config_menu.querySelector("#conf_xmark").addEventListener("click", () => {
 	globals.deactivate_space_to_play = false;
 });
 function showTrackConfig(e: MouseEvent) {
-	(<HTMLElement>track_config_menu.querySelector("#conf_bottom p")).innerText = globals.current_context_track.title;
+	(track_config_menu.querySelector("#conf_bottom p") as HTMLElement).innerText = globals.current_context_track.title;
 
 	track_config_menu.style.left = e.clientX + "px";
 	track_config_menu.style.top = e.clientY + "px";
 	track_config_menu.style.display = "flex";
 
 	globals.deactivate_space_to_play = true;
-	(<HTMLInputElement>track_config_menu.querySelector("#conf_name_input")).value = globals.current_context_track.title;
+	(track_config_menu.querySelector("#conf_name_input") as HTMLInputElement).value = globals.current_context_track.title;
 }
 
 
@@ -199,7 +199,7 @@ let new_context_menu = new ContextMenu(context_items, context_event_listeners);
  */
 export class Track {
 
-	element: HTMLElement;
+	element: any;
 	id: string = Date.now().toString();
 	samples: Array<TrackSample> = [];
 	hover_buffer: TrackSample | null = null;
@@ -235,16 +235,28 @@ export class Track {
 		this.audio_node.connect(globals.audiocontext.destination);
 
 		// construct own element
-		// TODO refactor with new createElement method from globals.ts
-		var template = <HTMLTemplateElement>document.getElementById("track_template")!;
-		var clone = template.content.cloneNode(true);
+		this.element = 
+		<div className="track" id="replace_this_id">
+			<div id="track_wrap">
+			<div className="description">
+				<p id="track_title">track_name</p>
+				<i className="fa-solid fa-ellipsis"></i>
+				<div className="radio_btn">
+				<div className="radio_btn_green"></div>
+				</div>
+				<div id="track_resize"></div>
+			</div>
+			<div className="track_play_indicator"></div>
+			<div className="track_content">
+				<div className="track_background"></div>
+			</div>
+			</div>
+		</div>;
 
 		// add self to track view
 		var track_view = document.getElementById("tracks")!;
-		track_view.appendChild(clone);
-		//track_view.insertBefore(clone, document.getElementById("track_add"));
-		this.element = <HTMLElement>track_view.children[track_view.childElementCount - 1];
-		//this.id = Date.now().toString();
+		track_view.appendChild(this.element);
+		this.id = Date.now().toString();
 		this.element.id = this.id;
 
 		this.content = this.element.querySelector(".track_content")!;
@@ -302,12 +314,12 @@ export class Track {
 		// set the intensity (in %) of the play indicator
 		// to the right of the description
 		/* neutral color is rgb(51, 63, 70) */
-		(<HTMLElement>this.element.querySelector(".track_play_indicator")).style.backgroundColor = this.play_indicator_color.lerp(new Color("#ffffff"), Math.min(1.0, percent * 2));
+		(this.element.querySelector(".track_play_indicator") as HTMLElement).style.backgroundColor = this.play_indicator_color.lerp(new Color("#ffffff"), Math.min(1.0, percent * 2));
 	}
 
 	enable() {
 		this.enabled = true;
-		(<HTMLElement>this.radio_btn.firstElementChild).style.backgroundColor = globals.green;
+		(this.radio_btn.firstElementChild as HTMLElement).style.backgroundColor = globals.green;
 		this.description.style.backgroundColor = this.color.color;
 		this.description.style.color = "";
 		this.description.style.borderRightColor = this.color.lighten(10);
@@ -316,7 +328,7 @@ export class Track {
 
 	disable() {
 		this.enabled = false;
-		(<HTMLElement> this.radio_btn.firstElementChild).style.backgroundColor = globals.grey;
+		(this.radio_btn.firstElementChild as HTMLElement).style.backgroundColor = globals.grey;
 		this.description.style.backgroundColor = this.color.darken(20);
 		this.description.style.color = "#ffffff45";
 		this.description.style.borderRightColor = this.color.darken(20);
@@ -347,7 +359,7 @@ export class Track {
 	}
 
 	_updateCanvas() {
-		var c = <HTMLCanvasElement>this.element.querySelector("#track_canvas");
+		var c = this.element.querySelector("#track_canvas") as HTMLCanvasElement;
 		var ctx = c.getContext("2d");
 		for (let i = 0; i < 1000; i += 32) {
 			ctx.fillStyle = 'rgb(52, 68, 78)';
@@ -373,7 +385,7 @@ export class Track {
 
 	initializeResizing() {
 		// TODO maybe optimize this
-		let resize_handle = <HTMLElement>this.element.querySelector("#track_resize");
+		let resize_handle = this.element.querySelector("#track_resize") as HTMLElement;
 		let resizing_track: HTMLElement = null;
 		let l = this.element;
 		let temp_this = this;
@@ -397,7 +409,7 @@ export class Track {
 	}
 
 	resizeBackground(event: any) {
-		var background = <HTMLElement>this.content.querySelector(".track_background");
+		var background = this.content.querySelector(".track_background") as HTMLElement;
 		background.style.width = background.clientWidth - event.deltaY * 5 + "px";
 		for (let i = 0; i < this.samples.length; i++) {
 			this.samples[i].resize();
@@ -435,7 +447,7 @@ export class Track {
 				// delta = x*100
 				if (globals.xsnap - e.deltaY / 100 < 6) { return; } // TODO this may cause some issues in the future, but idc
 				globals.xsnap -= e.deltaY / 100;
-				var bars = <NodeListOf<HTMLParagraphElement>>document.querySelectorAll(".tracks_top_bar_bars > p");
+				var bars = document.querySelectorAll(".tracks_top_bar_bars > p") as any;
 				for (let i = 0; i < bars.length; i++) {
 					bars[i].style.width = globals.xsnap * 4 + "px";
 				}
@@ -461,12 +473,12 @@ export class Track {
 		this.content.addEventListener("mousemove", () => {
 			// sample preview
 			if (globals.current_drag_element !== null) {
-				this.sampleHover(<Item> globals.current_drag_element);
+				this.sampleHover(globals.current_drag_element as Item);
 				drag_container.style.display = "none";
 			}
 		});
 
-		this.element.addEventListener("mousemove", (e) => {
+		this.element.addEventListener("mousemove", (e: MouseEvent) => {
 			if (this.hover_buffer !== null) {
 				var newX = e.clientX - cumulativeOffset(this.hover_buffer.element.parentElement).left - this.hover_buffer.element.clientWidth / 2;
 				newX = Math.min(Math.max(newX, 0), this.content.clientWidth) + this.content.scrollLeft;
@@ -476,7 +488,7 @@ export class Track {
 			}
 		});
 
-		this.element.addEventListener("mouseup", (e) => {
+		this.element.addEventListener("mouseup", () => {
 			// if a sample was dragged, add it to this track
 			if (globals.current_drag_element !== null) {
 				this.addSample(this.hover_buffer);

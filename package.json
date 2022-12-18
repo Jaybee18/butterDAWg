@@ -4,6 +4,7 @@
     "description": "FL Studio clone with Electron (WIP)",
     "main": "main.js",
     "dependencies": {
+        "@types/react": "^18.0.26",
         "boolean": "^3.2.0",
         "buffer-crc32": "^0.2.13",
         "cacheable-request": "^6.1.0",

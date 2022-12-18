@@ -48,6 +48,10 @@
     bottom: 0px;
 }
 
+.description p {
+    margin: 0;
+}
+
 .radio_btn {
     position: absolute;
     bottom: 0px;

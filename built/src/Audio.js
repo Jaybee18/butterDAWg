@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.play = void 0;
 var globals_1 = require("./globals");
-var track_bar_cursor = document.querySelector(".line_cursor");
-var cursor = document.getElementById("bars_cursor");
 var cursor_anim = null;
 function play() {
+    var track_bar_cursor = document.querySelector(".line_cursor");
+    var cursor = document.getElementById("bars_cursor");
     if (globals_1.globals.is_playing) {
         // stop
         globals_1.globals.audiocontext.suspend();

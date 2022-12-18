@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addRadioEventListener = exports.currently_hovered_track = exports.insertAfter = exports.sidebar_folder_colors = exports.createElement = exports.sleep = exports.ms_to_pixels = exports.pixels_to_ms = exports.Draggable = exports.cumulativeOffset = exports.globals = void 0;
+exports.addRadioEventListener = exports.currently_hovered_track = exports.insertAfter = exports.sidebar_folder_colors = exports.createElement = exports.sleep = exports.ms_to_pixels = exports.pixels_to_ms = exports.React = exports.Draggable = exports.cumulativeOffset = exports.globals = void 0;
 var Globals = /** @class */ (function () {
     function Globals() {
         this.tracks = [];
@@ -72,6 +72,32 @@ var Draggable = /** @class */ (function () {
     return Draggable;
 }());
 exports.Draggable = Draggable;
+// cheaty hacky stuff for using tsx
+// (tsc compiles the tsx code to js by replacing every html element with Reacts
+//  createElement function, but i don't use React. So i have to emulate the React
+//  module with this class and give it a (!) createElement method)
+var ReactSubstitution = /** @class */ (function () {
+    function ReactSubstitution() {
+    }
+    ReactSubstitution.prototype.createElement = function (tagName, attrs) {
+        if (attrs === void 0) { attrs = {}; }
+        var children = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            children[_i - 2] = arguments[_i];
+        }
+        var elem = Object.assign(document.createElement(tagName), attrs);
+        for (var _a = 0, children_1 = children; _a < children_1.length; _a++) {
+            var child = children_1[_a];
+            if (Array.isArray(child))
+                elem.append.apply(elem, child);
+            else
+                elem.append(child);
+        }
+        return elem;
+    };
+    return ReactSubstitution;
+}());
+exports.React = new ReactSubstitution();
 // conversion functions
 //var ms_to_pixels_factor = xsnap*4/8 / (1/(bpm/60000));
 function pixels_to_ms(px) { return px / (exports.globals.xsnap * 4 / 8 / (1 / (exports.globals.bpm / 60000))); }

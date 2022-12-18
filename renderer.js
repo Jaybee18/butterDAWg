@@ -163,7 +163,7 @@ document.addEventListener("mouseup", () => {
 
 
 // initialize tools listeners
-var tools = document.querySelectorAll(".tracks_tool_bar > .tool_button");
+/*var tools = document.querySelectorAll(".tracks_tool_bar > .tool_button");
 var current_active = document.querySelector(".tracks_tool_bar > #tool_pencil > i");
 current_active.style.color = "#fcba40";
 tools.forEach(btn => {
@@ -176,7 +176,7 @@ tools.forEach(btn => {
     current_active = icon;
   });
 });
-
+*/
 // initialize a testing ui
 /*const Track = require("./built/Track").Track;
 const track_count = 10;

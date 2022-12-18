@@ -219,15 +219,22 @@ var Track = /** @class */ (function () {
         this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, "passthrough");
         this.audio_node.connect(globals_1.globals.audiocontext.destination);
         // construct own element
-        // TODO refactor with new createElement method from globals.ts
-        var template = document.getElementById("track_template");
-        var clone = template.content.cloneNode(true);
+        this.element =
+            globals_1.React.createElement("div", { className: "track", id: "replace_this_id" },
+                globals_1.React.createElement("div", { id: "track_wrap" },
+                    globals_1.React.createElement("div", { className: "description" },
+                        globals_1.React.createElement("p", { id: "track_title" }, "track_name"),
+                        globals_1.React.createElement("i", { className: "fa-solid fa-ellipsis" }),
+                        globals_1.React.createElement("div", { className: "radio_btn" },
+                            globals_1.React.createElement("div", { className: "radio_btn_green" })),
+                        globals_1.React.createElement("div", { id: "track_resize" })),
+                    globals_1.React.createElement("div", { className: "track_play_indicator" }),
+                    globals_1.React.createElement("div", { className: "track_content" },
+                        globals_1.React.createElement("div", { className: "track_background" }))));
         // add self to track view
         var track_view = document.getElementById("tracks");
-        track_view.appendChild(clone);
-        //track_view.insertBefore(clone, document.getElementById("track_add"));
-        this.element = track_view.children[track_view.childElementCount - 1];
-        //this.id = Date.now().toString();
+        track_view.appendChild(this.element);
+        this.id = Date.now().toString();
         this.element.id = this.id;
         this.content = this.element.querySelector(".track_content");
         this.description = this.element.querySelector(".description");
@@ -442,7 +449,7 @@ var Track = /** @class */ (function () {
                 _this.hover_buffer.x = newnewX;
             }
         });
-        this.element.addEventListener("mouseup", function (e) {
+        this.element.addEventListener("mouseup", function () {
             // if a sample was dragged, add it to this track
             if (globals_1.globals.current_drag_element !== null) {
                 _this.addSample(_this.hover_buffer);

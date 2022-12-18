@@ -1,10 +1,10 @@
 import { globals, ms_to_pixels } from "./globals";
 
-let track_bar_cursor = <HTMLElement> document.querySelector(".line_cursor");
-let cursor = <HTMLElement> document.getElementById("bars_cursor");
 
 let cursor_anim: NodeJS.Timer = null;
 export function play() {
+    let track_bar_cursor = <HTMLElement> document.querySelector(".line_cursor");
+    let cursor = <HTMLElement> document.getElementById("bars_cursor");
     if (globals.is_playing) {
         // stop
         globals.audiocontext.suspend();

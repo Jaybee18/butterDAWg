@@ -1,6 +1,4 @@
 "use strict";
-// TODO
-// - make pop-out possible
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Window = void 0;
 var globals_1 = require("./globals");
@@ -16,18 +14,16 @@ var Window = /** @class */ (function () {
     }
     Window.prototype.initElement = function () {
         var _this = this;
-        var tmp = (0, globals_1.createElement)("<div class=\"wrapper\" id=\"" + this.id + "\">\
-                <div class=\"se_resize\"></div>\
-                <div class=\"sw_resize\"></div>\
-                <div class=\"nw_resize\"></div>\
-                <div class=\"ne_resize\"></div>\
-                <div class=\"toolbar\">\
-                    <div class=\"tools\"></div>\
-                    <div class=\"window_buttons\"></div>\
-                </div>\
-                <div class=\"content\"></div>\
-            </div>");
-        this.element = tmp;
+        this.element =
+            globals_1.React.createElement("div", { className: "wrapper", id: this.id },
+                globals_1.React.createElement("div", { className: "se_resize" }),
+                globals_1.React.createElement("div", { className: "sw_resize" }),
+                globals_1.React.createElement("div", { className: "nw_resize" }),
+                globals_1.React.createElement("div", { className: "ne_resize" }),
+                globals_1.React.createElement("div", { className: "toolbar" },
+                    globals_1.React.createElement("div", { className: "tools" }),
+                    globals_1.React.createElement("div", { className: "window_buttons" })),
+                globals_1.React.createElement("div", { className: "content" }));
         document.querySelector(".main_content").appendChild(this.element);
         // initialise movement/dragging listeners
         var temp_this = this;
@@ -41,11 +37,18 @@ var Window = /** @class */ (function () {
             temp_this.element.style.top = Math.max(e.clientY - cursor_down.y + window_down.y, header_height) + "px";
         }
         this.get(".toolbar").addEventListener("mousedown", function (e) {
-            // bring to front
-            globals_1.globals.windows.forEach(function (w) {
-                w.setZIndex(1);
-            });
-            _this.element.style.zIndex = "10";
+            // it looks ugly for the window to very briefly appear 
+            // (for like 1 frame) only to be closed right after, so
+            // don't even bring it to the front if it's going to get
+            // closed anyway
+            if (e.target !== _this.get(".fa-xmark")) {
+                // bring to front
+                globals_1.globals.windows.forEach(function (w) {
+                    w.setZIndex(1);
+                });
+                _this.element.style.zIndex = "10";
+            }
+            // save some attributes for window dragging
             cursor_down.x = e.clientX;
             cursor_down.y = e.clientY;
             window_down.x = _this.element.offsetLeft;

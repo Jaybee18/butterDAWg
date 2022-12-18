@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+      "jsx": "react",
       "allowJs": false,
       "target": "ES5",
       "lib": ["DOM"],
