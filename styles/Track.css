@@ -114,7 +114,7 @@
     border-color: #182832;
 }
 
-#track_canvas {
+.track .track_canvas {
     width: 100%;
     height: 100%;
 }

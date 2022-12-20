@@ -249,9 +249,11 @@ export class Track {
 			<div className="track_play_indicator"></div>
 			<div className="track_content">
 				<div className="track_background"></div>
+				<canvas className="track_canvas"></canvas>
 			</div>
 			</div>
 		</div>;
+		this.element.querySelector(".track_background").style.display = "none";
 
 		// add self to track view
 		var track_view = document.getElementById("tracks")!;
@@ -350,12 +352,41 @@ export class Track {
 	}
 
 	updateCanvas() {
-		var background = this.content.querySelector(".track_background");
+		/*var background = this.content.querySelector(".track_background");
 		var tiles = "";
 		for (let i = 0; i < 500; i++) {
 			tiles += '<div class="tile" style="background-color:' + (i % 32 < 16 ? "rgb(52, 68, 78)" : "rgb(46, 62, 72)") + ';' + (i % 4 == 0 ? "border-width: 1px 1px 1px 1.5px" : "") + '" ></div>';
 		}
 		background.innerHTML = tiles;
+		*/
+		let canvas = this.element.querySelector(".track_canvas") as HTMLCanvasElement;
+		let ctx = canvas.getContext("2d");
+
+		// draw base background
+		ctx.fillStyle = "#34444e";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		// draw vertical seperator
+		ctx.fillStyle = "#182832";
+		ctx.lineWidth = 1;
+		ctx.moveTo(0, 0);
+		ctx.lineTo(canvas.width, 0);
+		ctx.moveTo(0, canvas.height);
+		ctx.lineTo(canvas.width, canvas.height);
+
+		ctx.lineWidth = 0.5;
+		let w = 10;
+		for (let i = 0; i < 100; i++) {
+			if (i%12==0) {
+				ctx.fillStyle = "#10202a";
+			} else {
+				ctx.fillStyle = "#2a3a44";
+			}
+			ctx.moveTo(i*w, 0);
+			ctx.lineTo(i*w, canvas.height);
+		}
+		ctx.scale(0.5, 1);
+		ctx.stroke()
 	}
 
 	_updateCanvas() {
