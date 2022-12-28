@@ -1,0 +1,11 @@
+<svg width="20" height="20" viewBox="0 0 20 20" id="bars_cursor" xmlns="http://www.w3.org/2000/svg">
+    <filter id='inset-shadow'>
+        <feOffset dx='0' dy='2' />
+        <feGaussianBlur stdDeviation='2' result='offset-blur' />
+        <feComposite operator='out' in='SourceGraphic' in2='offset-blur' result='inverse' />
+        <feFlood flood-color='#ffffffaa' flood-opacity='.35' result='color' />
+        <feComposite operator='in' in='color' in2='inverse' result='shadow' />
+        <feComposite operator='over' in='shadow' in2='SourceGraphic' />
+    </filter>
+    <path fill="#b9ea70" d="M 0 0 L 0 3 L 10 13 L 20 3 L 20 0 Z" filter="url(#inset-shadow)"></path>
+</svg>

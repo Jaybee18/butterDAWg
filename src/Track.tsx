@@ -214,9 +214,11 @@ export class Track {
 	sound_indicator: HTMLElement;
 	radio_btn: HTMLElement;
 	audio_node: AudioNode;
+	scroll: number;
 	//passthrough_node: PassthroughNode;
 
 	constructor() {
+		this.scroll = 0;
 		/*globals.audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {
 			//this.audio_node = new AudioWorkletNode(audiocontext, "passthrough", {'c': () => {console.log("success");}});
 			this.audio_node = new AnalyserNode(globals.audiocontext);
@@ -235,7 +237,7 @@ export class Track {
 		this.audio_node.connect(globals.audiocontext.destination);
 
 		// construct own element
-		this.element = 
+		/*this.element = 
 		<div className="track" id="replace_this_id">
 			<div id="track_wrap">
 			<div className="description">
@@ -252,8 +254,21 @@ export class Track {
 				<canvas className="track_canvas"></canvas>
 			</div>
 			</div>
-		</div>;
-		this.element.querySelector(".track_background").style.display = "none";
+		</div>;*/
+		this.element = 
+			<div className="track" id="replace_this_id">
+				<div id="track_wrap">
+				<div className="description">
+					<p id="track_title">track_name</p>
+					<i className="fa-solid fa-ellipsis"></i>
+					<div className="radio_btn">
+					<div className="radio_btn_green"></div>
+					</div>
+					<div id="track_resize"></div>
+				</div>
+				<div className="track_play_indicator"></div>
+				</div>
+			</div>;
 
 		// add self to track view
 		var track_view = document.getElementById("tracks")!;
@@ -352,6 +367,7 @@ export class Track {
 	}
 
 	updateCanvas() {
+		return;
 		/*var background = this.content.querySelector(".track_background");
 		var tiles = "";
 		for (let i = 0; i < 500; i++) {
@@ -361,32 +377,51 @@ export class Track {
 		*/
 		let canvas = this.element.querySelector(".track_canvas") as HTMLCanvasElement;
 		let ctx = canvas.getContext("2d");
+		canvas.style.width = canvas.parentElement.clientWidth + "px";
+		canvas.style.height = canvas.parentElement.clientHeight + "px";
+		canvas.width = canvas.clientWidth * 2;
+		canvas.height = canvas.clientHeight;
+		ctx.translate(-0.5, -0.5)
+
+		const w = globals.xsnap;
+		const xoffset = this.scroll;
 
 		// draw base background
 		ctx.fillStyle = "#34444e";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.stroke();
+
+		// draw darker grey areas
+		ctx.fillStyle = "#2e3e48";
+		for (let i = 0; i < canvas.width/w; i++) {
+			if (i%(12*8)==0) {
+				ctx.fillRect(i*w+(w*12*4) + xoffset, 0, w*12*4, canvas.height);
+			}
+		}
 
 		// draw vertical seperator
-		ctx.fillStyle = "#182832";
+		ctx.strokeStyle = "#182832";
 		ctx.lineWidth = 1;
-		ctx.moveTo(0, 0);
+		ctx.moveTo(xoffset, 0);
 		ctx.lineTo(canvas.width, 0);
 		ctx.moveTo(0, canvas.height);
 		ctx.lineTo(canvas.width, canvas.height);
+		ctx.stroke();
 
-		ctx.lineWidth = 0.5;
-		let w = 10;
-		for (let i = 0; i < 100; i++) {
+		ctx.lineWidth = 1;
+		for (let i = 0; i < canvas.width/w; i++) {
+			ctx.beginPath();
 			if (i%12==0) {
-				ctx.fillStyle = "#10202a";
+				ctx.strokeStyle = "#10202a";
 			} else {
-				ctx.fillStyle = "#2a3a44";
+				ctx.strokeStyle = "#2a3a44";
 			}
-			ctx.moveTo(i*w, 0);
-			ctx.lineTo(i*w, canvas.height);
+			ctx.moveTo(i*w+xoffset, 0);
+			ctx.lineTo(i*w+xoffset, canvas.height);
+			ctx.stroke();
 		}
-		ctx.scale(0.5, 1);
-		ctx.stroke()
+
+		ctx.translate(0.5, 0.5);
 	}
 
 	_updateCanvas() {
@@ -571,6 +606,11 @@ export class Track {
 		this.content.appendChild(t.element);
 		//t.move(this.content.scrollLeft, 0);
 		this.hover_buffer = t;
+	}
+
+	scrollBy(delta: number) {
+		this.scroll += delta;
+		this.updateCanvas();
 	}
 }
 

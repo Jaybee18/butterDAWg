@@ -6,6 +6,16 @@
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
   <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">-->
   <script src="https://kit.fontawesome.com/a95d7f2b70.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/desvg@1.0.2/desvg.min.js"></script>
+  <script>
+    // turn the image tags containing these SVGs back into inline svg tags
+    // to e.g. modify their colors with css
+    window.addEventListener("load", () => {
+      deSVG(".piano_svg", true);
+      deSVG(".wave_svg", true);
+      deSVG(".automation_svg", true);
+    });
+  </script>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
   <title>butterDAWg</title>
   <link rel="stylesheet" href="./styles/general.css">

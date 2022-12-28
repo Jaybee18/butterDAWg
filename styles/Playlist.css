@@ -23,6 +23,7 @@
 
 #tracks_top_bar_inner {
     width: 100%;
+    overflow: hidden;
 }
 
 .tracks_top_bar_scrollbar {
@@ -42,6 +43,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.tracks_top_bar_scrollbar_left {
+    float: left;
+}
+.tracks_top_bar_scrollbar_right {
+    float: right;
 }
 
 .fa-chevron-left, .fa-chevron-right {
@@ -128,6 +135,12 @@
     /*height: calc(100% - 20px + 5px); /* entire tracks view - toolbar + padding*/
     height: 100%;
     display: flex;
+}
+
+.palette_wrapper {
+    display: flex;
+    height: inherit;
+    width: 200px;
 }
 
 .tracks_palette {
@@ -234,7 +247,6 @@
 
 
 
-
 .tracks_top_bar > div > .piano_svg {
     position: absolute;
     right: 1px;
@@ -253,7 +265,13 @@
     top: 1px;
     transform: scale(0.77) rotate(45deg);
 }
-
+.top_bar_corner_svg {
+    position: relative;
+}
+.top_bar_corner_svg > .corner {
+    margin-left: 0px;
+    flex-shrink: 0;
+}
 
 
 
@@ -387,6 +405,12 @@
     left: -10px;
     margin-top: 1px;
     cursor: grab;
+}
+
+.bars_canvas {
+    width: inherit;
+    height: inherit;
+    position: relative;
 }
 
 .line_cursor {

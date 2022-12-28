@@ -137,6 +137,14 @@ export function createElement(HTML: string) {
 	return <HTMLElement>a.firstChild;
 }
 
+export function setPixel(imageData: ImageData, x:number, y:number, r:number, g:number, b:number, a:number) {
+    var index = 4 * (x + y * imageData.width);
+    imageData.data[index+0] = r;
+    imageData.data[index+1] = g;
+    imageData.data[index+2] = b;
+    imageData.data[index+3] = a;
+}
+
 
 // Audio stuff
 //globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthrough.js").then(() => { console.log("loaded passthrough module"); });

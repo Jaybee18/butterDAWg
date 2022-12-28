@@ -139,6 +139,8 @@ var Window = /** @class */ (function () {
         this.element.style.width = width + "px";
         this.element.style.height = height + "px";
     };
+    // resize method that gets called on window resize events
+    Window.prototype.onResizeContent = function (newWidth, newHeight) { };
     Window.prototype.get = function (query) { return this.element.querySelector(query); };
     // 
     Window.prototype.addToolbarButton = function (svg, color, onClick, options) {
@@ -189,15 +191,18 @@ var Window = /** @class */ (function () {
         this.element.style.height = main.clientHeight + "px";
         this.element.style.left = (0, globals_1.cumulativeOffset)(main).left + "px";
         this.element.style.top = (0, globals_1.cumulativeOffset)(main).top + "px";
+        this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     };
     Window.prototype.minimize = function () {
         this.element.style.height = "min-content";
         this.content.style.display = "none";
         this.minimized = true;
+        this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     };
     Window.prototype.anti_minimize = function () {
         this.content.style.display = "block";
         this.minimized = false;
+        this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     };
     return Window;
 }());

@@ -194,6 +194,16 @@ var new_context_menu = new ContextMenu_1.ContextMenu(context_items, context_even
 var Track = /** @class */ (function () {
     //passthrough_node: PassthroughNode;
     function Track() {
+        this.id = Date.now().toString();
+        this.samples = [];
+        this.hover_buffer = null;
+        this.color = null;
+        this.play_indicator_color = new Color_1.Color(51, 63, 70);
+        this.title = "";
+        this.enabled = true;
+        this.resize_locked = false;
+        this.channel = null;
+        this.scroll = 0;
         /*globals.audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {
             //this.audio_node = new AudioWorkletNode(audiocontext, "passthrough", {'c': () => {console.log("success");}});
             this.audio_node = new AnalyserNode(globals.audiocontext);
@@ -205,20 +215,29 @@ var Track = /** @class */ (function () {
             this.audio_node.connect(this.passthrough_node);
             this.passthrough_node.connect(globals.audiocontext.destination);
         });*/
-        this.id = Date.now().toString();
-        this.samples = [];
-        this.hover_buffer = null;
-        this.color = null;
-        this.play_indicator_color = new Color_1.Color(51, 63, 70);
-        this.title = "";
-        this.enabled = true;
-        this.resize_locked = false;
-        this.channel = null;
         // all audio modules should've been loaded in the Playlist Window class
         // so they can be used without checking if they have been imported first
         this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, "passthrough");
         this.audio_node.connect(globals_1.globals.audiocontext.destination);
         // construct own element
+        /*this.element =
+        <div className="track" id="replace_this_id">
+            <div id="track_wrap">
+            <div className="description">
+                <p id="track_title">track_name</p>
+                <i className="fa-solid fa-ellipsis"></i>
+                <div className="radio_btn">
+                <div className="radio_btn_green"></div>
+                </div>
+                <div id="track_resize"></div>
+            </div>
+            <div className="track_play_indicator"></div>
+            <div className="track_content">
+                <div className="track_background"></div>
+                <canvas className="track_canvas"></canvas>
+            </div>
+            </div>
+        </div>;*/
         this.element =
             globals_1.React.createElement("div", { className: "track", id: "replace_this_id" },
                 globals_1.React.createElement("div", { id: "track_wrap" },
@@ -228,11 +247,7 @@ var Track = /** @class */ (function () {
                         globals_1.React.createElement("div", { className: "radio_btn" },
                             globals_1.React.createElement("div", { className: "radio_btn_green" })),
                         globals_1.React.createElement("div", { id: "track_resize" })),
-                    globals_1.React.createElement("div", { className: "track_play_indicator" }),
-                    globals_1.React.createElement("div", { className: "track_content" },
-                        globals_1.React.createElement("div", { className: "track_background" }),
-                        globals_1.React.createElement("canvas", { className: "track_canvas" }))));
-        this.element.querySelector(".track_background").style.display = "none";
+                    globals_1.React.createElement("div", { className: "track_play_indicator" })));
         // add self to track view
         var track_view = document.getElementById("tracks");
         track_view.appendChild(this.element);
@@ -317,6 +332,7 @@ var Track = /** @class */ (function () {
         }*/
     };
     Track.prototype.updateCanvas = function () {
+        return;
         /*var background = this.content.querySelector(".track_background");
         var tiles = "";
         for (let i = 0; i < 500; i++) {
@@ -326,30 +342,46 @@ var Track = /** @class */ (function () {
         */
         var canvas = this.element.querySelector(".track_canvas");
         var ctx = canvas.getContext("2d");
+        canvas.style.width = canvas.parentElement.clientWidth + "px";
+        canvas.style.height = canvas.parentElement.clientHeight + "px";
+        canvas.width = canvas.clientWidth * 2;
+        canvas.height = canvas.clientHeight;
+        ctx.translate(-0.5, -0.5);
+        var w = globals_1.globals.xsnap;
+        var xoffset = this.scroll;
         // draw base background
         ctx.fillStyle = "#34444e";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.stroke();
+        // draw darker grey areas
+        ctx.fillStyle = "#2e3e48";
+        for (var i = 0; i < canvas.width / w; i++) {
+            if (i % (12 * 8) == 0) {
+                ctx.fillRect(i * w + (w * 12 * 4) + xoffset, 0, w * 12 * 4, canvas.height);
+            }
+        }
         // draw vertical seperator
-        ctx.fillStyle = "#182832";
+        ctx.strokeStyle = "#182832";
         ctx.lineWidth = 1;
-        ctx.moveTo(0, 0);
+        ctx.moveTo(xoffset, 0);
         ctx.lineTo(canvas.width, 0);
         ctx.moveTo(0, canvas.height);
         ctx.lineTo(canvas.width, canvas.height);
-        ctx.lineWidth = 0.5;
-        var w = 10;
-        for (var i = 0; i < 100; i++) {
+        ctx.stroke();
+        ctx.lineWidth = 1;
+        for (var i = 0; i < canvas.width / w; i++) {
+            ctx.beginPath();
             if (i % 12 == 0) {
-                ctx.fillStyle = "#10202a";
+                ctx.strokeStyle = "#10202a";
             }
             else {
-                ctx.fillStyle = "#2a3a44";
+                ctx.strokeStyle = "#2a3a44";
             }
-            ctx.moveTo(i * w, 0);
-            ctx.lineTo(i * w, canvas.height);
+            ctx.moveTo(i * w + xoffset, 0);
+            ctx.lineTo(i * w + xoffset, canvas.height);
+            ctx.stroke();
         }
-        ctx.scale(0.5, 1);
-        ctx.stroke();
+        ctx.translate(0.5, 0.5);
     };
     Track.prototype._updateCanvas = function () {
         var c = this.element.querySelector("#track_canvas");
@@ -526,6 +558,10 @@ var Track = /** @class */ (function () {
         this.content.appendChild(t.element);
         //t.move(this.content.scrollLeft, 0);
         this.hover_buffer = t;
+    };
+    Track.prototype.scrollBy = function (delta) {
+        this.scroll += delta;
+        this.updateCanvas();
     };
     return Track;
 }());

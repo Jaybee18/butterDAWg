@@ -56,7 +56,7 @@ export class AudioGraph extends Window {
     }
 }
 
-new AudioGraph();
+//new AudioGraph();
 
 //let tet = window.open("");
 //tet.document.write(audio_graph.getContent().innerHTML);

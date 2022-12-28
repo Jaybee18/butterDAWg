@@ -169,6 +169,9 @@ export abstract class Window {
         this.element.style.height = height + "px";
     }
 
+    // resize method that gets called on window resize events
+    onResizeContent(newWidth: number, newHeight: number) {}
+
     protected get(query: string): HTMLElement { return this.element.querySelector(query); }
 
     // 
@@ -224,16 +227,19 @@ export abstract class Window {
         this.element.style.height = main.clientHeight + "px";
         this.element.style.left = cumulativeOffset(main).left + "px";
         this.element.style.top = cumulativeOffset(main).top + "px";
+        this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     }
 
     minimize() {
         this.element.style.height = "min-content";
         this.content.style.display = "none";
         this.minimized = true;
+        this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     }
 
     anti_minimize() {
         this.content.style.display = "block";
         this.minimized = false;
+        this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     }
 }

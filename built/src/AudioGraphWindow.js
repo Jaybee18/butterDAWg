@@ -70,7 +70,7 @@ var AudioGraph = /** @class */ (function (_super) {
     return AudioGraph;
 }(window_1.Window));
 exports.AudioGraph = AudioGraph;
-new AudioGraph();
+//new AudioGraph();
 //let tet = window.open("");
 //tet.document.write(audio_graph.getContent().innerHTML);
 /*import { BrowserViewConstructorOptions, ipcRenderer } from "electron";

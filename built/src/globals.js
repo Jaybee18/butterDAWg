@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addRadioEventListener = exports.currently_hovered_track = exports.insertAfter = exports.sidebar_folder_colors = exports.createElement = exports.sleep = exports.ms_to_pixels = exports.pixels_to_ms = exports.React = exports.Draggable = exports.cumulativeOffset = exports.globals = void 0;
+exports.addRadioEventListener = exports.currently_hovered_track = exports.insertAfter = exports.sidebar_folder_colors = exports.setPixel = exports.createElement = exports.sleep = exports.ms_to_pixels = exports.pixels_to_ms = exports.React = exports.Draggable = exports.cumulativeOffset = exports.globals = void 0;
 var Globals = /** @class */ (function () {
     function Globals() {
         this.tracks = [];
@@ -127,6 +127,14 @@ function createElement(HTML) {
     return a.firstChild;
 }
 exports.createElement = createElement;
+function setPixel(imageData, x, y, r, g, b, a) {
+    var index = 4 * (x + y * imageData.width);
+    imageData.data[index + 0] = r;
+    imageData.data[index + 1] = g;
+    imageData.data[index + 2] = b;
+    imageData.data[index + 3] = a;
+}
+exports.setPixel = setPixel;
 // Audio stuff
 //globals.audiocontext.audioWorklet.addModule("built/AudioNodes/passthrough.js").then(() => { console.log("loaded passthrough module"); });
 //audiocontext.suspend();
