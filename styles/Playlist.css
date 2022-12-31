@@ -114,6 +114,14 @@
     border-color: #1d262b;
 }
 
+.tracks_content_wrapper {
+    display: flex;
+}
+
+.tracks_canvas {
+    flex-grow: 1;
+}
+
 /*main::-webkit-scrollbar {
     color: blue!important;
     background-color: blue!important;

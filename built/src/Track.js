@@ -384,6 +384,7 @@ var Track = /** @class */ (function () {
         ctx.translate(0.5, 0.5);
     };
     Track.prototype._updateCanvas = function () {
+        return;
         var c = this.element.querySelector("#track_canvas");
         var ctx = c.getContext("2d");
         for (var i = 0; i < 1000; i += 32) {
@@ -431,6 +432,7 @@ var Track = /** @class */ (function () {
         });
     };
     Track.prototype.resizeBackground = function (event) {
+        return;
         var background = this.content.querySelector(".track_background");
         background.style.width = background.clientWidth - event.deltaY * 5 + "px";
         for (var i = 0; i < this.samples.length; i++) {
@@ -455,7 +457,7 @@ var Track = /** @class */ (function () {
         var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
         var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
         var maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
-        this.content.addEventListener("wheel", function (e) {
+        /*this.content.addEventListener("wheel", (e) => {
             if (e.shiftKey) {
                 e.preventDefault();
                 // idk how else to do it, this just transfers the scroll event
@@ -463,30 +465,26 @@ var Track = /** @class */ (function () {
                 var currentOffset = (bars_scrollbar_handle.offsetLeft - 20) / maxX;
                 var newOffset = currentOffset + (e.deltaY / 100) / 50;
                 newOffset = Math.min(Math.max(newOffset, 0), 1);
-                console.log("remove method");
+                console.log("remove method")
                 //tracks_scroll_to(newOffset, 0);
-            }
-            else if (globals_1.globals.control_down) {
+            } else if (globals.control_down) {
                 // delta = x*100
-                if (globals_1.globals.xsnap - e.deltaY / 100 < 6) {
-                    return;
-                } // TODO this may cause some issues in the future, but idc
-                globals_1.globals.xsnap -= e.deltaY / 100;
-                var bars = document.querySelectorAll(".tracks_top_bar_bars > p");
-                for (var i = 0; i < bars.length; i++) {
-                    bars[i].style.width = globals_1.globals.xsnap * 4 + "px";
+                if (globals.xsnap - e.deltaY / 100 < 6) { return; } // TODO this may cause some issues in the future, but idc
+                globals.xsnap -= e.deltaY / 100;
+                var bars = document.querySelectorAll(".tracks_top_bar_bars > p") as any;
+                for (let i = 0; i < bars.length; i++) {
+                    bars[i].style.width = globals.xsnap * 4 + "px";
                 }
-                for (var i = 0; i < globals_1.globals.tracks.length; i++) {
-                    globals_1.globals.tracks[i].resizeBackground(e);
+                for (let i = 0; i < globals.tracks.length; i++) {
+                    globals.tracks[i].resizeBackground(e);
                 }
-            }
-            else if (globals_1.globals.alt_down) {
+            } else if (globals.alt_down) {
                 e.preventDefault();
-                for (var i = 0; i < globals_1.globals.tracks.length; i++) {
-                    globals_1.globals.tracks[i].resizeHeight(e.deltaY / 10);
+                for (let i = 0; i < globals.tracks.length; i++) {
+                    globals.tracks[i].resizeHeight(e.deltaY / 10);
                 }
             }
-        });
+        });*/
         this.element.addEventListener("mouseleave", function () {
             if (_this.hover_buffer !== null) {
                 _this.hover_buffer.element.remove();
@@ -494,13 +492,13 @@ var Track = /** @class */ (function () {
                 drag_container.style.display = "block";
             }
         });
-        this.content.addEventListener("mousemove", function () {
+        /*this.content.addEventListener("mousemove", () => {
             // sample preview
-            if (globals_1.globals.current_drag_element !== null) {
-                _this.sampleHover(globals_1.globals.current_drag_element);
+            if (globals.current_drag_element !== null) {
+                this.sampleHover(globals.current_drag_element as Item);
                 drag_container.style.display = "none";
             }
-        });
+        });*/
         this.element.addEventListener("mousemove", function (e) {
             if (_this.hover_buffer !== null) {
                 var newX = e.clientX - (0, globals_1.cumulativeOffset)(_this.hover_buffer.element.parentElement).left - _this.hover_buffer.element.clientWidth / 2;

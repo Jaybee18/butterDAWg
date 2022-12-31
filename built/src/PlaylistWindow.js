@@ -21,11 +21,77 @@ var Track_1 = require("./Track");
 var Color_1 = require("./Color");
 var fs_1 = require("fs");
 var Palette_1 = require("./Palette");
+var PaletteItem_1 = require("./PaletteItem");
+var TrackItem = /** @class */ (function () {
+    function TrackItem(item) {
+        this.item = item;
+        this.position = { x: 0, y: 0 }; // offset from the left in px
+        this.width = 0;
+        this.canvas = document.createElement("canvas");
+        // create an offscreen canvas template to render this sample to the main canvas
+        this.canvas.width = 20 * 12;
+        this.canvas.height = 70;
+        this.updateCanvas();
+    }
+    TrackItem.prototype.updateCanvas = function () {
+        var ctx = this.canvas.getContext("2d");
+        ctx.translate(0.5, 0.5);
+        // draw the actual waveform into the frame
+        var data = this.item.getData();
+        ctx.beginPath();
+        ctx.lineCap = "round";
+        ctx.lineJoin = "bevel";
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1.5;
+        var step = data.length / this.canvas.width;
+        ctx.moveTo(0, this.canvas.height * 1.5);
+        for (var i = 0; i < data.length; i++) {
+            ctx.lineTo(i / step, Math.sin(data[i] * 100 * (Math.PI / 180)) * 30 + this.canvas.height / 2);
+        }
+        ctx.stroke();
+    };
+    TrackItem.prototype.move = function (deltaX, deltaY) {
+        this.position.x += deltaX;
+        this.position.y += deltaY;
+    };
+    TrackItem.prototype.getPosition = function () {
+        return this.position;
+    };
+    TrackItem.prototype.getSnappedPosition = function () {
+        return { x: this.position.x - (this.position.x % globals_1.globals.xsnap), y: this.position.y - (this.position.y % 70) };
+    };
+    TrackItem.prototype.setPosition = function (newPos) {
+        this.position = newPos;
+    };
+    TrackItem.prototype.setWidth = function (width) {
+        this.width = width;
+        this.canvas.width = this.width;
+        this.updateCanvas();
+    };
+    TrackItem.prototype.getTrackIndex = function () {
+        return this.trackIndex;
+    };
+    TrackItem.prototype.setTrackIndex = function (index) {
+        this.trackIndex = index;
+    };
+    TrackItem.prototype.expand = function (delta) {
+        this.width += delta;
+    };
+    TrackItem.prototype.getWidth = function () {
+        return this.width;
+    };
+    TrackItem.prototype.getItem = function () {
+        return this.item;
+    };
+    return TrackItem;
+}());
 var Playlist = /** @class */ (function (_super) {
     __extends(Playlist, _super);
     function Playlist() {
         var _this = _super.call(this) || this;
         _this.tracks = [];
+        _this.samples = [];
+        _this.scroll = 0;
         return _this;
     }
     Playlist.prototype.initialiseContent = function () {
@@ -64,8 +130,11 @@ var Playlist = /** @class */ (function (_super) {
                                 globals_1.React.createElement("div", { className: "tracks_top_bar_bars" },
                                     globals_1.React.createElement("img", { id: "bars_cursor", src: "./graphics/cursor.svg" }),
                                     globals_1.React.createElement("canvas", { className: "bars_canvas", width: 200, height: 100 }))))),
-                    globals_1.React.createElement("div", { className: "tracks", id: "tracks" },
-                        globals_1.React.createElement("div", { className: "line_cursor" }))))));
+                    globals_1.React.createElement("div", { className: "tracks" },
+                        globals_1.React.createElement("div", { className: "line_cursor" }),
+                        globals_1.React.createElement("div", { className: "tracks_content_wrapper" },
+                            globals_1.React.createElement("div", { id: "tracks", className: "tracks_descriptions" }),
+                            globals_1.React.createElement("canvas", { className: "tracks_canvas" })))))));
         // first load all possible audio plugins, then initialise the tracks so the
         // tracks can be sure that every module is loaded and they don't have to
         // import any
@@ -91,13 +160,21 @@ var Playlist = /** @class */ (function (_super) {
                 wheel_down = true;
             }
         });
+        // scroll listeners
+        this.get(".tracks").addEventListener("wheel", function (e) {
+            if (globals_1.globals.control_down) {
+                globals_1.globals.xsnap -= e.deltaY / 100;
+            }
+            _this.updateBarLabels();
+            _this.updatePlaylist();
+        });
         document.addEventListener("mouseup", function () { wheel_down = false; delta_delta_x = 0; delta_delta_y = 0; });
         var bars = this.get(".tracks_top_bar_bars_wrapper");
         var bars_scrollbar_handle = this.get(".tracks_top_bar_scrollbar_handle");
         var bars_scrollbar_wrapper = this.get(".tracks_top_bar_scrollbar");
         var maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
         var temp_this = this;
-        function tracks_scroll_by_px(pixelX, pixelY) {
+        function _tracks_scroll_by_px(pixelX, pixelY) {
             var track_width = globals_1.globals.tracks[0].content.querySelector(".track_background").clientWidth - globals_1.globals.tracks[0].content.clientWidth;
             globals_1.globals.tracks.forEach(function (t) {
                 t.content.scrollBy({ left: pixelX });
@@ -109,13 +186,45 @@ var Playlist = /** @class */ (function (_super) {
             temp_this.get(".tracks").scrollBy({ top: pixelY });
             temp_this.tracks.forEach(function (t) { t.scrollBy(pixelX); });
         }
+        function tracks_scroll_by_px(px, py) {
+            temp_this.scroll += px;
+            temp_this.scroll = Math.max(temp_this.scroll, 0);
+            bars_scrollbar_handle.style.left = (20 + maxX * 0.5) + "px";
+            temp_this.get(".tracks").scrollBy({ top: py });
+            temp_this.updatePlaylist();
+            temp_this.updateBarLabels();
+        }
+        function point_in_rect(x, y, rectx, recty, rectw, recth) {
+            return x > rectx && x < rectx + rectw && y > recty && y < recty + recth;
+        }
         this.get(".tracks").addEventListener("mousemove", function (e) {
+            // mouse cursor offset for correct coordinate mapping
+            var base = (0, globals_1.cumulativeOffset)(_this.get(".tracks_canvas"));
             if (wheel_down) {
                 var deltaX = drag_mouse_down_pos_x - e.clientX;
                 var deltaY = drag_mouse_down_pos_y - e.clientY;
                 tracks_scroll_by_px(deltaX - delta_delta_x, deltaY - delta_delta_y);
                 delta_delta_x = deltaX;
                 delta_delta_y = deltaY;
+            }
+            else if (e.buttons === 1 && _this.currentHoverSample !== null) {
+                _this.currentHoverSample.setPosition({ x: _this.currentHoverSample.getPosition().x + e.movementX, y: e.clientY - (0, globals_1.cumulativeOffset)(_this.get(".tracks_canvas")).top });
+                _this.updatePlaylist();
+            }
+            else {
+                // if for any sample the current mouse position is within its
+                // frame bounds, show a move cursor, else default cursor
+                var c = _this.samples.map(function (sample) {
+                    return point_in_rect(e.clientX - base.left + _this.scroll, e.clientY - base.top, sample.getSnappedPosition().x, sample.getSnappedPosition().y, sample.getWidth(), 70);
+                });
+                if (c.some(function (v) { return v; })) {
+                    _this.get(".tracks_canvas").style.cursor = "move";
+                    _this.currentHoverSample = _this.samples[c.indexOf(true)];
+                }
+                else {
+                    _this.get(".tracks_canvas").style.cursor = "default";
+                    _this.currentHoverSample = null;
+                }
             }
         });
         // the playlist slider at the top of the widget
@@ -170,6 +279,7 @@ var Playlist = /** @class */ (function (_super) {
         });
         document.addEventListener("mouseup", function () {
             document.removeEventListener("mousemove", bars_cursor_move_listener);
+            _this.currentHoverSample = null;
         });
         // tool buttons
         this.addToolbarButton("fa-solid fa-magnet", new Color_1.Color("#7eefa9"), function () { }, {
@@ -191,12 +301,15 @@ var Playlist = /** @class */ (function (_super) {
         });
         // generate bar labels
         this.updateBarLabels();
+        // generate playlist
+        this.updatePlaylist();
         (0, Palette_1.setupPalette)();
         this.setContentSize(1200, 700);
     };
     Playlist.prototype.onResizeContent = function (newWidth, newHeight) {
         this.tracks.forEach(function (t) { return t.updateCanvas(); });
         this.updateBarLabels();
+        this.updatePlaylist();
     };
     Playlist.prototype.updateBarLabels = function () {
         var bars_canvas = this.get(".bars_canvas");
@@ -208,10 +321,126 @@ var Playlist = /** @class */ (function (_super) {
         for (var i = 0; i < bars_canvas.clientWidth * 2 / globals_1.globals.xsnap; i++) {
             if (i % 12 == 0 || i % 4 == 0) {
                 ctx.font = (i % 12 == 0 ? "15pt" : "10pt") + " Calibri";
-                ctx.fillText((i + 1).toString(), i * globals_1.globals.xsnap, bars_canvas.height - 3);
+                ctx.fillText((i + 1).toString(), (i * globals_1.globals.xsnap - this.scroll) * 2, bars_canvas.height - 3);
             }
         }
+    };
+    Playlist.prototype.updatePlaylist = function () {
+        if (this.tracks === undefined) {
+            return;
+        }
+        var playlist = this.get(".tracks_canvas");
+        playlist.width = playlist.clientWidth;
+        playlist.height = playlist.clientHeight;
+        var ctx = playlist.getContext("2d", { alpha: false });
+        ctx.imageSmoothingEnabled = false;
+        ctx.translate(0.5, 0.5);
+        // draw background
+        ctx.fillStyle = "#34444e";
+        ctx.fillRect(0, 0, playlist.width, playlist.height);
+        var w = globals_1.globals.xsnap;
+        var o = this.scroll;
+        var h = 70; // TODO idk for some fucking reason a track is exactly 70 px high
+        // draw slightly darker background
+        ctx.fillStyle = "#2e3e48";
+        for (var i = 0; i < (playlist.width + o) / w; i++) {
+            if (i % (12 * 8) == 0) {
+                ctx.fillRect(i * w + (w * 12 * 4) - o, 0, w * 12 * 4, playlist.height);
+            }
+        }
+        // draw vertical seperators
+        ctx.strokeStyle = "#182832";
+        ctx.lineWidth = 1;
+        for (var i = 0; i < this.tracks.length; i++) {
+            ctx.moveTo(0, i * 70);
+            ctx.lineTo(playlist.width, i * 70);
+        }
+        ctx.stroke();
+        // draw vertical lines
+        ctx.strokeStyle = "10202a";
+        ctx.lineWidth = 0.4;
+        for (var i = 0; i < (playlist.width + o) / w; i++) {
+            ctx.beginPath();
+            if (i % 12 == 0) {
+                ctx.lineWidth = 0.5;
+            }
+            else {
+                ctx.lineWidth = 0.3;
+            }
+            ctx.moveTo(i * w - o, 0);
+            ctx.lineTo(i * w - o, playlist.height);
+            ctx.stroke();
+        }
+        // draw samples
+        this.samples.forEach(function (sample) {
+            var p = sample.getSnappedPosition();
+            ctx.drawImage(sample.canvas, p.x - o, p.y);
+            // draw the frame of the sample
+            var color = "#a34bf2";
+            ctx.strokeStyle = color + "b0";
+            //ctx.lineWidth = sample === this.currentHoverSample ? 2 : 1.2;
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.roundRect(p.x - o, p.y, sample.getWidth(), h, 2);
+            ctx.fillStyle = color + "30";
+            ctx.fill();
+            ctx.stroke();
+            // draw the actual waveform into the frame
+            /*let data = sample.getItem().getData();
+            ctx.beginPath();
+            ctx.lineCap = "round";
+            ctx.lineJoin = "bevel";
+            ctx.lineWidth = 1.5;
+            ctx.moveTo(sample.getPosition()+sample.getWidth(), h*1.5);
+            for (let i = 0; i < data.length; i++) {
+                ctx.lineTo(sample.getWidth()+sample.getPosition()+i/(data.length/sample.getWidth()), h*1.5 + Math.sin(data[i]*100*(Math.PI/180))*30);
+            }
+            ctx.stroke();*/
+        });
+        ctx.translate(-0.5, -0.5);
+    };
+    Playlist.prototype.addSample = function (s) {
+        this.samples.push(new TrackItem(s));
+        this.samples[this.samples.length - 1].setWidth(globals_1.globals.xsnap * 8); // TODO temp!
+        this.samples[this.samples.length - 1].setTrackIndex(1);
+        this.updatePlaylist();
+        /*let playlist = this.get(".tracks_canvas") as HTMLCanvasElement;
+        let ctx = playlist.getContext("2d");
+
+        const w = globals.xsnap;
+        const h = 70;
+        const sampleWidth = w*8;
+
+        ctx.strokeStyle = "#fffb";
+        ctx.lineWidth = 2;
+        ctx.lineJoin = "bevel";
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.rect(12*w, h, sampleWidth, h);
+        ctx.fillStyle = "#fff1";
+        ctx.fill();
+        ctx.stroke();
+
+        let data = s.getData();
+
+        ctx.beginPath();
+        ctx.lineCap = "round";
+        ctx.lineWidth = 1.5;
+        ctx.moveTo(w*12, h*1.5);
+        for (let i = 0; i < data.length; i++) {
+            ctx.lineTo(w*12+i/(data.length/sampleWidth), h*1.5 + Math.sin(data[i]*100*(Math.PI/180))*30);
+        }
+        ctx.stroke();
+
+        // draw the title
+        ctx.fillStyle = "white";
+        ctx.font = "10pt Calibri";
+        ctx.fillText(s.title, w*12, h-3);*/
     };
     return Playlist;
 }(window_1.Window));
 var playlist = new Playlist();
+window.addEventListener("load", function () {
+    playlist.maximize();
+    playlist.addSample(new PaletteItem_1.Item("rawstyle_kick.wav", "./files/0Current project/rawstyle_kick.wav"));
+});

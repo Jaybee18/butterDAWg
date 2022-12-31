@@ -425,6 +425,7 @@ export class Track {
 	}
 
 	_updateCanvas() {
+		return;
 		var c = this.element.querySelector("#track_canvas") as HTMLCanvasElement;
 		var ctx = c.getContext("2d");
 		for (let i = 0; i < 1000; i += 32) {
@@ -475,6 +476,7 @@ export class Track {
 	}
 
 	resizeBackground(event: any) {
+		return;
 		var background = this.content.querySelector(".track_background") as HTMLElement;
 		background.style.width = background.clientWidth - event.deltaY * 5 + "px";
 		for (let i = 0; i < this.samples.length; i++) {
@@ -499,7 +501,7 @@ export class Track {
 		let bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
 		let bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
 		let maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
-		this.content.addEventListener("wheel", (e) => {
+		/*this.content.addEventListener("wheel", (e) => {
 			if (e.shiftKey) {
 				e.preventDefault();
 				// idk how else to do it, this just transfers the scroll event
@@ -526,7 +528,7 @@ export class Track {
 					globals.tracks[i].resizeHeight(e.deltaY / 10);
 				}
 			}
-		});
+		});*/
 
 		this.element.addEventListener("mouseleave", () => {
 			if (this.hover_buffer !== null) {
@@ -536,13 +538,13 @@ export class Track {
 			}
 		});
 
-		this.content.addEventListener("mousemove", () => {
+		/*this.content.addEventListener("mousemove", () => {
 			// sample preview
 			if (globals.current_drag_element !== null) {
 				this.sampleHover(globals.current_drag_element as Item);
 				drag_container.style.display = "none";
 			}
-		});
+		});*/
 
 		this.element.addEventListener("mousemove", (e: MouseEvent) => {
 			if (this.hover_buffer !== null) {
