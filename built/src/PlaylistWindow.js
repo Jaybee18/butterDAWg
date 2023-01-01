@@ -15,13 +15,13 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Playlist = void 0;
 var window_1 = require("./window");
 var globals_1 = require("./globals");
 var Track_1 = require("./Track");
 var Color_1 = require("./Color");
 var fs_1 = require("fs");
 var Palette_1 = require("./Palette");
-var PaletteItem_1 = require("./PaletteItem");
 var TrackItem = /** @class */ (function () {
     function TrackItem(item) {
         this.item = item;
@@ -31,6 +31,11 @@ var TrackItem = /** @class */ (function () {
         // create an offscreen canvas template to render this sample to the main canvas
         this.canvas.width = 20 * 12;
         this.canvas.height = 70;
+        // load audio data for playback
+        var data = this.item.getData();
+        this.buffer = globals_1.globals.audiocontext.createBuffer(2, data.length, globals_1.globals.audiocontext.sampleRate * 2);
+        this.buffer.copyToChannel(Float32Array.from(data), 0);
+        this.buffer.copyToChannel(Float32Array.from(data), 1);
         this.updateCanvas();
     }
     TrackItem.prototype.updateCanvas = function () {
@@ -82,6 +87,11 @@ var TrackItem = /** @class */ (function () {
     };
     TrackItem.prototype.getItem = function () {
         return this.item;
+    };
+    TrackItem.prototype.play = function () {
+        var source = new AudioBufferSourceNode(globals_1.globals.audiocontext, { buffer: this.buffer });
+        source.connect(globals_1.globals.audiocontext.destination);
+        source.start(globals_1.globals.audiocontext.currentTime + (0, globals_1.pixels_to_ms)(this.position.x) / 1000);
     };
     return TrackItem;
 }());
@@ -218,13 +228,26 @@ var Playlist = /** @class */ (function (_super) {
                     return point_in_rect(e.clientX - base.left + _this.scroll, e.clientY - base.top, sample.getSnappedPosition().x, sample.getSnappedPosition().y, sample.getWidth(), 70);
                 });
                 if (c.some(function (v) { return v; })) {
-                    _this.get(".tracks_canvas").style.cursor = "move";
                     _this.currentHoverSample = _this.samples[c.indexOf(true)];
+                    // display a resize cursor at the edge of the sample
+                    if (e.clientX - base.left + _this.scroll > _this.currentHoverSample.getPosition().x + _this.currentHoverSample.getWidth() - 5) {
+                        _this.get(".tracks_canvas").style.cursor = "e-resize";
+                    }
+                    else {
+                        _this.get(".tracks_canvas").style.cursor = "move";
+                    }
                 }
                 else {
                     _this.get(".tracks_canvas").style.cursor = "default";
                     _this.currentHoverSample = null;
                 }
+            }
+        });
+        // play listener
+        document.addEventListener("keypress", function (e) {
+            if (e.code === "Space" && !globals_1.globals.deactivate_space_to_play) {
+                e.preventDefault();
+                _this.play();
             }
         });
         // the playlist slider at the top of the widget
@@ -401,46 +424,13 @@ var Playlist = /** @class */ (function (_super) {
     };
     Playlist.prototype.addSample = function (s) {
         this.samples.push(new TrackItem(s));
-        this.samples[this.samples.length - 1].setWidth(globals_1.globals.xsnap * 8); // TODO temp!
+        this.samples[this.samples.length - 1].setWidth((0, globals_1.ms_to_pixels)(s.getDuration() * 1000)); // TODO temp!
         this.samples[this.samples.length - 1].setTrackIndex(1);
         this.updatePlaylist();
-        /*let playlist = this.get(".tracks_canvas") as HTMLCanvasElement;
-        let ctx = playlist.getContext("2d");
-
-        const w = globals.xsnap;
-        const h = 70;
-        const sampleWidth = w*8;
-
-        ctx.strokeStyle = "#fffb";
-        ctx.lineWidth = 2;
-        ctx.lineJoin = "bevel";
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.rect(12*w, h, sampleWidth, h);
-        ctx.fillStyle = "#fff1";
-        ctx.fill();
-        ctx.stroke();
-
-        let data = s.getData();
-
-        ctx.beginPath();
-        ctx.lineCap = "round";
-        ctx.lineWidth = 1.5;
-        ctx.moveTo(w*12, h*1.5);
-        for (let i = 0; i < data.length; i++) {
-            ctx.lineTo(w*12+i/(data.length/sampleWidth), h*1.5 + Math.sin(data[i]*100*(Math.PI/180))*30);
-        }
-        ctx.stroke();
-
-        // draw the title
-        ctx.fillStyle = "white";
-        ctx.font = "10pt Calibri";
-        ctx.fillText(s.title, w*12, h-3);*/
+    };
+    Playlist.prototype.play = function () {
+        this.samples.forEach(function (s) { return s.play(); });
     };
     return Playlist;
 }(window_1.Window));
-var playlist = new Playlist();
-window.addEventListener("load", function () {
-    playlist.maximize();
-    playlist.addSample(new PaletteItem_1.Item("rawstyle_kick.wav", "./files/0Current project/rawstyle_kick.wav"));
-});
+exports.Playlist = Playlist;

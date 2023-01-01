@@ -1,5 +1,5 @@
 import { Window, toolbarButtonOptions } from "./window";
-import { cumulativeOffset, globals, pixels_to_ms, React, setPixel } from "./globals";
+import { cumulativeOffset, globals, ms_to_pixels, pixels_to_ms, React, setPixel } from "./globals";
 import { Track } from "./Track";
 import { BrowserWindow } from "electron";
 import { Color } from "./Color";
@@ -15,6 +15,7 @@ class TrackItem {
 	private trackIndex: number;
 	private width: number;
 	public canvas: HTMLCanvasElement;
+	private buffer: AudioBuffer;
 
 	constructor(item: Item) {
 		this.item = item;
@@ -25,6 +26,12 @@ class TrackItem {
 		// create an offscreen canvas template to render this sample to the main canvas
 		this.canvas.width = 20 * 12;
 		this.canvas.height = 70;
+
+		// load audio data for playback
+		let data = this.item.getData();
+		this.buffer = globals.audiocontext.createBuffer(2, data.length, globals.audiocontext.sampleRate * 2);
+		this.buffer.copyToChannel(Float32Array.from(data), 0);
+		this.buffer.copyToChannel(Float32Array.from(data), 1);
 
 		this.updateCanvas();
 	}
@@ -91,9 +98,16 @@ class TrackItem {
 	getItem() {
 		return this.item;
 	}
+
+	play() {
+		let source = new AudioBufferSourceNode(globals.audiocontext, {buffer: this.buffer} as AudioBufferSourceOptions);
+		source.connect(globals.audiocontext.destination);
+		
+		source.start(globals.audiocontext.currentTime + pixels_to_ms(this.position.x)/1000);
+	}
 }
 
-class Playlist extends Window {
+export class Playlist extends Window {
 
 	private tracks: Array<Track>;
 	private samples: Array<TrackItem>;
@@ -251,12 +265,26 @@ class Playlist extends Window {
 					return point_in_rect(e.clientX - base.left + this.scroll, e.clientY - base.top, sample.getSnappedPosition().x, sample.getSnappedPosition().y, sample.getWidth(), 70);
 				});
 				if (c.some(v => v)) {
-					this.get(".tracks_canvas").style.cursor = "move";
 					this.currentHoverSample = this.samples[c.indexOf(true)];
+
+					// display a resize cursor at the edge of the sample
+					if (e.clientX - base.left + this.scroll > this.currentHoverSample.getPosition().x + this.currentHoverSample.getWidth() - 5) {
+						this.get(".tracks_canvas").style.cursor = "e-resize";
+					} else {
+						this.get(".tracks_canvas").style.cursor = "move";
+					}
 				} else {
 					this.get(".tracks_canvas").style.cursor = "default";
 					this.currentHoverSample = null;
 				}
+			}
+		});
+
+		// play listener
+		document.addEventListener("keypress", (e) => {
+			if (e.code === "Space" && !globals.deactivate_space_to_play) {
+				e.preventDefault();
+				this.play();
 			}
 		});
 
@@ -448,46 +476,12 @@ class Playlist extends Window {
 
 	addSample(s: Item) {
 		this.samples.push(new TrackItem(s));
-		this.samples[this.samples.length - 1].setWidth(globals.xsnap * 8); // TODO temp!
+		this.samples[this.samples.length - 1].setWidth(ms_to_pixels(s.getDuration()*1000)); // TODO temp!
 		this.samples[this.samples.length - 1].setTrackIndex(1);
 		this.updatePlaylist();
-		/*let playlist = this.get(".tracks_canvas") as HTMLCanvasElement;
-		let ctx = playlist.getContext("2d");
+	}
 
-		const w = globals.xsnap;
-		const h = 70;
-		const sampleWidth = w*8;
-
-		ctx.strokeStyle = "#fffb";
-		ctx.lineWidth = 2;
-		ctx.lineJoin = "bevel";
-		ctx.lineCap = "round";
-		ctx.beginPath();
-		ctx.rect(12*w, h, sampleWidth, h);
-		ctx.fillStyle = "#fff1";
-		ctx.fill();
-		ctx.stroke();
-
-		let data = s.getData();
-
-		ctx.beginPath();
-		ctx.lineCap = "round";
-		ctx.lineWidth = 1.5;
-		ctx.moveTo(w*12, h*1.5);
-		for (let i = 0; i < data.length; i++) {
-			ctx.lineTo(w*12+i/(data.length/sampleWidth), h*1.5 + Math.sin(data[i]*100*(Math.PI/180))*30);
-		}
-		ctx.stroke();
-
-		// draw the title
-		ctx.fillStyle = "white";
-		ctx.font = "10pt Calibri";
-		ctx.fillText(s.title, w*12, h-3);*/
+	play() {
+		this.samples.forEach(s => s.play());
 	}
 }
-
-let playlist = new Playlist();
-window.addEventListener("load", () => {
-	playlist.maximize();
-	playlist.addSample(new Item("rawstyle_kick.wav", "./files/0Current project/rawstyle_kick.wav"));
-});
