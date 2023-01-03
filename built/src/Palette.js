@@ -97,13 +97,6 @@ function setupPalette() {
         // angle container for visual appeal
         drag_container.style.transform = "rotateZ(" + e.movementX + "deg)";
     });
-    document.addEventListener("mouseup", function () {
-        if (globals_1.globals.current_drag_element !== null) {
-            drag_container.style.display = "none";
-            drag_container.firstChild.remove();
-            globals_1.globals.current_drag_element = null;
-        }
-    });
     // add sidebar tree functionality
     // make a class for sidebar_items that holds which indent level they have
     // fill the sidebartree data

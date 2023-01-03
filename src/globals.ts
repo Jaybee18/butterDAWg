@@ -16,6 +16,9 @@ class Globals {
 
 	// contains the currently dragged element
 	current_drag_element: Draggable | null = null;
+	// contains the preview object for the drag element
+	// without clearing the drag element holder variable
+	current_drag_element_preview: any = null;
 
 	// the track that the current context menu, if any,
 	// was opened on
@@ -89,7 +92,22 @@ export class Draggable {
 	getDragElement() {
 		throw "Abstract function of Draggable is not implemented";
 	}
+
+	onDragEnd() {
+
+	}
 }
+
+var drag_container = document.getElementById("drag_container");
+document.addEventListener("mouseup", () => {
+	if (globals.current_drag_element !== null) {
+		globals.current_drag_element.onDragEnd();
+		drag_container.style.display = "none";
+		drag_container.firstChild.remove();
+		globals.current_drag_element = null;
+		globals.current_drag_element_preview = null;
+	}
+});
 
 
 // cheaty hacky stuff for using tsx

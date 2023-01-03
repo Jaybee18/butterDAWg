@@ -15,17 +15,20 @@ class TrackItem {
 	private trackIndex: number;
 	private width: number;
 	public canvas: HTMLCanvasElement;
+
 	private buffer: AudioBuffer;
+	private source: AudioBufferSourceNode;
 
 	constructor(item: Item) {
 		this.item = item;
 		this.position = {x: 0, y: 0}; // offset from the left in px
-		this.width = 0;
 		this.canvas = document.createElement("canvas");
-
+		
 		// create an offscreen canvas template to render this sample to the main canvas
 		this.canvas.width = 20 * 12;
 		this.canvas.height = 70;
+
+		this.setWidth(ms_to_pixels(item.getDuration()*1000));
 
 		// load audio data for playback
 		let data = this.item.getData();
@@ -100,10 +103,21 @@ class TrackItem {
 	}
 
 	play() {
-		let source = new AudioBufferSourceNode(globals.audiocontext, {buffer: this.buffer} as AudioBufferSourceOptions);
-		source.connect(globals.audiocontext.destination);
+		this.source = new AudioBufferSourceNode(globals.audiocontext, {buffer: this.buffer} as AudioBufferSourceOptions);
+		this.source.connect(globals.audiocontext.destination);
 		
-		source.start(globals.audiocontext.currentTime + pixels_to_ms(this.position.x)/1000);
+		// TODO there is also a offset parameter in .start() -> use that when the cursor is somewhere
+		// in the middle of the sample
+		const timestamp = globals.audiocontext.currentTime + (pixels_to_ms(this.getSnappedPosition().x)/1000 - globals.current_time/1000);
+		if (timestamp >= globals.audiocontext.currentTime) {
+			this.source.start(timestamp);
+		} else if (timestamp + this.width >= globals.audiocontext.currentTime) {
+			this.source.start(globals.audiocontext.currentTime, globals.audiocontext.currentTime - timestamp);
+		}
+	}
+
+	stop() {
+		this.source.stop();
 	}
 }
 
@@ -163,7 +177,7 @@ export class Playlist extends Window {
 								</div>
 								<div className="tracks_top_bar_bars_wrapper">
 									<div className="tracks_top_bar_bars">
-										<img id="bars_cursor" src="./graphics/cursor.svg"></img>
+										<img className="bars_cursor" id="bars_cursor" src="./graphics/cursor.svg"></img>
 										<canvas className="bars_canvas" width={200} height={100}></canvas>
 									</div>
 								</div>
@@ -209,6 +223,7 @@ export class Playlist extends Window {
 
 		// scroll listeners
 		this.get(".tracks").addEventListener("wheel", (e) => {
+			e.preventDefault();
 			if (globals.control_down) {
 				globals.xsnap -= e.deltaY / 100;
 			}
@@ -216,7 +231,11 @@ export class Playlist extends Window {
 			this.updatePlaylist();
 		});
 
-		document.addEventListener("mouseup", () => { wheel_down = false; delta_delta_x = 0; delta_delta_y = 0; });
+		document.addEventListener("mouseup", () => {
+			wheel_down = false; 
+			delta_delta_x = 0; 
+			delta_delta_y = 0;
+		});
 		let bars = this.get(".tracks_top_bar_bars_wrapper");
 		let bars_scrollbar_handle = this.get(".tracks_top_bar_scrollbar_handle");
 		let bars_scrollbar_wrapper = this.get(".tracks_top_bar_scrollbar");
@@ -249,7 +268,10 @@ export class Playlist extends Window {
 		this.get(".tracks").addEventListener("mousemove", (e) => {
 			// mouse cursor offset for correct coordinate mapping
 			let base = cumulativeOffset(this.get(".tracks_canvas"));
-			if (wheel_down) {
+			if (globals.current_drag_element !== null) {
+				// let the canvas move listener handle sample imports
+				return;
+			} else if (wheel_down) {
 				var deltaX = drag_mouse_down_pos_x - e.clientX;
 				var deltaY = drag_mouse_down_pos_y - e.clientY;
 				tracks_scroll_by_px(deltaX - delta_delta_x, deltaY - delta_delta_y);
@@ -279,12 +301,61 @@ export class Playlist extends Window {
 				}
 			}
 		});
+		this.get(".tracks_canvas").addEventListener("mousemove", (e) => {
+			let base = cumulativeOffset(this.get(".tracks_canvas"));
+			if (globals.current_drag_element !== null) {
+				if (globals.current_drag_element_preview === null) {
+					// create a preview of the currently dragged sample
+					if (globals.current_drag_element instanceof Item) {
+						globals.current_drag_element_preview = new TrackItem(globals.current_drag_element);
+						this.samples.push(globals.current_drag_element_preview);
+					}
+				}
+
+				(globals.current_drag_element_preview as TrackItem).setPosition({x: e.clientX - base.left, y: e.clientY - base.top});
+				this.updatePlaylist();
+			}
+		});
 
 		// play listener
+		let track_cursor = this.get(".bars_cursor");
+		let cursor_anim: NodeJS.Timer = null;
+		let cursor_pos = track_cursor.offsetLeft;
+		const interval_time = 10;
+		const cursor_step = ms_to_pixels(interval_time);
 		document.addEventListener("keypress", (e) => {
 			if (e.code === "Space" && !globals.deactivate_space_to_play) {
 				e.preventDefault();
-				this.play();
+
+				if (!globals.is_playing) {
+					// resume the suspended audiocontext
+					globals.audiocontext.resume().then(() => {
+						// put all samples in the queue of the audiocontext
+						this.play();
+					});
+
+					// animate the play cursor
+					cursor_anim = setInterval(() => {
+						cursor_pos += cursor_step;
+						track_cursor.style.left = cursor_pos + "px";
+						globals.current_time += 10;
+					}, interval_time);
+
+					// some logs
+					console.log("playback started");
+				} else {
+					// stop the cursor animation
+					clearInterval(cursor_anim);
+
+					// stop the audiocontext and clear the audio queue
+					globals.audiocontext.suspend();
+					this.samples.forEach(s => s.stop());
+
+					// some logs
+					console.log("playback stopped");
+				}
+
+				globals.is_playing = !globals.is_playing;
 			}
 		});
 
@@ -476,8 +547,7 @@ export class Playlist extends Window {
 
 	addSample(s: Item) {
 		this.samples.push(new TrackItem(s));
-		this.samples[this.samples.length - 1].setWidth(ms_to_pixels(s.getDuration()*1000)); // TODO temp!
-		this.samples[this.samples.length - 1].setTrackIndex(1);
+		//this.samples[this.samples.length - 1].setWidth(ms_to_pixels(s.getDuration()*1000)); // TODO temp!
 		this.updatePlaylist();
 	}
 

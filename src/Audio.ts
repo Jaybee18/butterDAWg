@@ -1,6 +1,7 @@
 import { globals, ms_to_pixels } from "./globals";
 
 
+// TODO obsolete!
 let cursor_anim: NodeJS.Timer = null;
 export function play() {
     let track_bar_cursor = <HTMLElement> document.querySelector(".line_cursor");

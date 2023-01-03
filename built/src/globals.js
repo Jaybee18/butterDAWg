@@ -11,6 +11,9 @@ var Globals = /** @class */ (function () {
         this.deactivate_space_to_play = false;
         // contains the currently dragged element
         this.current_drag_element = null;
+        // contains the preview object for the drag element
+        // without clearing the drag element holder variable
+        this.current_drag_element_preview = null;
         // current progression in the track in ms
         this.current_time = 0;
         this.cursor_pos = 0; // in px
@@ -69,9 +72,21 @@ var Draggable = /** @class */ (function () {
     Draggable.prototype.getDragElement = function () {
         throw "Abstract function of Draggable is not implemented";
     };
+    Draggable.prototype.onDragEnd = function () {
+    };
     return Draggable;
 }());
 exports.Draggable = Draggable;
+var drag_container = document.getElementById("drag_container");
+document.addEventListener("mouseup", function () {
+    if (exports.globals.current_drag_element !== null) {
+        exports.globals.current_drag_element.onDragEnd();
+        drag_container.style.display = "none";
+        drag_container.firstChild.remove();
+        exports.globals.current_drag_element = null;
+        exports.globals.current_drag_element_preview = null;
+    }
+});
 // cheaty hacky stuff for using tsx
 // (tsc compiles the tsx code to js by replacing every html element with Reacts
 //  createElement function, but i don't use React. So i have to emulate the React
