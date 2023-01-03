@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      "jsx": "react",
+      "allowJs": false,
+      "target": "ES5",
+      "lib": ["DOM"],
+      "outDir": "built",
+      "preserveConstEnums": true,
+      "strictNullChecks": false,
+      "moduleResolution": "node",
+      "module": "CommonJS",
+      "rootDir": ".",
+      "strict": true,
+      "watch": true,
+      "skipLibCheck": true
+    },
+    "exclude": ["AudioNodes", "./src/free-queue.ts", "./src/test.ts", "./src/AudioGraph.ts"]
+}

@@ -1,0 +1,89 @@
+.wrapper {
+    background-color: #3f484d;
+    box-shadow: inset 0 0 0 1px var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: absolute;
+    box-sizing: border-box;
+    padding: 3px;
+}
+
+.wrapper > .toolbar {
+    height: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.wrapper > .toolbar > .tools, .wrapper > .toolbar > .window_buttons {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.wrapper > .toolbar .toolbutton {
+    width: 17px;
+    height: 17px;
+    margin: 0 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #b2d0d3;
+    outline: solid 2px transparent;
+    outline-offset: 1.5px;
+    border-radius: 5px;
+    transition: outline-color 0.2s, color 0.15s, outline-offset 0.2s, outline-width 0.1s;
+}
+
+.wrapper > .toolbar .toolbutton i {
+    margin: 0 0 0 0px;
+}
+
+/* 
+   note that the property --custom is undefined here
+   and has to be defined when creating a toolbutton in
+   the toolbutton's css scope 
+*/
+.wrapper > .toolbar .toolbutton:hover {
+    outline: solid 2px var(--custom);
+    color: var(--custom);
+    outline-offset: 0px;
+}
+
+.wrapper > .content {
+    width: 100%;
+    height: 100%;
+    min-width: 100px;
+    min-height: 60px;
+    margin-top: 3px;
+}
+
+.se_resize, .ne_resize, .sw_resize, .nw_resize {
+    width: 8px;
+    height: 8px;
+    position: absolute;
+}
+
+.se_resize {
+    right: 0px;
+    bottom: 0px;
+    cursor: nwse-resize;
+}
+
+.nw_resize {
+    left: 0px;
+    top: 0px;
+    cursor: nwse-resize;
+}
+
+.sw_resize {
+    left: 0px;
+    bottom: 0px;
+    cursor: nesw-resize;
+}
+
+.ne_resize {
+    right: 0px;
+    top: 0px;
+    cursor: nesw-resize;
+}

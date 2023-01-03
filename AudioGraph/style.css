@@ -1,23 +1,24 @@
+/* ======= these are more like general declarations that apply to every window */
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+    margin: 0;
+}
+/* ======= */
+
+
 .audio_graph_wrapper {
     height: inherit;
-    padding: 0px 5px 0px 0px;
+    padding: 5px;
+    box-sizing: border-box;
     background-color: #3f484d;
     box-shadow: inset 0 0 0 1px var(--border-color);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
-
-    /* just for testing of the mixer */
-    /*height: 60%!important;
-    width: 80%;
-    left: 20px;
-    top: 80px;*/
-}
-
-.audio_graph_toolbar {
-    height: 20px;
-    border: dashed 1px black;
 }
 
 .audio_graph_screen {

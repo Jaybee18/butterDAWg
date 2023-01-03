@@ -1,15 +1,11 @@
 .tracks_wrapper {
     height: inherit;
-    padding: 0px 5px 0px 0px;
     background-color: #3f484d;
-    box-shadow: inset 0 0 0 1px var(--border-color);
+    /*box-shadow: inset 0 0 0 1px var(--border-color); TODO disable only when popped out*/ 
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
-
-    /* just for testing of the mixer */
-    height: 60%!important;
 }
 .tracks_wrapper_wrapper {
     height: inherit;
@@ -23,6 +19,11 @@
     background-color: #3f484d;
     display: flex;
     flex-direction: row;
+}
+
+#tracks_top_bar_inner {
+    width: 100%;
+    overflow: hidden;
 }
 
 .tracks_top_bar_scrollbar {
@@ -42,6 +43,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.tracks_top_bar_scrollbar_left {
+    float: left;
+}
+.tracks_top_bar_scrollbar_right {
+    float: right;
 }
 
 .fa-chevron-left, .fa-chevron-right {
@@ -64,8 +71,8 @@
 }
 
 .tracks_top_bar_bars {
-    width: max-content;
-    height: 50%;
+    height: 100%;
+    width: 100%;
     background-color: #192328;
     /*display: flex;
     flex-direction: row;*/
@@ -77,6 +84,7 @@
 }
 
 .tracks_top_bar_bars_wrapper {
+    height: 50%;
     overflow: hidden;
 }
 
@@ -96,7 +104,7 @@
 
 .tracks {
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
     max-width: 100%;
     flex-grow: 1;
     position: relative;
@@ -106,10 +114,18 @@
     border-color: #1d262b;
 }
 
-main::-webkit-scrollbar {
+.tracks_content_wrapper {
+    display: flex;
+}
+
+.tracks_canvas {
+    flex-grow: 1;
+}
+
+/*main::-webkit-scrollbar {
     color: blue!important;
     background-color: blue!important;
-}
+}*/
 
 .track_add {
     display: flex;
@@ -124,8 +140,15 @@ main::-webkit-scrollbar {
 }
 
 .tracks_palette_wrapper {
-    height: calc(100% - 20px + 5px); /* entire tracks view - toolbar + padding*/
+    /*height: calc(100% - 20px + 5px); /* entire tracks view - toolbar + padding*/
+    height: 100%;
     display: flex;
+}
+
+.palette_wrapper {
+    display: flex;
+    height: inherit;
+    width: 200px;
 }
 
 .tracks_palette {
@@ -200,7 +223,7 @@ main::-webkit-scrollbar {
     width: 3.3vw;
     height: 20px;
     border-radius: 6px;
-    color: #8f979b;
+    fill: #8f979b;
 }
 .palette_scope > .tool_button:hover {
     outline: solid 2px #d2d8dc;
@@ -232,7 +255,6 @@ main::-webkit-scrollbar {
 
 
 
-
 .tracks_top_bar > div > .piano_svg {
     position: absolute;
     right: 1px;
@@ -251,7 +273,13 @@ main::-webkit-scrollbar {
     top: 1px;
     transform: scale(0.77) rotate(45deg);
 }
-
+.top_bar_corner_svg {
+    position: relative;
+}
+.top_bar_corner_svg > .corner {
+    margin-left: 0px;
+    flex-shrink: 0;
+}
 
 
 
@@ -295,23 +323,29 @@ main::-webkit-scrollbar {
     margin: 1px 0 0 -1px;
 }
 #tool_caret_right:hover {
-    outline: solid 2px #f69238;
-    color: #f69238;
+    outline: solid 2px var(--custom);
+    color: var(--custom);
     outline-offset: 0px;
 }
 #tool_caret_right:hover > i {
     transform: rotateZ(90deg);
     transition: transform 0.3s;
 }
+
+#tool_magnet {
+    --custom: red;
+}
 #tool_magnet > i {
     margin: -1px 0 0 0;
-    color: #7eefa9;
+    color: var(--custom);
 }
 #tool_magnet:hover {
-    outline: solid 2px #7eefa9;
-    color: #7eefa9;
+    outline: solid 2px var(--custom);
+    color: var(--custom);
     outline-offset: 0px;
 }
+
+
 #tool_pencil {
     margin-left: 10px;
 }
@@ -379,6 +413,12 @@ main::-webkit-scrollbar {
     left: -10px;
     margin-top: 1px;
     cursor: grab;
+}
+
+.bars_canvas {
+    width: inherit;
+    height: inherit;
+    position: relative;
 }
 
 .line_cursor {

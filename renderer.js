@@ -2,11 +2,8 @@
 //var {Howl, Howler} = require("howler");
 
 
-var help_text = document.getElementById("header_help_text");
 var framerate = 44100;
 
-var is_playing = false;
-var cursor_pos = 0; // in px
 var track_length = 500; // in s
 function length_in_beats() {return track_length/60*bpm;}
 function length_in_px() {return length_in_beats()*xsnap;}
@@ -14,19 +11,6 @@ function progress_in_percent() {return cursor_pos/length_in_px();}
 
 // contains the currently dragged element
 var current_drag_element = null;
-
-function currently_hovered_track() {
-  t = null;
-  tracks.forEach(track => {
-    if (track.element.matches(":hover")) {
-      t = track;
-    }
-  });
-  return t;
-}
-
-// add track-button functionality
-document.getElementById("track_add_label").addEventListener('click', () => {new Track();});
 
 document.addEventListener("mouseup", () => {
   resizing_track = null;
@@ -72,23 +56,6 @@ document.querySelectorAll(".header_button").forEach(button => {
     }
   });
 });
-
-// header controls scope buttons
-var scope_pat = document.querySelector(".scope_pat");
-var scope_song = document.querySelector(".scope_song");
-scope_pat.addEventListener("click", () => {
-  if (!scope_pat.classList.contains("scope_pat_clicked")){
-    scope_pat.classList.add("scope_pat_clicked");
-    scope_song.classList.remove("scope_song_clicked");
-  }
-});
-scope_song.addEventListener("click", () => {
-  if (!scope_song.classList.contains("scope_song_clicked")){
-    scope_song.classList.add("scope_song_clicked");
-    scope_pat.classList.remove("scope_pat_clicked");
-  }
-});
-scope_pat.click();
 
 // sidebar resizing 
 var resizing_sidebar = false;
@@ -137,58 +104,9 @@ function updateHeaderWaveview() {
 }
 updateHeaderWaveview();
 
-// generate bar labels
-function drawBarLabels() {
-  var bars = document.querySelector(".tracks_top_bar_bars");
-  
-  for (let i = 0; i < 126; i++) {
-    var label = document.createElement("p");
-    var font_size = (i%4==0) ? 15 : 10;
-    label.style.cssText += "font-size: " + font_size + "px; width: " + xsnap*4 + "px;";
-    label.innerHTML = i + 1;
-    bars.appendChild(label);
-  }
-}
-drawBarLabels();
-
-// add event listeners to all toggle buttons
-var green = "rgb(50, 255, 32)"; // #32ff17
-var grey = "rgb(126, 135, 125)"; // #7e877d
-function addRadioEventListener(btn, track) {
-  var light = btn.querySelector(".radio_btn_green");
-  btn.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (e.button === 0) {
-      var bg = light.style.backgroundColor;
-      // the 'or' is bc the property is "" at first, but since the button
-      // gets initialized with a green background, it gets treated as "green"
-      (bg === green || bg === "") ? track.disable() : track.enable();
-    }
-  });
-  btn.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    var all_tracks_disabled = true;
-    tracks.forEach(element => {
-      if (element.enabled && element !== track) {all_tracks_disabled = false;}
-    });
-
-    if (all_tracks_disabled && track.enabled) {
-      for (let i = 0; i < tracks.length; i++) {
-        tracks[i].enable();
-      }
-    } else {
-      for (let i = 0; i < tracks.length; i++) {
-        (tracks[i] !== track) ? tracks[i].disable() : tracks[i].enable();
-      }
-    }
-  });
-}
-document.querySelectorAll(".radio_btn").forEach(btn => addRadioEventListener(btn)); // probably works, but idk
-
 
 // add event listeners to bars-bar
-var cursor = document.getElementById("bars_cursor");
-var top_bar = document.getElementById("tracks_top_bar_inner");
+/*var top_bar = document.getElementById("tracks_top_bar_inner");
 var top_bar_bars = document.querySelector(".tracks_top_bar_bars");
 function bars_cursor_move_listener(e) {
   if (e.clientX - cumulativeOffset(top_bar).left <= 0) {cursor.style.left = -10; return;}
@@ -204,11 +122,11 @@ top_bar_bars.addEventListener("mousedown", (e) => {
 });
 document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", bars_cursor_move_listener);
-});
+});*/
 
 // add event listener to bars scrollbar handle
 // TODO make a function that can handle scrollbars (bars_cursor, horizontal scrollbars, ...)
-var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
+/*var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
 var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
 var maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
 var initial_handle_offset = 0;
@@ -226,9 +144,9 @@ bars_scrollbar_handle.addEventListener("mousedown", (e) => {
 });
 document.addEventListener("mouseup", () => {
   document.removeEventListener("mousemove", bars_scrollbar_handle_listener);
-});
+});*/
 
-// song pos slider functionality
+// (header) song pos slider functionality
 // TODO make more general slider classes, that have onmove functions etc.
 var pos_slider_handle = document.querySelector(".handle_h");
 function pos_slider_handle_listener(e) {
@@ -245,7 +163,7 @@ document.addEventListener("mouseup", () => {
 
 
 // initialize tools listeners
-var tools = document.querySelectorAll(".tracks_tool_bar > .tool_button");
+/*var tools = document.querySelectorAll(".tracks_tool_bar > .tool_button");
 var current_active = document.querySelector(".tracks_tool_bar > #tool_pencil > i");
 current_active.style.color = "#fcba40";
 tools.forEach(btn => {
@@ -258,22 +176,14 @@ tools.forEach(btn => {
     current_active = icon;
   });
 });
-
+*/
 // initialize a testing ui
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
-document.getElementById("track_add_label").click();
+/*const Track = require("./built/Track").Track;
+const track_count = 10;
+for (let i = 0; i < track_count; i++) {
+  new Track();
+}*/
 
-let items = ["test1", "test2", "test3", "[spacer]", "test4"];
-let listeners = [() => {alert("test1")}, () => {alert("test2")}, () => {alert("test3")}, () => {alert("test4")}];
-let test = new ContextMenu(items, listeners);
+//let items = ["test1", "test2", "test3", "[spacer]", "test4"];
+//let listeners = [() => {alert("test1")}, () => {alert("test2")}, () => {alert("test3")}, () => {alert("test4")}];
+//let test = new ContextMenu(items, listeners);
