@@ -9,6 +9,7 @@ export function setupKeybinds() {
 			play();
 		}
 	});*/
+	// TODO this is probably unnessecary
 	document.addEventListener("keydown", (e) => {
 		globals.control_down = e.ctrlKey;
 		globals.alt_down = e.altKey;

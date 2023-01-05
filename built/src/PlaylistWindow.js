@@ -22,15 +22,16 @@ var Track_1 = require("./Track");
 var Color_1 = require("./Color");
 var fs_1 = require("fs");
 var Palette_1 = require("./Palette");
+var PaletteItem_1 = require("./PaletteItem");
 var TrackItem = /** @class */ (function () {
     function TrackItem(item) {
         this.item = item;
         this.position = { x: 0, y: 0 }; // offset from the left in px
-        this.width = 0;
         this.canvas = document.createElement("canvas");
         // create an offscreen canvas template to render this sample to the main canvas
         this.canvas.width = 20 * 12;
         this.canvas.height = 70;
+        this.setWidth((0, globals_1.ms_to_pixels)(item.getDuration() * 1000));
         // load audio data for playback
         var data = this.item.getData();
         this.buffer = globals_1.globals.audiocontext.createBuffer(2, data.length, globals_1.globals.audiocontext.sampleRate * 2);
@@ -89,9 +90,20 @@ var TrackItem = /** @class */ (function () {
         return this.item;
     };
     TrackItem.prototype.play = function () {
-        var source = new AudioBufferSourceNode(globals_1.globals.audiocontext, { buffer: this.buffer });
-        source.connect(globals_1.globals.audiocontext.destination);
-        source.start(globals_1.globals.audiocontext.currentTime + (0, globals_1.pixels_to_ms)(this.position.x) / 1000);
+        this.source = new AudioBufferSourceNode(globals_1.globals.audiocontext, { buffer: this.buffer });
+        this.source.connect(globals_1.globals.audiocontext.destination);
+        // TODO there is also a offset parameter in .start() -> use that when the cursor is somewhere
+        // in the middle of the sample
+        var timestamp = globals_1.globals.audiocontext.currentTime + ((0, globals_1.pixels_to_ms)(this.getSnappedPosition().x) / 1000 - globals_1.globals.current_time / 1000);
+        if (timestamp >= globals_1.globals.audiocontext.currentTime) {
+            this.source.start(timestamp);
+        }
+        else if (timestamp + this.width >= globals_1.globals.audiocontext.currentTime) {
+            this.source.start(globals_1.globals.audiocontext.currentTime, globals_1.globals.audiocontext.currentTime - timestamp);
+        }
+    };
+    TrackItem.prototype.stop = function () {
+        this.source.stop();
     };
     return TrackItem;
 }());
@@ -138,7 +150,7 @@ var Playlist = /** @class */ (function (_super) {
                                     globals_1.React.createElement("i", { className: "fa-solid fa-chevron-right" }))),
                             globals_1.React.createElement("div", { className: "tracks_top_bar_bars_wrapper" },
                                 globals_1.React.createElement("div", { className: "tracks_top_bar_bars" },
-                                    globals_1.React.createElement("img", { id: "bars_cursor", src: "./graphics/cursor.svg" }),
+                                    globals_1.React.createElement("img", { className: "bars_cursor", id: "bars_cursor", src: "./graphics/cursor.svg" }),
                                     globals_1.React.createElement("canvas", { className: "bars_canvas", width: 200, height: 100 }))))),
                     globals_1.React.createElement("div", { className: "tracks" },
                         globals_1.React.createElement("div", { className: "line_cursor" }),
@@ -172,13 +184,18 @@ var Playlist = /** @class */ (function (_super) {
         });
         // scroll listeners
         this.get(".tracks").addEventListener("wheel", function (e) {
+            e.preventDefault();
             if (globals_1.globals.control_down) {
                 globals_1.globals.xsnap -= e.deltaY / 100;
             }
             _this.updateBarLabels();
             _this.updatePlaylist();
         });
-        document.addEventListener("mouseup", function () { wheel_down = false; delta_delta_x = 0; delta_delta_y = 0; });
+        document.addEventListener("mouseup", function () {
+            wheel_down = false;
+            delta_delta_x = 0;
+            delta_delta_y = 0;
+        });
         var bars = this.get(".tracks_top_bar_bars_wrapper");
         var bars_scrollbar_handle = this.get(".tracks_top_bar_scrollbar_handle");
         var bars_scrollbar_wrapper = this.get(".tracks_top_bar_scrollbar");
@@ -210,7 +227,11 @@ var Playlist = /** @class */ (function (_super) {
         this.get(".tracks").addEventListener("mousemove", function (e) {
             // mouse cursor offset for correct coordinate mapping
             var base = (0, globals_1.cumulativeOffset)(_this.get(".tracks_canvas"));
-            if (wheel_down) {
+            if (globals_1.globals.current_drag_element !== null) {
+                // let the canvas move listener handle sample imports
+                return;
+            }
+            else if (wheel_down) {
                 var deltaX = drag_mouse_down_pos_x - e.clientX;
                 var deltaY = drag_mouse_down_pos_y - e.clientY;
                 tracks_scroll_by_px(deltaX - delta_delta_x, deltaY - delta_delta_y);
@@ -243,11 +264,54 @@ var Playlist = /** @class */ (function (_super) {
                 }
             }
         });
+        this.get(".tracks_canvas").addEventListener("mousemove", function (e) {
+            var base = (0, globals_1.cumulativeOffset)(_this.get(".tracks_canvas"));
+            if (globals_1.globals.current_drag_element !== null) {
+                if (globals_1.globals.current_drag_element_preview === null) {
+                    // create a preview of the currently dragged sample
+                    if (globals_1.globals.current_drag_element instanceof PaletteItem_1.Item) {
+                        globals_1.globals.current_drag_element_preview = new TrackItem(globals_1.globals.current_drag_element);
+                        _this.samples.push(globals_1.globals.current_drag_element_preview);
+                    }
+                }
+                globals_1.globals.current_drag_element_preview.setPosition({ x: e.clientX - base.left, y: e.clientY - base.top });
+                _this.updatePlaylist();
+            }
+        });
         // play listener
+        var track_cursor = this.get(".bars_cursor");
+        var cursor_anim = null;
+        var cursor_pos = track_cursor.offsetLeft;
+        var interval_time = 10;
+        var cursor_step = (0, globals_1.ms_to_pixels)(interval_time);
         document.addEventListener("keypress", function (e) {
             if (e.code === "Space" && !globals_1.globals.deactivate_space_to_play) {
                 e.preventDefault();
-                _this.play();
+                if (!globals_1.globals.is_playing) {
+                    // resume the suspended audiocontext
+                    globals_1.globals.audiocontext.resume().then(function () {
+                        // put all samples in the queue of the audiocontext
+                        _this.play();
+                    });
+                    // animate the play cursor
+                    cursor_anim = setInterval(function () {
+                        cursor_pos += cursor_step;
+                        track_cursor.style.left = cursor_pos + "px";
+                        globals_1.globals.current_time += 10;
+                    }, interval_time);
+                    // some logs
+                    console.log("playback started");
+                }
+                else {
+                    // stop the cursor animation
+                    clearInterval(cursor_anim);
+                    // stop the audiocontext and clear the audio queue
+                    globals_1.globals.audiocontext.suspend();
+                    _this.samples.forEach(function (s) { return s.stop(); });
+                    // some logs
+                    console.log("playback stopped");
+                }
+                globals_1.globals.is_playing = !globals_1.globals.is_playing;
             }
         });
         // the playlist slider at the top of the widget
@@ -424,8 +488,7 @@ var Playlist = /** @class */ (function (_super) {
     };
     Playlist.prototype.addSample = function (s) {
         this.samples.push(new TrackItem(s));
-        this.samples[this.samples.length - 1].setWidth((0, globals_1.ms_to_pixels)(s.getDuration() * 1000)); // TODO temp!
-        this.samples[this.samples.length - 1].setTrackIndex(1);
+        //this.samples[this.samples.length - 1].setWidth(ms_to_pixels(s.getDuration()*1000)); // TODO temp!
         this.updatePlaylist();
     };
     Playlist.prototype.play = function () {

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.play = void 0;
 var globals_1 = require("./globals");
+// TODO obsolete!
 var cursor_anim = null;
 function play() {
     var track_bar_cursor = document.querySelector(".line_cursor");

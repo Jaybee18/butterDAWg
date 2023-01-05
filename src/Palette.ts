@@ -90,13 +90,6 @@ document.addEventListener("mousemove", (e) => {
 	// angle container for visual appeal
 	drag_container.style.transform = "rotateZ(" + e.movementX + "deg)";
 });
-document.addEventListener("mouseup", () => {
-	if (globals.current_drag_element !== null) {
-		drag_container.style.display = "none";
-		drag_container.firstChild.remove();
-		globals.current_drag_element = null;
-	}
-});
 
 // add sidebar tree functionality
 // make a class for sidebar_items that holds which indent level they have
