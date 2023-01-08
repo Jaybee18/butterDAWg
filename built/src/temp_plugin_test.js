@@ -31,6 +31,7 @@ var PluginWindow = /** @class */ (function (_super) {
         this.setContent(content);
         var plugin = require("../" + this.pluginpath + "/main");
         this.plugin = new plugin.Plugin();
+        this.setContentSize(450, 420);
     };
     PluginWindow.prototype.getPlugin = function () {
         return this.plugin;

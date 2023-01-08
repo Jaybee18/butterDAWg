@@ -144,10 +144,11 @@ var TrackItem = /** @class */ (function () {
 var Playlist = /** @class */ (function (_super) {
     __extends(Playlist, _super);
     function Playlist() {
-        var _this = _super.call(this) || this;
+        var _this = _super.call(this, false) || this;
         _this.tracks = [];
         _this.samples = [];
         _this.scroll = 0;
+        _this.initialiseContent();
         return _this;
     }
     Playlist.prototype.initialiseContent = function () {

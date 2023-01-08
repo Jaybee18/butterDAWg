@@ -2,6 +2,14 @@
 //var {Howl, Howler} = require("howler");
 
 
+
+// just for VSCode, bc it doesn't automatically clear the 
+// debug console after a reload
+window.addEventListener("beforeunload", () => {
+  console.clear();
+});
+
+
 var framerate = 44100;
 
 var track_length = 500; // in s

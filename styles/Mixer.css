@@ -1,9 +1,6 @@
 .mixer_wrapper {
-    height: 40%; /* max height - padding */
+    height: inherit;
     background-color: #434c51;
-    border: inset 1px var(--border-color);
-    border-style: none solid solid solid;
-    padding: 5px;
     box-sizing: border-box;
 
     display: flex;
@@ -63,6 +60,7 @@
     align-items: center;
     justify-content: space-between;
     height: 10%;
+    min-height: 35px;
     background-color: #5f686d;
     border: solid 1px #485156;
     border-style: none none solid none;
@@ -73,6 +71,7 @@
     display: flex;
     align-items: center;
     height: 10%;
+    min-height: 35px;
     background-color: #5f686d;
     border: solid 1px #485156;
     border-style: solid none none none;
@@ -96,10 +95,10 @@
 }
 
 .plugin_slot {
-    height: 20px;
+    height: 10%;
+    min-height: 20px;
     display: flex;
     align-items: center;
-    margin-bottom: 1px;
 }
 
 .slot_wrapper {

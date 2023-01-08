@@ -122,16 +122,18 @@ class TrackItem {
 
 export class Playlist extends Window {
 
-	private tracks: Array<Track>;
+	tracks: Array<Track>;
 	private samples: Array<TrackItem>;
 	private scroll: number;
 	private currentHoverSample: TrackItem;
 
 	constructor() {
-		super();
+		super(false);
 		this.tracks = [];
 		this.samples = [];
 		this.scroll = 0;
+
+		this.initialiseContent();
 	}
 
 	initialiseContent(): void {
