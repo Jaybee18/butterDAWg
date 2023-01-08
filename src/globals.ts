@@ -3,6 +3,7 @@ import { Track } from "./Track";
 import { ContextMenu } from "./ContextMenu"
 import { readdirSync } from "fs"
 import { Window } from "./window";
+import { CustomPlugin } from "./CustomPlugin";
 
 
 class Globals {

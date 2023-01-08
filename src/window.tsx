@@ -19,12 +19,14 @@ export abstract class Window {
     protected content: HTMLElement
     private minimized: boolean
 
-    constructor() {
+    constructor(callInitialiseContent:boolean = true) {
         this.id = Math.round(Date.now() * Math.random()).toString();
         this.initElement();
         this.toolbar = this.element.querySelector(".toolbar");
         this.content = this.element.querySelector(".content");
         globals.windows.push(this);
+
+        if (callInitialiseContent) this.initialiseContent();
     }
 
     initElement() {
@@ -141,8 +143,6 @@ export abstract class Window {
             tool: false,
             customCss: "transform: scale(0.9)"
         } as toolbarButtonOptions);
-
-        this.initialiseContent();
     }
 
     getToolbar() {

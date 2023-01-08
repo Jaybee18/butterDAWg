@@ -5,12 +5,15 @@ var globals_1 = require("./globals");
 var electron_1 = require("electron");
 var Color_1 = require("./Color");
 var Window = /** @class */ (function () {
-    function Window() {
+    function Window(callInitialiseContent) {
+        if (callInitialiseContent === void 0) { callInitialiseContent = true; }
         this.id = Math.round(Date.now() * Math.random()).toString();
         this.initElement();
         this.toolbar = this.element.querySelector(".toolbar");
         this.content = this.element.querySelector(".content");
         globals_1.globals.windows.push(this);
+        if (callInitialiseContent)
+            this.initialiseContent();
     }
     Window.prototype.initElement = function () {
         var _this = this;
@@ -120,7 +123,6 @@ var Window = /** @class */ (function () {
             tool: false,
             customCss: "transform: scale(0.9)"
         });
-        this.initialiseContent();
     };
     Window.prototype.getToolbar = function () {
         return this.get(".toolbar > .tools");

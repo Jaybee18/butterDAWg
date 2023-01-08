@@ -30,8 +30,6 @@ var Item = /** @class */ (function (_super) {
         _this.indent = indent;
         _this.children = [];
         _this.title = title;
-        _this.depth = "32f";
-        _this.depth_type = Float32Array;
         _this.depth_max = 1.0;
         // construct container
         var a = document.createElement("div");
@@ -41,6 +39,7 @@ var Item = /** @class */ (function (_super) {
         a.style.marginLeft = indent * globals_1.globals.palette_indent_width + "px";
         _this.element = a;
         // add icon
+        // TODO display a little loading circle while the sample is being loaded in, when the user opens a folder
         var ending = title.split(".").pop();
         if (ending === "wav") {
             var type_icon = document.createElement("i");
