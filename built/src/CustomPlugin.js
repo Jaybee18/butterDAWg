@@ -16,6 +16,7 @@ var CustomPlugin = /** @class */ (function () {
     };
     CustomPlugin.prototype.initialiseAudioNode = function () {
         this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, "my-custom-plugin");
+        console.log(this.audio_node);
     };
     CustomPlugin.prototype.getAudioNode = function () {
         return this.audio_node;

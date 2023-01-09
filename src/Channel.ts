@@ -1,3 +1,4 @@
+import { CustomPlugin } from "./CustomPlugin";
 import { globals } from "./globals";
 
 var current_selected_channel:Channel = null;
@@ -43,7 +44,8 @@ export class Channel {
 	id: number;
 	merger_node: AudioNode;
 	analyzer_node: AnalyserNode;
-	audionodes: Array<AudioNode>;
+	//audionodes: Array<AudioNode>;
+	private plugins: Array<CustomPlugin>;
 	level_indicator: HTMLElement;
 
 	constructor(index: number) {
@@ -56,7 +58,8 @@ export class Channel {
 		this.id = Math.round(Date.now() * Math.random());
 		this.merger_node = null;
 		this.analyzer_node = null;
-		this.audionodes = [];
+		//this.audionodes = [];
+		this.plugins = [];
 		this.level_indicator = null;
 
 		// construct element
@@ -95,8 +98,22 @@ export class Channel {
 	}
 
 	getFirstAudioNode() {
+		console.log("probably don't need this");
 		// return the first node of this channels audio pipeline
 		return this.merger_node;
+	}
+
+	addPlugin(plugin: CustomPlugin) {
+		if (this.plugins.length === 0) {
+			console.log(plugin.getAudioNode());
+			this.merger_node.connect(plugin.getAudioNode());
+			this.plugins.push(plugin);
+		} else {
+			let lastPlugin = this.plugins[this.plugins.length - 1];
+			lastPlugin.getAudioNode().disconnect();
+			lastPlugin.getAudioNode().connect(plugin.getAudioNode());
+			plugin.getAudioNode().connect(this.analyzer_node);
+		}
 	}
 
 	initializeEventListeners() {
@@ -238,11 +255,4 @@ export class Channel {
 		});
 		this.level_indicator.style.height = (1 - max) * 100 + "%";
 	}
-}
-
-// repeat channels
-for (let i = 0; i < 60; i++) {
-	let a = new Channel(i);
-	a.addToMixer();
-	globals.channels.push(a);
 }

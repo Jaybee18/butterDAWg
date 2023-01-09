@@ -85,5 +85,7 @@ export class MixerWindow extends Window {
         </div>
       </div> as any
         );
+
+      this.setContentSize(1000, 400);
     }
 }

@@ -1,5 +1,7 @@
 "use strict";
-var pluginslots = [];
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PluginSlot = exports.pluginslots = void 0;
+exports.pluginslots = [];
 var slot = '  <div class="plugin_slot">\
                     <div class="slot_wrapper">\
                         <i class="fa-solid fa-caret-right"></i>\
@@ -30,6 +32,4 @@ var PluginSlot = /** @class */ (function () {
     };
     return PluginSlot;
 }());
-for (var i = 0; i < 10; i++) {
-    pluginslots.push(new PluginSlot(i));
-}
+exports.PluginSlot = PluginSlot;

@@ -32,7 +32,7 @@
 .mixer_channels_wrapper {
     height: calc(100% - 20px);
     display: flex;
-    overflow-x: scroll;
+    overflow: hidden;
     border: solid 1px #293237;
 }
 

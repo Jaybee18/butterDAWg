@@ -23,6 +23,7 @@ export abstract class CustomPlugin {
 
     initialiseAudioNode(): void {
         this.audio_node = new AudioWorkletNode(globals.audiocontext, "my-custom-plugin");
+        console.log(this.audio_node);
     }
 
     getAudioNode(): AudioNode {

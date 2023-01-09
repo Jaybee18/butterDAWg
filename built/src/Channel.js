@@ -42,7 +42,8 @@ var Channel = /** @class */ (function () {
         this.id = Math.round(Date.now() * Math.random());
         this.merger_node = null;
         this.analyzer_node = null;
-        this.audionodes = [];
+        //this.audionodes = [];
+        this.plugins = [];
         this.level_indicator = null;
         // construct element
         this.createElement();
@@ -74,8 +75,22 @@ var Channel = /** @class */ (function () {
         this.analyzer_node.connect(globals_1.globals.audiocontext.destination);
     };
     Channel.prototype.getFirstAudioNode = function () {
+        console.log("probably don't need this");
         // return the first node of this channels audio pipeline
         return this.merger_node;
+    };
+    Channel.prototype.addPlugin = function (plugin) {
+        if (this.plugins.length === 0) {
+            console.log(plugin.getAudioNode());
+            this.merger_node.connect(plugin.getAudioNode());
+            this.plugins.push(plugin);
+        }
+        else {
+            var lastPlugin = this.plugins[this.plugins.length - 1];
+            lastPlugin.getAudioNode().disconnect();
+            lastPlugin.getAudioNode().connect(plugin.getAudioNode());
+            plugin.getAudioNode().connect(this.analyzer_node);
+        }
     };
     Channel.prototype.initializeEventListeners = function () {
         var _this = this;
@@ -217,9 +232,3 @@ var Channel = /** @class */ (function () {
     return Channel;
 }());
 exports.Channel = Channel;
-// repeat channels
-for (var i = 0; i < 60; i++) {
-    var a = new Channel(i);
-    a.addToMixer();
-    globals_1.globals.channels.push(a);
-}

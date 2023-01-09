@@ -15,7 +15,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadPlugin = void 0;
+exports.PluginWindow = void 0;
 var original_fs_1 = require("original-fs");
 var window_1 = require("./window");
 var PluginWindow = /** @class */ (function (_super) {
@@ -29,8 +29,10 @@ var PluginWindow = /** @class */ (function (_super) {
     PluginWindow.prototype.initialiseContent = function () {
         var content = (0, original_fs_1.readFileSync)(this.pluginpath + "/index.html", { encoding: "ascii" });
         this.setContent(content);
-        var plugin = require("../" + this.pluginpath + "/main");
-        this.plugin = new plugin.Plugin();
+        var plugin_module = require("../" + this.pluginpath + "/main");
+        console.log(plugin_module);
+        this.plugin = new plugin_module.Plugin();
+        console.log(this.plugin.getAudioNode());
         this.setContentSize(450, 420);
     };
     PluginWindow.prototype.getPlugin = function () {
@@ -38,9 +40,4 @@ var PluginWindow = /** @class */ (function (_super) {
     };
     return PluginWindow;
 }(window_1.Window));
-function loadPlugin() {
-    var pluginpath = "plugins/TestPlugin";
-    var win = new PluginWindow(pluginpath);
-    return win.getPlugin();
-}
-exports.loadPlugin = loadPlugin;
+exports.PluginWindow = PluginWindow;

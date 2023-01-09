@@ -73,6 +73,7 @@ var MixerWindow = /** @class */ (function (_super) {
                         globals_1.React.createElement("div", { className: "header_snap_selector" },
                             globals_1.React.createElement("p", null, "Out 1 - Out 2"),
                             globals_1.React.createElement("i", { className: "fa-solid fa-caret-right" })))))));
+        this.setContentSize(1000, 400);
     };
     return MixerWindow;
 }(window_1.Window));

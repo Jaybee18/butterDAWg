@@ -1,4 +1,4 @@
-var pluginslots = [];
+export var pluginslots: Array<PluginSlot> = [];
 const slot = '  <div class="plugin_slot">\
                     <div class="slot_wrapper">\
                         <i class="fa-solid fa-caret-right"></i>\
@@ -12,7 +12,7 @@ const slot = '  <div class="plugin_slot">\
                     </div>\
                 </div > ';
 
-class PluginSlot {
+export class PluginSlot {
 
     element: HTMLElement;
     index: number;
@@ -34,8 +34,4 @@ class PluginSlot {
         let c = document.querySelector(".channel_plugins");
         c.appendChild(this.element);
     }
-}
-
-for (let i = 0; i < 10; i++) {
-    pluginslots.push(new PluginSlot(i));
 }

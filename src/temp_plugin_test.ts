@@ -3,7 +3,7 @@ import { CustomPlugin } from "./CustomPlugin";
 import { globals } from "./globals";
 import { Window } from "./window";
 
-class PluginWindow extends Window {
+export class PluginWindow extends Window {
 
     private pluginpath: string;
     private plugin: CustomPlugin;
@@ -21,8 +21,10 @@ class PluginWindow extends Window {
 
         this.setContent(content);
 
-        let plugin = require("../" + this.pluginpath + "/main");
-        this.plugin = new plugin.Plugin();
+        let plugin_module = require("../" + this.pluginpath + "/main");
+        console.log(plugin_module);
+        this.plugin = new plugin_module.Plugin();
+        console.log(this.plugin.getAudioNode());
 
         this.setContentSize(450, 420);
     }
@@ -30,11 +32,4 @@ class PluginWindow extends Window {
     getPlugin(): CustomPlugin {
         return this.plugin;
     }
-}
-
-export function loadPlugin() {
-    const pluginpath = "plugins/TestPlugin";
-
-    let win = new PluginWindow(pluginpath);
-    return win.getPlugin();
 }
