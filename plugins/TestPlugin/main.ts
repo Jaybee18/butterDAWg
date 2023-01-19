@@ -4,12 +4,12 @@ export class Plugin extends CustomPlugin {
 
     private level: AudioParam;
 
-    constructor() {
-        super();
+    constructor(pluginpath: string) {
+        super(pluginpath);
 
         this.name = "MyCustomPlugin";
 
-        this.initialiseUI();
+        //this.initialiseUI();
     }
 
     initialiseUI(): void {
@@ -47,8 +47,9 @@ export class Plugin extends CustomPlugin {
     onAudioNodeLoaded() {
         this.level = (this.audio_node as any).parameters.get("level");
 
+        // TODO put this in some other function that loads, only when the ui is loaded as a window
         // add drag functionality to the handle
-        let handle = document.querySelector(".plugin-handle") as HTMLElement;
+        /*let handle = document.querySelector(".plugin-handle") as HTMLElement;
         let canvas = document.querySelector(".plugin-slider-background") as HTMLCanvasElement;
         let temp_this = this;
         function handleMovement(e: MouseEvent) {
@@ -62,6 +63,6 @@ export class Plugin extends CustomPlugin {
         });
         document.addEventListener("mouseup", () => {
             document.removeEventListener("mousemove", handleMovement);
-        });
+        });*/
     }
 }

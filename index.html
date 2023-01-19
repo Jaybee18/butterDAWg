@@ -233,8 +233,8 @@
 
       <div class="header_button header_button_hover"><i class="fa-brands fa-itunes-note"></i></div>
       <div class="header_button header_button_hover"><i class="fa-solid fa-keyboard"></i></div>
-      <div class="header_button header_button_hover"><i class="fa-solid fa-list"></i></div>
-      <div class="header_button header_button_hover"><i class="fa-solid fa-sliders"></i></div>
+      <div class="header_button header_button_hover header_playlist"><i class="fa-solid fa-list"></i></div>
+      <div class="header_button header_button_hover header_mixer"><i class="fa-solid fa-sliders"></i></div>
       <div class="header_button header_button_hover"><i class="fa-solid fa-folder-tree"></i></div>
       <div class="header_button header_button_hover"><i class="fa-solid fa-file"></i></div>
       <div class="header_button header_button_hover"><i class="fa-solid fa-plug"></i></div>
@@ -356,7 +356,7 @@
     <div id="color_preview"></div>
   </div>
   <div id="drag_container"></div>
-  <div class="context_menu" id="track_context_menu">
+  <!--<div class="context_menu" id="track_context_menu">
     <div class="context_item">Rename, color and icon...</div>
     <div class="context_item">Change color...</div>
     <div class="context_item">Change icon...</div>
@@ -384,7 +384,7 @@
     <div class="context_spacer"></div>
     <div class="context_item">Move up</div>
     <div class="context_item">Move down</div>
-  </div>
+  </div>-->
   <div id="content">
     <div class="sidebar" id="sidebar">
       <div class="sidebar_header">
@@ -525,25 +525,6 @@
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script>
-    // TODO only import one script: renderer.js!
-    /*require("./built/src/globals.js");
-    //require("./built/src/window.js");
-    //require("./built/src/ContextMenu.js");
-    //require("./built/src/Color.js");
-    require("./built/src/ColorPicker.js");
-    require("./built/src/Channel.js");
-    require("./built/src/Track.js");
-    //require("./built/src/PaletteItem.js");
-    require("./built/src/Palette.js");
-    //require("./built/src/TrackSample.js");
-    require("./built/src/Header.js");
-    require("./built/src/Audio.js");
-    require("./built/src/Keybinds.js");
-    require("./built/src/Mixer.js");
-    require("./built/src/Source.js");
-    require("./built/src/AudioGraph.js");
-    require("./built/src/AudioGraphWindow.js");
-    require("./built/src/PlaylistWindow.js");*/
     require("./built/src/index.js");
     require("./renderer.js");
   </script>

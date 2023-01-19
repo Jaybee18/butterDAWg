@@ -5,11 +5,12 @@ export abstract class CustomPlugin {
     protected name: string;
     protected audio_node: AudioNode;
 
-    constructor() {
-        globals.audiocontext.audioWorklet.addModule("./plugins/TestPlugin/plugin.js").then(() => {
+    constructor(pluginpath: string) {
+        // "./plugins/TestPlugin/plugin.js"
+        globals.audiocontext.audioWorklet.addModule(pluginpath).then(() => {
             this.initialiseAudioNode();
             this.onAudioNodeLoaded();
-            console.log("plugin loaded");
+            console.log("plugin loaded: " + pluginpath);
         });
     }
 

@@ -1,4 +1,6 @@
 import { globals } from "./globals";
+import { MixerWindow } from "./MixerWindow";
+import { Playlist } from "./PlaylistWindow";
 
 // bpm count drag functionality
 var bpm_count = document.querySelector(".bpm");
@@ -31,3 +33,15 @@ scope_song.addEventListener("click", () => {
   }
 });
 scope_pat.click();
+
+// mixer
+document.querySelector(".header_mixer").addEventListener("click", () => {
+  console.log("open mixer window");
+  new MixerWindow();
+});
+
+// playlist
+document.querySelector(".header_playlist").addEventListener("click", () => {
+  console.log("open playlist window");
+  new Playlist();
+});

@@ -19,11 +19,11 @@ exports.Plugin = void 0;
 var CustomPlugin_1 = require("../../src/CustomPlugin");
 var Plugin = /** @class */ (function (_super) {
     __extends(Plugin, _super);
-    function Plugin() {
-        var _this = _super.call(this) || this;
+    function Plugin(pluginpath) {
+        var _this = _super.call(this, pluginpath) || this;
         _this.name = "MyCustomPlugin";
-        _this.initialiseUI();
         return _this;
+        //this.initialiseUI();
     }
     Plugin.prototype.initialiseUI = function () {
         // draw those little lines and numbers on the slider
@@ -57,22 +57,23 @@ var Plugin = /** @class */ (function (_super) {
     };
     Plugin.prototype.onAudioNodeLoaded = function () {
         this.level = this.audio_node.parameters.get("level");
+        // TODO put this in some other function that loads, only when the ui is loaded as a window
         // add drag functionality to the handle
-        var handle = document.querySelector(".plugin-handle");
-        var canvas = document.querySelector(".plugin-slider-background");
-        var temp_this = this;
-        function handleMovement(e) {
-            var value = Math.min(Math.max(-26, handle.offsetTop + e.movementY), canvas.height - 37);
+        /*let handle = document.querySelector(".plugin-handle") as HTMLElement;
+        let canvas = document.querySelector(".plugin-slider-background") as HTMLCanvasElement;
+        let temp_this = this;
+        function handleMovement(e: MouseEvent) {
+            let value = Math.min(Math.max(-26, handle.offsetTop + e.movementY), canvas.height - 37);
             handle.style.top = value + "px";
             temp_this.level.value = 1 - (value + 26) / (26 + (canvas.height - 37));
             //console.log(temp_this.level.value);
         }
-        handle.addEventListener("mousedown", function () {
+        handle.addEventListener("mousedown", () => {
             document.addEventListener("mousemove", handleMovement);
         });
-        document.addEventListener("mouseup", function () {
+        document.addEventListener("mouseup", () => {
             document.removeEventListener("mousemove", handleMovement);
-        });
+        });*/
     };
     return Plugin;
 }(CustomPlugin_1.CustomPlugin));

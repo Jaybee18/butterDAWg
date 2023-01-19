@@ -3,12 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CustomPlugin = void 0;
 var globals_1 = require("./globals");
 var CustomPlugin = /** @class */ (function () {
-    function CustomPlugin() {
+    function CustomPlugin(pluginpath) {
         var _this = this;
-        globals_1.globals.audiocontext.audioWorklet.addModule("./plugins/TestPlugin/plugin.js").then(function () {
+        // "./plugins/TestPlugin/plugin.js"
+        globals_1.globals.audiocontext.audioWorklet.addModule(pluginpath).then(function () {
             _this.initialiseAudioNode();
             _this.onAudioNodeLoaded();
-            console.log("plugin loaded");
+            console.log("plugin loaded: " + pluginpath);
         });
     }
     CustomPlugin.prototype.getName = function () {

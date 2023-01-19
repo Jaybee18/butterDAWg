@@ -8,6 +8,7 @@ var Globals = /** @class */ (function () {
         this.context_menus = []; // all open context menus
         this.windows = [];
         //audio_graph_nodes: Array<AudioGraphNode> = [];
+        this.plugins = [];
         this.deactivate_space_to_play = false;
         // contains the currently dragged element
         this.current_drag_element = null;

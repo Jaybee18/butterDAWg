@@ -7,13 +7,14 @@
 }
 
 .mixer {
-    width: 80%;
+    flex: 1;
 }
 
 .mixer_toolbar {
     height: 20px;
     display: flex;
     align-items: center;
+    display: none;
 }
 
 .mixer_toolbar > .tool_button {
@@ -30,13 +31,14 @@
 }
 
 .mixer_channels_wrapper {
-    height: calc(100% - 20px);
+    height: 100%;
     display: flex;
     overflow: hidden;
     border: solid 1px #293237;
 }
 
 .mixer_plugins {
+    min-width: 255px;
     width: 19.5%;
     margin-left: 0.25%;
     display: flex;
@@ -45,11 +47,12 @@
 
 .plugins_toolbar {
     height: 20px;
+    display: none;
 }
 
 .plugins_content {
     border: solid 1px #353e43;
-    height: calc(100% - 20px);
+    height: 100%;
     background-color: #5f686d;
     display: flex;
     flex-direction: column;
