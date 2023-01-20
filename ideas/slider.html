@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<style>
+    body {
+        background: #6e28d9;
+        padding: 0 24px;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .slider {
+        width: 60px;
+        height: 300px;
+        position: relative;
+    }
+
+    .background {
+        position: relative;
+        width: inherit;
+        height: inherit;
+        background: rgba(128, 128, 128, 0.322);
+    }
+
+    .groove {
+        position: absolute;
+        height: inherit;
+        width: 8px;
+        border-radius: 3px;
+        background: #1d1d1d;
+        top: 0px;
+        left: calc(50% - 4px);
+    }
+
+    .handle {
+        width: inherit;
+        height: 120px;
+        border: 1.5px solid #e9e9e9;
+        position: absolute;
+        top: 0px;
+        border-radius: 4px;
+        background: #d5d5d5;
+    }
+
+    .top-handle {
+        width: inherit;
+        height: 33%;
+        position: absolute;
+        top: 14%;
+        right: -1px;
+        background: linear-gradient(rgba(114, 114, 114, 0.562), rgb(206, 206, 206));
+        border-radius: 3px 3px 0 0;
+    }
+
+    .bottom-handle-grey {
+        width: calc(100% + 1px);
+        height: 14%;
+        position: absolute;
+        bottom: -1px;
+        right: -1px;
+        background-color: rgba(128, 128, 128, 0.409);
+        border-radius: 3px;
+        background: linear-gradient(white, 10%, rgba(54, 54, 54, 0.409));
+    }
+
+    .top-handle-stripe-1 {
+        width: inherit;
+        height: 2.5px;
+        position: absolute;
+        top: 10%;
+        background: grey;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 1), 0%, rgb(228, 228, 228), 30%);
+    }
+
+    .top-handle-stripe-2 {
+        width: inherit;
+        height: 3px;
+        position: absolute;
+        top: 36%;
+        background: linear-gradient(grey, rgb(242, 241, 241));
+    }
+
+    .top-handle-stripe-3 {
+        width: inherit;
+        height: 4px;
+        position: absolute;
+        top: 66%;
+        background: linear-gradient(grey, rgb(242, 241, 241));
+    }
+
+    .handle-dark {
+        width: 64px;
+        left: -2px;
+        height: 5px;
+        background-color: rgb(94, 94, 94);
+        position: absolute;
+        top: calc(50% - 2.5px);
+        box-shadow: inset 1px 0 1px 0px white, inset -1px 0 5px 0 rgb(52, 52, 52);
+    }
+
+    .bottom-handle-stripe-1 {
+        width: inherit;
+        height: 4px;
+        position: absolute;
+        top: 60%;
+        background: linear-gradient(grey, rgb(242, 241, 241));
+    }
+    .bottom-handle-stripe-2 {
+        width: inherit;
+        height: 3px;
+        position: absolute;
+        top: 70%;
+        background: linear-gradient(grey, rgb(242, 241, 241));
+    }
+    .bottom-handle-stripe-3 {
+        width: inherit;
+        height: 2.5px;
+        position: absolute;
+        top: 80%;
+        background: linear-gradient(grey, rgb(242, 241, 241));
+    }
+</style>
+
+<body>
+    <div class="slider">
+        <canvas class="background"></canvas>
+        <div class="groove"></div>
+        <div class="handle">
+            <div class="top-handle">
+                <div class="top-handle-stripe-1"></div>
+                <div class="top-handle-stripe-2"></div>
+                <div class="top-handle-stripe-3"></div>
+            </div>
+            <div class="handle-dark"></div>
+            <div class="bottom-handle-stripe-1"></div>
+            <div class="bottom-handle-stripe-2"></div>
+            <div class="bottom-handle-stripe-3"></div>
+            <div class="bottom-handle-grey"></div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -6,7 +6,16 @@ there are some deviations from the original that I believe improve the UX
 
 Basic audio functionality implemented
  
- 
+
+version 0.5.0:
++ windowmanager massively improved
++ audio playback reworked (mor efficinci + better UX)
++ playlist view internally reworked (now a canvas instead of thousands of divs)
++ plugins can now be independently created with their own HTML/CSS/JS files and dynamically loaded in
+
+![butterDAWg_v5 0](https://user-images.githubusercontent.com/64578396/211222614-d9ad333d-e9fa-46cb-b29c-fc76fba8ed66.png)
+
+
 version 0.4.2:
 + Added Audio Graph bc idk
 + we now got windows in this bitch

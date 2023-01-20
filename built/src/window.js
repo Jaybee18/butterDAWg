@@ -5,12 +5,19 @@ var globals_1 = require("./globals");
 var electron_1 = require("electron");
 var Color_1 = require("./Color");
 var Window = /** @class */ (function () {
-    function Window() {
+    function Window(callInitialiseContent) {
+        if (callInitialiseContent === void 0) { callInitialiseContent = true; }
         this.id = Math.round(Date.now() * Math.random()).toString();
         this.initElement();
         this.toolbar = this.element.querySelector(".toolbar");
         this.content = this.element.querySelector(".content");
         globals_1.globals.windows.push(this);
+        if (callInitialiseContent)
+            this.initialiseContent();
+        this.size = {
+            width: this.element.clientWidth,
+            height: this.element.clientHeight,
+        };
     }
     Window.prototype.initElement = function () {
         var _this = this;
@@ -35,6 +42,7 @@ var Window = /** @class */ (function () {
         function windowmove(e) {
             temp_this.element.style.left = Math.max(e.clientX - cursor_down.x + window_down.x, sidebar_width) + "px";
             temp_this.element.style.top = Math.max(e.clientY - cursor_down.y + window_down.y, header_height) + "px";
+            temp_this.setContentSize();
         }
         this.get(".toolbar").addEventListener("mousedown", function (e) {
             // it looks ugly for the window to very briefly appear 
@@ -120,7 +128,6 @@ var Window = /** @class */ (function () {
             tool: false,
             customCss: "transform: scale(0.9)"
         });
-        this.initialiseContent();
     };
     Window.prototype.getToolbar = function () {
         return this.get(".toolbar > .tools");
@@ -136,8 +143,38 @@ var Window = /** @class */ (function () {
         this.element.style.zIndex = index.toString();
     };
     Window.prototype.setContentSize = function (width, height) {
-        this.element.style.width = width + "px";
-        this.element.style.height = height + "px";
+        if (width === void 0) { width = undefined; }
+        if (height === void 0) { height = undefined; }
+        // if width and height are undefined, this should just
+        // act like a size update function
+        if (width === undefined && height === undefined) {
+            if ((0, globals_1.cumulativeOffset)(this.element).left + this.element.clientWidth > window.innerWidth) {
+                width = window.innerWidth - (0, globals_1.cumulativeOffset)(this.element).left;
+                height = this.element.clientHeight;
+            }
+            else if (window.innerWidth - (0, globals_1.cumulativeOffset)(this.element).left < this.size.width) {
+                width = window.innerWidth - (0, globals_1.cumulativeOffset)(this.element).left;
+            }
+            var pos = (0, globals_1.cumulativeOffset)(this.element);
+            if (pos.left + this.element.clientWidth > window.innerWidth) {
+                width = window.innerWidth - pos.left;
+            }
+            else if (window.innerWidth - pos.left < this.size.width) {
+                width = window.innerWidth - pos.left;
+            }
+            if (pos.top + this.element.clientHeight > window.innerHeight) {
+                height = window.innerHeight - pos.top;
+            }
+            else if (window.innerHeight - pos.top < this.size.height) {
+                height = window.innerHeight - pos.top;
+            }
+        }
+        else {
+            this.size = { width: width, height: height };
+        }
+        this.element.style.width = Math.min(width, this.size.width) + "px";
+        this.element.style.height = Math.min(this.size.height, height) + "px";
+        this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     };
     // resize method that gets called on window resize events
     Window.prototype.onResizeContent = function (newWidth, newHeight) { };
@@ -191,18 +228,24 @@ var Window = /** @class */ (function () {
         this.element.style.height = main.clientHeight + "px";
         this.element.style.left = (0, globals_1.cumulativeOffset)(main).left + "px";
         this.element.style.top = (0, globals_1.cumulativeOffset)(main).top + "px";
+        this.updateSize();
         this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     };
     Window.prototype.minimize = function () {
         this.element.style.height = "min-content";
         this.content.style.display = "none";
         this.minimized = true;
+        this.updateSize();
         this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     };
     Window.prototype.anti_minimize = function () {
         this.content.style.display = "block";
         this.minimized = false;
+        this.updateSize();
         this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
+    };
+    Window.prototype.updateSize = function () {
+        this.size = { width: this.element.clientWidth, height: this.element.clientHeight };
     };
     return Window;
 }());

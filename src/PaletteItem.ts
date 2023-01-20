@@ -5,7 +5,6 @@ import { readFileSync } from "fs";
 export class Item extends Draggable {
 
 	file: WaveFile;
-	depth_type: Float32ArrayConstructor; // TODO needed?
 	contents: string | Map<string, string>;
 	active: boolean;
 	indent: number;
@@ -22,8 +21,6 @@ export class Item extends Draggable {
 		this.indent = indent;
 		this.children = [];
 		this.title = title;
-		this.depth = "32f";
-		this.depth_type = Float32Array;
 		this.depth_max = 1.0;
 
 		// construct container
@@ -34,6 +31,7 @@ export class Item extends Draggable {
 		a.style.marginLeft = indent * globals.palette_indent_width + "px";
 		this.element = a;
 		// add icon
+		// TODO display a little loading circle while the sample is being loaded in, when the user opens a folder
 		var ending = title.split(".").pop();
 		if (ending === "wav") {
 			var type_icon = document.createElement("i");

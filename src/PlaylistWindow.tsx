@@ -12,29 +12,32 @@ class TrackItem {
 
 	private item: Item;
 	private position: {x: number, y: number};
-	private trackIndex: number;
 	private width: number;
 	public canvas: HTMLCanvasElement;
 
 	private buffer: AudioBuffer;
 	private source: AudioBufferSourceNode;
+	private data: Float64Array;
+
+	private track: Track;
 
 	constructor(item: Item) {
 		this.item = item;
 		this.position = {x: 0, y: 0}; // offset from the left in px
+		this.track = globals.tracks[0];
 		this.canvas = document.createElement("canvas");
 		
 		// create an offscreen canvas template to render this sample to the main canvas
 		this.canvas.width = 20 * 12;
 		this.canvas.height = 70;
-
-		this.setWidth(ms_to_pixels(item.getDuration()*1000));
-
+		
 		// load audio data for playback
-		let data = this.item.getData();
-		this.buffer = globals.audiocontext.createBuffer(2, data.length, globals.audiocontext.sampleRate * 2);
-		this.buffer.copyToChannel(Float32Array.from(data), 0);
-		this.buffer.copyToChannel(Float32Array.from(data), 1);
+		this.data = this.item.getData();
+		this.buffer = globals.audiocontext.createBuffer(2, this.data.length, globals.audiocontext.sampleRate * 2);
+		this.buffer.copyToChannel(Float32Array.from(this.data), 0);
+		this.buffer.copyToChannel(Float32Array.from(this.data), 1);
+		
+		this.setWidth(ms_to_pixels(item.getDuration()*1000));
 
 		this.updateCanvas();
 	}
@@ -44,16 +47,15 @@ class TrackItem {
 		ctx.translate(0.5, 0.5);
 
 		// draw the actual waveform into the frame
-		let data = this.item.getData();
 		ctx.beginPath();
 		ctx.lineCap = "round";
 		ctx.lineJoin = "bevel";
 		ctx.strokeStyle = "#fff";
-		ctx.lineWidth = 1.5;
-		const step = data.length / this.canvas.width;
+		ctx.lineWidth = 1.2;
+		const step = this.data.length / this.canvas.width;
 		ctx.moveTo(0, this.canvas.height * 1.5);
-		for (let i = 0; i < data.length; i++) {
-			ctx.lineTo(i / step, Math.sin(data[i] * 100 * (Math.PI / 180)) * 30 + this.canvas.height / 2);
+		for (let i = 0; i < this.data.length; i+=2) {
+			ctx.lineTo(i / step, Math.sin(this.data[i] * 100 * (Math.PI / 180)) * 30 + this.canvas.height / 2);
 		}
 		ctx.stroke();
 
@@ -74,6 +76,7 @@ class TrackItem {
 
 	setPosition(newPos: {x: number, y: number}) {
 		this.position = newPos;
+		this.track = globals.tracks[Math.floor(this.position.y / 70)];
 	}
 
 	setWidth(width: number) {
@@ -82,12 +85,8 @@ class TrackItem {
 		this.updateCanvas();
 	}
 
-	getTrackIndex() {
-		return this.trackIndex;
-	}
-
-	setTrackIndex(index: number) {
-		this.trackIndex = index;
+	scaleTo(width: number, height: number) {
+		this.width = width;
 	}
 
 	expand(delta: number) {
@@ -104,7 +103,7 @@ class TrackItem {
 
 	play() {
 		this.source = new AudioBufferSourceNode(globals.audiocontext, {buffer: this.buffer} as AudioBufferSourceOptions);
-		this.source.connect(globals.audiocontext.destination);
+		this.source.connect(this.track.audio_node);
 		
 		// TODO there is also a offset parameter in .start() -> use that when the cursor is somewhere
 		// in the middle of the sample
@@ -123,16 +122,18 @@ class TrackItem {
 
 export class Playlist extends Window {
 
-	private tracks: Array<Track>;
+	tracks: Array<Track>;
 	private samples: Array<TrackItem>;
 	private scroll: number;
 	private currentHoverSample: TrackItem;
 
 	constructor() {
-		super();
+		super(false);
 		this.tracks = [];
 		this.samples = [];
 		this.scroll = 0;
+
+		this.initialiseContent();
 	}
 
 	initialiseContent(): void {
@@ -222,10 +223,37 @@ export class Playlist extends Window {
 		});
 
 		// scroll listeners
+		let last_scroll_event_timestamp: number = null;
+		let refreshTimer: NodeJS.Timeout = null;
 		this.get(".tracks").addEventListener("wheel", (e) => {
 			e.preventDefault();
 			if (globals.control_down) {
-				globals.xsnap -= e.deltaY / 100;
+				let delta = e.deltaY / 100;
+				let ratio = (globals.xsnap-delta)/globals.xsnap;
+
+				let temp_timestamp = Date.now();
+				let time_since_last_scroll_event = last_scroll_event_timestamp === null ? 0 : temp_timestamp - last_scroll_event_timestamp;
+				last_scroll_event_timestamp = temp_timestamp;
+				
+				this.samples.forEach(s => {
+					s.setPosition({x: s.getPosition().x*ratio, y: s.getPosition().y});
+					if (time_since_last_scroll_event > 300) {
+						s.setWidth(s.getWidth()*ratio);
+					} else {
+						s.scaleTo(s.getWidth()*ratio, 1);
+						clearTimeout(refreshTimer);
+					}
+				});
+
+				refreshTimer = setTimeout(async () => {
+					this.samples.forEach(s => {
+						s.setWidth(s.getWidth()); 
+					});
+					this.updatePlaylist();
+					last_scroll_event_timestamp = null;
+				}, 500);
+
+				globals.xsnap -= delta;
 			}
 			this.updateBarLabels();
 			this.updatePlaylist();
@@ -290,7 +318,7 @@ export class Playlist extends Window {
 					this.currentHoverSample = this.samples[c.indexOf(true)];
 
 					// display a resize cursor at the edge of the sample
-					if (e.clientX - base.left + this.scroll > this.currentHoverSample.getPosition().x + this.currentHoverSample.getWidth() - 5) {
+					if (e.clientX - base.left + this.scroll > this.currentHoverSample.getSnappedPosition().x + this.scroll + this.currentHoverSample.getWidth() - 5) {
 						this.get(".tracks_canvas").style.cursor = "e-resize";
 					} else {
 						this.get(".tracks_canvas").style.cursor = "move";
@@ -320,7 +348,7 @@ export class Playlist extends Window {
 		// play listener
 		let track_cursor = this.get(".bars_cursor");
 		let cursor_anim: NodeJS.Timer = null;
-		let cursor_pos = track_cursor.offsetLeft;
+		globals.cursor_pos = track_cursor.offsetLeft;
 		const interval_time = 10;
 		const cursor_step = ms_to_pixels(interval_time);
 		document.addEventListener("keypress", (e) => {
@@ -336,8 +364,8 @@ export class Playlist extends Window {
 
 					// animate the play cursor
 					cursor_anim = setInterval(() => {
-						cursor_pos += cursor_step;
-						track_cursor.style.left = cursor_pos + "px";
+						globals.cursor_pos += cursor_step;
+						track_cursor.style.left = globals.cursor_pos + "px";
 						globals.current_time += 10;
 					}, interval_time);
 
@@ -516,7 +544,7 @@ export class Playlist extends Window {
 		// draw samples
 		this.samples.forEach(sample => {
 			const p = sample.getSnappedPosition();
-			ctx.drawImage(sample.canvas, p.x - o, p.y);
+			ctx.drawImage(sample.canvas, p.x - o, p.y, sample.getWidth(), 70);
 
 			// draw the frame of the sample
 			const color = "#a34bf2"

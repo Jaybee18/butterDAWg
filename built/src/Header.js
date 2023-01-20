@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var globals_1 = require("./globals");
+var MixerWindow_1 = require("./MixerWindow");
+var PlaylistWindow_1 = require("./PlaylistWindow");
 // bpm count drag functionality
 var bpm_count = document.querySelector(".bpm");
 var bpm_count_text = document.getElementById("bpm_count");
@@ -31,3 +33,13 @@ scope_song.addEventListener("click", function () {
     }
 });
 scope_pat.click();
+// mixer
+document.querySelector(".header_mixer").addEventListener("click", function () {
+    console.log("open mixer window");
+    new MixerWindow_1.MixerWindow();
+});
+// playlist
+document.querySelector(".header_playlist").addEventListener("click", function () {
+    console.log("open playlist window");
+    new PlaylistWindow_1.Playlist();
+});

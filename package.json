@@ -77,7 +77,7 @@
         "yauzl": "^2.10.0"
     },
     "scripts": {
-        "start": "electron --inspect ."
+        "start": "electron --remote-debugging-port=9222 ."
     },
     "repository": {
         "type": "git",

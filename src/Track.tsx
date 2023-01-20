@@ -197,25 +197,38 @@ let new_context_menu = new ContextMenu(context_items, context_event_listeners);
  * 
  *    class definition
  */
+/*
+	audio setup:
+	|
+	| input
+	|
+audio_node
+	|
+	| output
+	|
+
+	output can then be connected to a channel
+*/
 export class Track {
 
 	element: any;
+	title: string = "";
 	id: string = Date.now().toString();
+	color: Color | null = null;
+
 	samples: Array<TrackSample> = [];
 	hover_buffer: TrackSample | null = null;
-	color: Color | null = null;
 	play_indicator_color: Color = new Color(51, 63, 70);
-	title: string = "";
 	enabled: boolean = true;
 	resize_locked: boolean = false
-	channel: Channel | null = null;
+	//channel: Channel | null = null;
 	content: HTMLElement;
 	description: HTMLElement;
 	sound_indicator: HTMLElement;
 	radio_btn: HTMLElement;
-	audio_node: AudioNode;
 	scroll: number;
-	//passthrough_node: PassthroughNode;
+
+	audio_node: AudioNode;
 
 	constructor() {
 		this.scroll = 0;
@@ -233,8 +246,9 @@ export class Track {
 
 		// all audio modules should've been loaded in the Playlist Window class
 		// so they can be used without checking if they have been imported first
-		this.audio_node = new AudioWorkletNode(globals.audiocontext, "passthrough");
-		this.audio_node.connect(globals.audiocontext.destination);
+		this.audio_node = new AudioWorkletNode(globals.audiocontext, "track");
+		//this.audio_node.connect(globals.temptemp.getAudioNode());
+		//globals.temptemp.connect(globals.audiocontext.destination);
 
 		// construct own element
 		/*this.element = 
@@ -317,14 +331,16 @@ export class Track {
 	}
 
 	connect(channel: Channel) {
-		this.channel = channel;
+		//this.channel = channel;
 
 		// connect the track to the first element of the 
 		// channel audio node pipeline
 		//this.passthrough_node.connect(channel.getFirstAudioNode());
 
 		// finally enable the channel
-		this.channel.toggle();
+		//this.channel.toggle();
+
+		this.audio_node.connect(channel.getFirstAudioNode());
 	}
 
 	setPlayIndicator(percent: number) {
@@ -498,9 +514,9 @@ export class Track {
 		});
 
 		let drag_container = document.getElementById("drag_container");
-		let bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
-		let bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
-		let maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
+		//let bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
+		//let bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
+		//let maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
 		/*this.content.addEventListener("wheel", (e) => {
 			if (e.shiftKey) {
 				e.preventDefault();

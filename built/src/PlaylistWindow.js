@@ -14,6 +14,42 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Playlist = void 0;
 var window_1 = require("./window");
@@ -27,32 +63,32 @@ var TrackItem = /** @class */ (function () {
     function TrackItem(item) {
         this.item = item;
         this.position = { x: 0, y: 0 }; // offset from the left in px
+        this.track = globals_1.globals.tracks[0];
         this.canvas = document.createElement("canvas");
         // create an offscreen canvas template to render this sample to the main canvas
         this.canvas.width = 20 * 12;
         this.canvas.height = 70;
-        this.setWidth((0, globals_1.ms_to_pixels)(item.getDuration() * 1000));
         // load audio data for playback
-        var data = this.item.getData();
-        this.buffer = globals_1.globals.audiocontext.createBuffer(2, data.length, globals_1.globals.audiocontext.sampleRate * 2);
-        this.buffer.copyToChannel(Float32Array.from(data), 0);
-        this.buffer.copyToChannel(Float32Array.from(data), 1);
+        this.data = this.item.getData();
+        this.buffer = globals_1.globals.audiocontext.createBuffer(2, this.data.length, globals_1.globals.audiocontext.sampleRate * 2);
+        this.buffer.copyToChannel(Float32Array.from(this.data), 0);
+        this.buffer.copyToChannel(Float32Array.from(this.data), 1);
+        this.setWidth((0, globals_1.ms_to_pixels)(item.getDuration() * 1000));
         this.updateCanvas();
     }
     TrackItem.prototype.updateCanvas = function () {
         var ctx = this.canvas.getContext("2d");
         ctx.translate(0.5, 0.5);
         // draw the actual waveform into the frame
-        var data = this.item.getData();
         ctx.beginPath();
         ctx.lineCap = "round";
         ctx.lineJoin = "bevel";
         ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 1.5;
-        var step = data.length / this.canvas.width;
+        ctx.lineWidth = 1.2;
+        var step = this.data.length / this.canvas.width;
         ctx.moveTo(0, this.canvas.height * 1.5);
-        for (var i = 0; i < data.length; i++) {
-            ctx.lineTo(i / step, Math.sin(data[i] * 100 * (Math.PI / 180)) * 30 + this.canvas.height / 2);
+        for (var i = 0; i < this.data.length; i += 2) {
+            ctx.lineTo(i / step, Math.sin(this.data[i] * 100 * (Math.PI / 180)) * 30 + this.canvas.height / 2);
         }
         ctx.stroke();
     };
@@ -68,17 +104,15 @@ var TrackItem = /** @class */ (function () {
     };
     TrackItem.prototype.setPosition = function (newPos) {
         this.position = newPos;
+        this.track = globals_1.globals.tracks[Math.floor(this.position.y / 70)];
     };
     TrackItem.prototype.setWidth = function (width) {
         this.width = width;
         this.canvas.width = this.width;
         this.updateCanvas();
     };
-    TrackItem.prototype.getTrackIndex = function () {
-        return this.trackIndex;
-    };
-    TrackItem.prototype.setTrackIndex = function (index) {
-        this.trackIndex = index;
+    TrackItem.prototype.scaleTo = function (width, height) {
+        this.width = width;
     };
     TrackItem.prototype.expand = function (delta) {
         this.width += delta;
@@ -91,7 +125,7 @@ var TrackItem = /** @class */ (function () {
     };
     TrackItem.prototype.play = function () {
         this.source = new AudioBufferSourceNode(globals_1.globals.audiocontext, { buffer: this.buffer });
-        this.source.connect(globals_1.globals.audiocontext.destination);
+        this.source.connect(this.track.audio_node);
         // TODO there is also a offset parameter in .start() -> use that when the cursor is somewhere
         // in the middle of the sample
         var timestamp = globals_1.globals.audiocontext.currentTime + ((0, globals_1.pixels_to_ms)(this.getSnappedPosition().x) / 1000 - globals_1.globals.current_time / 1000);
@@ -110,10 +144,11 @@ var TrackItem = /** @class */ (function () {
 var Playlist = /** @class */ (function (_super) {
     __extends(Playlist, _super);
     function Playlist() {
-        var _this = _super.call(this) || this;
+        var _this = _super.call(this, false) || this;
         _this.tracks = [];
         _this.samples = [];
         _this.scroll = 0;
+        _this.initialiseContent();
         return _this;
     }
     Playlist.prototype.initialiseContent = function () {
@@ -183,10 +218,37 @@ var Playlist = /** @class */ (function (_super) {
             }
         });
         // scroll listeners
+        var last_scroll_event_timestamp = null;
+        var refreshTimer = null;
         this.get(".tracks").addEventListener("wheel", function (e) {
             e.preventDefault();
             if (globals_1.globals.control_down) {
-                globals_1.globals.xsnap -= e.deltaY / 100;
+                var delta = e.deltaY / 100;
+                var ratio_1 = (globals_1.globals.xsnap - delta) / globals_1.globals.xsnap;
+                var temp_timestamp = Date.now();
+                var time_since_last_scroll_event_1 = last_scroll_event_timestamp === null ? 0 : temp_timestamp - last_scroll_event_timestamp;
+                last_scroll_event_timestamp = temp_timestamp;
+                _this.samples.forEach(function (s) {
+                    s.setPosition({ x: s.getPosition().x * ratio_1, y: s.getPosition().y });
+                    if (time_since_last_scroll_event_1 > 300) {
+                        s.setWidth(s.getWidth() * ratio_1);
+                    }
+                    else {
+                        s.scaleTo(s.getWidth() * ratio_1, 1);
+                        clearTimeout(refreshTimer);
+                    }
+                });
+                refreshTimer = setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        this.samples.forEach(function (s) {
+                            s.setWidth(s.getWidth());
+                        });
+                        this.updatePlaylist();
+                        last_scroll_event_timestamp = null;
+                        return [2 /*return*/];
+                    });
+                }); }, 500);
+                globals_1.globals.xsnap -= delta;
             }
             _this.updateBarLabels();
             _this.updatePlaylist();
@@ -251,7 +313,7 @@ var Playlist = /** @class */ (function (_super) {
                 if (c.some(function (v) { return v; })) {
                     _this.currentHoverSample = _this.samples[c.indexOf(true)];
                     // display a resize cursor at the edge of the sample
-                    if (e.clientX - base.left + _this.scroll > _this.currentHoverSample.getPosition().x + _this.currentHoverSample.getWidth() - 5) {
+                    if (e.clientX - base.left + _this.scroll > _this.currentHoverSample.getSnappedPosition().x + _this.scroll + _this.currentHoverSample.getWidth() - 5) {
                         _this.get(".tracks_canvas").style.cursor = "e-resize";
                     }
                     else {
@@ -281,7 +343,7 @@ var Playlist = /** @class */ (function (_super) {
         // play listener
         var track_cursor = this.get(".bars_cursor");
         var cursor_anim = null;
-        var cursor_pos = track_cursor.offsetLeft;
+        globals_1.globals.cursor_pos = track_cursor.offsetLeft;
         var interval_time = 10;
         var cursor_step = (0, globals_1.ms_to_pixels)(interval_time);
         document.addEventListener("keypress", function (e) {
@@ -295,8 +357,8 @@ var Playlist = /** @class */ (function (_super) {
                     });
                     // animate the play cursor
                     cursor_anim = setInterval(function () {
-                        cursor_pos += cursor_step;
-                        track_cursor.style.left = cursor_pos + "px";
+                        globals_1.globals.cursor_pos += cursor_step;
+                        track_cursor.style.left = globals_1.globals.cursor_pos + "px";
                         globals_1.globals.current_time += 10;
                     }, interval_time);
                     // some logs
@@ -461,7 +523,7 @@ var Playlist = /** @class */ (function (_super) {
         // draw samples
         this.samples.forEach(function (sample) {
             var p = sample.getSnappedPosition();
-            ctx.drawImage(sample.canvas, p.x - o, p.y);
+            ctx.drawImage(sample.canvas, p.x - o, p.y, sample.getWidth(), 70);
             // draw the frame of the sample
             var color = "#a34bf2";
             ctx.strokeStyle = color + "b0";

@@ -3,34 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Channel = void 0;
 var globals_1 = require("./globals");
 var current_selected_channel = null;
-var channel_element = ' <div class="channel">\
-                            <div class="index_indicator">\
-                              <p>20</p>\
-                            </div>\
-                            <div class="channel_label">\
-                              <p>Insert 20</p>\
-                            </div>\
-                            <div class="channel_volume">\
-                              <div class="channel_volume_indicator">\
-                                <div class="selection_indicator"></div>\
-                                <div class="indicator_top"></div>\
-                                <div class="indicator_bottom"></div>\
-                              </div>\
-                              <div class="channel_toggle">\
-                                <div class="channel_toggle_green"></div>\
-                              </div>\
-                              <div class="channel_pan">\
-                                <div class="channel_pan_knob"></div>\
-                              </div>\
-                            </div>\
-                            <div class="channel_volume_slider">\
-                              <div class="channel_volume_knob">\
-                                <div class="channel_volume_knob_peak"></div>\
-                              </div>\
-                              <div class="channel_volume_background"></div>\
-                            </div>\
-                            <div class="channel_links"></div>\
-                          </div>';
 var Channel = /** @class */ (function () {
     function Channel(index) {
         this.element = null;
@@ -42,30 +14,42 @@ var Channel = /** @class */ (function () {
         this.id = Math.round(Date.now() * Math.random());
         this.merger_node = null;
         this.analyzer_node = null;
-        this.audionodes = [];
+        //this.audionodes = [];
+        this.plugins = [];
         this.level_indicator = null;
+        this.selected = false;
         // construct element
         this.createElement();
-        this.addToMixer();
         // initialize audio nodes
         this.initializeAudio();
         this.initializeEventListeners();
         this.toggle();
     }
     Channel.prototype.createElement = function () {
-        var a = document.createElement("div");
-        a.innerHTML = channel_element;
-        var b = a.firstElementChild;
-        b.querySelector(".index_indicator > p").innerHTML = this.index.toString();
-        b.querySelector(".channel_label > p").innerHTML = "Insert " + this.index;
-        var c = b.querySelector(".channel_volume_knob");
+        this.element = globals_1.React.createElement("div", { className: "channel" },
+            globals_1.React.createElement("div", { className: "index_indicator" },
+                globals_1.React.createElement("p", null, "20")),
+            globals_1.React.createElement("div", { className: "channel_label" },
+                globals_1.React.createElement("p", null, "Insert 20")),
+            globals_1.React.createElement("div", { className: "channel_volume" },
+                globals_1.React.createElement("div", { className: "channel_volume_indicator" },
+                    globals_1.React.createElement("div", { className: "selection_indicator" }),
+                    globals_1.React.createElement("div", { className: "indicator_top" }),
+                    globals_1.React.createElement("div", { className: "indicator_bottom" })),
+                globals_1.React.createElement("div", { className: "channel_toggle" },
+                    globals_1.React.createElement("div", { className: "channel_toggle_green" })),
+                globals_1.React.createElement("div", { className: "channel_pan" },
+                    globals_1.React.createElement("div", { className: "channel_pan_knob" }))),
+            globals_1.React.createElement("div", { className: "channel_volume_slider" },
+                globals_1.React.createElement("div", { className: "channel_volume_knob" },
+                    globals_1.React.createElement("div", { className: "channel_volume_knob_peak" })),
+                globals_1.React.createElement("div", { className: "channel_volume_background" })),
+            globals_1.React.createElement("div", { className: "channel_links" }));
+        this.element.querySelector(".index_indicator > p").innerHTML = this.index.toString();
+        this.element.querySelector(".channel_label > p").innerHTML = "Insert " + this.index;
+        var c = this.element.querySelector(".channel_volume_knob");
         c.style.top = "11.4px";
-        this.level_indicator = b.querySelector(".indicator_top");
-        this.element = b;
-    };
-    Channel.prototype.addToMixer = function () {
-        var mixer = document.querySelector(".mixer_channels_wrapper");
-        mixer.appendChild(this.element);
+        this.level_indicator = this.element.querySelector(".indicator_top");
     };
     Channel.prototype.initializeAudio = function () {
         this.merger_node = new ChannelMergerNode(globals_1.globals.audiocontext);
@@ -74,14 +58,31 @@ var Channel = /** @class */ (function () {
         this.analyzer_node.connect(globals_1.globals.audiocontext.destination);
     };
     Channel.prototype.getFirstAudioNode = function () {
+        console.log("probably don't need this");
         // return the first node of this channels audio pipeline
         return this.merger_node;
+    };
+    Channel.prototype.getPlugins = function () {
+        return this.plugins;
+    };
+    Channel.prototype.addPlugin = function (plugin) {
+        if (this.plugins.length === 0) {
+            console.log(plugin.getAudioNode());
+            this.merger_node.connect(plugin.getAudioNode());
+            this.plugins.push(plugin);
+        }
+        else {
+            var lastPlugin = this.plugins[this.plugins.length - 1];
+            lastPlugin.getAudioNode().disconnect();
+            lastPlugin.getAudioNode().connect(plugin.getAudioNode());
+            plugin.getAudioNode().connect(this.analyzer_node);
+        }
     };
     Channel.prototype.initializeEventListeners = function () {
         var _this = this;
         var temp_this = this;
         var volume_slider = this.element.querySelector(".channel_volume_knob");
-        var slider_height = this.element.querySelector(".channel_volume_slider").clientHeight;
+        var slider = this.element.querySelector(".channel_volume_slider");
         var toggle_button = this.element.querySelector(".channel_toggle");
         var pan_knob = this.element.querySelector(".channel_pan");
         var knob_height = volume_slider.clientHeight;
@@ -91,15 +92,14 @@ var Channel = /** @class */ (function () {
                     1.25;
             globals_1.globals.header_help_text.innerHTML = "Volume: " + temp_this.volume + "%";
             volume_slider.style.top =
-                Math.min(Math.max(volume_slider.offsetTop + e.movementY, 4 - knob_height / 2), slider_height - knob_height / 2 - 4) + "px";
+                Math.min(Math.max(volume_slider.offsetTop + e.movementY, 4 - knob_height / 2), slider.clientHeight - knob_height / 2 - 4) + "px";
         }
         volume_slider.addEventListener("mousedown", function () {
             document.addEventListener("mousemove", slider_move);
         });
         document.addEventListener("mouseup", function () {
             document.removeEventListener("mousemove", slider_move);
-            volume_slider.style.top =
-                (volume_slider.offsetTop / slider_height) * 100 + "%";
+            volume_slider.style.top = (volume_slider.offsetTop / slider.clientHeight) * 100 + "%";
         });
         volume_slider.addEventListener("mouseenter", function () {
             globals_1.globals.header_help_text.innerHTML = "Volume: " + _this.volume + "%";
@@ -198,6 +198,10 @@ var Channel = /** @class */ (function () {
             volume_wrapper.style.background =
                 "linear-gradient(#374045, var(--bg-dark))";
         }
+        this.selected = selected;
+    };
+    Channel.prototype.isSelected = function () {
+        return this.selected;
     };
     Channel.prototype.draw = function () {
         var _this = this;
@@ -217,9 +221,3 @@ var Channel = /** @class */ (function () {
     return Channel;
 }());
 exports.Channel = Channel;
-// repeat channels
-for (var i = 0; i < 60; i++) {
-    var a = new Channel(i);
-    a.addToMixer();
-    globals_1.globals.channels.push(a);
-}

@@ -3,6 +3,7 @@ import { Track } from "./Track";
 import { ContextMenu } from "./ContextMenu"
 import { readdirSync } from "fs"
 import { Window } from "./window";
+import { CustomPlugin } from "./CustomPlugin";
 
 
 class Globals {
@@ -11,6 +12,7 @@ class Globals {
 	context_menus: Array<ContextMenu> = []; // all open context menus
 	windows: Array<Window> = [];
 	//audio_graph_nodes: Array<AudioGraphNode> = [];
+	plugins: Array<CustomPlugin> = [];
 
 	deactivate_space_to_play: boolean = false;
 

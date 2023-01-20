@@ -14,32 +14,40 @@ export abstract class Window {
 
     private title: string
     private id: string
-    protected element: any
+    protected element: HTMLElement
     protected toolbar: HTMLElement
     protected content: HTMLElement
     private minimized: boolean
+    private size: {width: number, height: number}
 
-    constructor() {
+    constructor(callInitialiseContent: boolean = true) {
         this.id = Math.round(Date.now() * Math.random()).toString();
         this.initElement();
         this.toolbar = this.element.querySelector(".toolbar");
         this.content = this.element.querySelector(".content");
         globals.windows.push(this);
+
+        if (callInitialiseContent) this.initialiseContent();
+
+        this.size = {
+            width: this.element.clientWidth,
+            height: this.element.clientHeight,
+        };
     }
 
     initElement() {
-        this.element = 
-        <div className="wrapper" id={this.id}>
-            <div className="se_resize"></div>
-            <div className="sw_resize"></div>
-            <div className="nw_resize"></div>
-            <div className="ne_resize"></div>
-            <div className="toolbar">
-                <div className="tools"></div>
-                <div className="window_buttons"></div>
-            </div>
-            <div className="content"></div>
-        </div>;
+        this.element =
+            <div className="wrapper" id={this.id}>
+                <div className="se_resize"></div>
+                <div className="sw_resize"></div>
+                <div className="nw_resize"></div>
+                <div className="ne_resize"></div>
+                <div className="toolbar">
+                    <div className="tools"></div>
+                    <div className="window_buttons"></div>
+                </div>
+                <div className="content"></div>
+            </div> as any;
         document.querySelector(".main_content").appendChild(this.element);
 
         // initialise movement/dragging listeners
@@ -52,6 +60,8 @@ export abstract class Window {
         function windowmove(e: MouseEvent) {
             temp_this.element.style.left = Math.max(e.clientX - cursor_down.x + window_down.x, sidebar_width) + "px";
             temp_this.element.style.top = Math.max(e.clientY - cursor_down.y + window_down.y, header_height) + "px";
+
+            temp_this.setContentSize();
         }
         this.get(".toolbar").addEventListener("mousedown", (e) => {
             // it looks ugly for the window to very briefly appear 
@@ -141,8 +151,6 @@ export abstract class Window {
             tool: false,
             customCss: "transform: scale(0.9)"
         } as toolbarButtonOptions);
-
-        this.initialiseContent();
     }
 
     getToolbar() {
@@ -164,13 +172,40 @@ export abstract class Window {
         this.element.style.zIndex = index.toString();
     }
 
-    setContentSize(width: number, height: number) {
-        this.element.style.width = width + "px";
-        this.element.style.height = height + "px";
+    setContentSize(width: number = undefined, height: number = undefined) {
+        // if width and height are undefined, this should just
+        // act like a size update function
+        if (width === undefined && height === undefined) {
+            if (cumulativeOffset(this.element).left + this.element.clientWidth > window.innerWidth) {
+                width = window.innerWidth - cumulativeOffset(this.element).left;
+                height = this.element.clientHeight;
+            } else if (window.innerWidth - cumulativeOffset(this.element).left < this.size.width) {
+                width = window.innerWidth - cumulativeOffset(this.element).left;
+            }
+
+            let pos = cumulativeOffset(this.element);
+            if (pos.left + this.element.clientWidth > window.innerWidth) {
+                width = window.innerWidth - pos.left;
+            } else if (window.innerWidth - pos.left < this.size.width) {
+                width = window.innerWidth - pos.left;
+            }
+            if (pos.top + this.element.clientHeight > window.innerHeight) {
+                height = window.innerHeight - pos.top;
+            } else if (window.innerHeight - pos.top < this.size.height) {
+                height = window.innerHeight - pos.top;
+            }
+
+        } else {
+            this.size = {width: width, height: height};
+        }
+
+        this.element.style.width = Math.min(width, this.size.width) + "px";
+        this.element.style.height = Math.min(this.size.height, height) + "px";
+        this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     }
 
     // resize method that gets called on window resize events
-    onResizeContent(newWidth: number, newHeight: number) {}
+    onResizeContent(newWidth: number, newHeight: number) { }
 
     protected get(query: string): HTMLElement { return this.element.querySelector(query); }
 
@@ -227,6 +262,7 @@ export abstract class Window {
         this.element.style.height = main.clientHeight + "px";
         this.element.style.left = cumulativeOffset(main).left + "px";
         this.element.style.top = cumulativeOffset(main).top + "px";
+        this.updateSize();
         this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     }
 
@@ -234,12 +270,18 @@ export abstract class Window {
         this.element.style.height = "min-content";
         this.content.style.display = "none";
         this.minimized = true;
+        this.updateSize();
         this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
     }
 
     anti_minimize() {
         this.content.style.display = "block";
         this.minimized = false;
+        this.updateSize();
         this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
+    }
+
+    private updateSize() {
+        this.size = {width: this.element.clientWidth, height: this.element.clientHeight};
     }
 }

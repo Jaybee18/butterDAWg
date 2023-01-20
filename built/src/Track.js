@@ -191,18 +191,28 @@ var new_context_menu = new ContextMenu_1.ContextMenu(context_items, context_even
  *
  *    class definition
  */
+/*
+    audio setup:
+    |
+    | input
+    |
+audio_node
+    |
+    | output
+    |
+
+    output can then be connected to a channel
+*/
 var Track = /** @class */ (function () {
-    //passthrough_node: PassthroughNode;
     function Track() {
+        this.title = "";
         this.id = Date.now().toString();
+        this.color = null;
         this.samples = [];
         this.hover_buffer = null;
-        this.color = null;
         this.play_indicator_color = new Color_1.Color(51, 63, 70);
-        this.title = "";
         this.enabled = true;
         this.resize_locked = false;
-        this.channel = null;
         this.scroll = 0;
         /*globals.audiocontext.audioWorklet.addModule("scripts/AudioNodes/passthrough.js").then(() => {
             //this.audio_node = new AudioWorkletNode(audiocontext, "passthrough", {'c': () => {console.log("success");}});
@@ -217,8 +227,9 @@ var Track = /** @class */ (function () {
         });*/
         // all audio modules should've been loaded in the Playlist Window class
         // so they can be used without checking if they have been imported first
-        this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, "passthrough");
-        this.audio_node.connect(globals_1.globals.audiocontext.destination);
+        this.audio_node = new AudioWorkletNode(globals_1.globals.audiocontext, "track");
+        //this.audio_node.connect(globals.temptemp.getAudioNode());
+        //globals.temptemp.connect(globals.audiocontext.destination);
         // construct own element
         /*this.element =
         <div className="track" id="replace_this_id">
@@ -289,12 +300,13 @@ var Track = /** @class */ (function () {
         });
     };
     Track.prototype.connect = function (channel) {
-        this.channel = channel;
+        //this.channel = channel;
         // connect the track to the first element of the 
         // channel audio node pipeline
         //this.passthrough_node.connect(channel.getFirstAudioNode());
         // finally enable the channel
-        this.channel.toggle();
+        //this.channel.toggle();
+        this.audio_node.connect(channel.getFirstAudioNode());
     };
     Track.prototype.setPlayIndicator = function (percent) {
         // set the intensity (in %) of the play indicator
@@ -454,9 +466,9 @@ var Track = /** @class */ (function () {
             globals_1.globals.header_help_text.innerHTML = _this.title;
         });
         var drag_container = document.getElementById("drag_container");
-        var bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
-        var bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
-        var maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
+        //let bars_scrollbar_handle = document.getElementById("tracks_top_bar_scrollbar_handle");
+        //let bars_scrollbar_wrapper = document.querySelector(".tracks_top_bar_scrollbar");
+        //let maxX = bars_scrollbar_wrapper.clientWidth - bars_scrollbar_handle.clientWidth - 40;
         /*this.content.addEventListener("wheel", (e) => {
             if (e.shiftKey) {
                 e.preventDefault();

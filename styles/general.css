@@ -10,6 +10,8 @@
     --border-color: #010102aa;
 
     --text-color: aliceblue;
+
+    --bg-default: #656c76;
 }
 
 * {
@@ -62,7 +64,7 @@ body {
     display: flex;
     flex-direction: row;
     height: calc(100vh - 84px); /* 100% of viewport minus the header */
-    background-color: var(--bg-medium);
+    background-color: var(--bg-default);
 }
 
 .main_content {
