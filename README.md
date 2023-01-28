@@ -14,6 +14,7 @@ Basic audio functionality implemented
 - [X] POC custom plugins
 - [X] basic application of custom plugins
 - [ ] dynamic application of custom plugins
+- [ ] saving and opening of files
 
 # Development
 install all necessary node modules:
