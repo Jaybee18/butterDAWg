@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# exclude jupyter notebooks, since they mess up the language stats
+*.ipynb linguist-vendored
