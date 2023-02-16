@@ -2,7 +2,7 @@ import { Window, toolbarButtonOptions } from "./window";
 import { cumulativeOffset, globals, ms_to_pixels, pixels_to_ms, React, setPixel } from "./globals";
 import { Track } from "./Track";
 import { BrowserWindow } from "electron";
-import { Color } from "./Color";
+import { Color } from "./ui/misc/Color";
 import { readdirSync } from "fs";
 import { AudioGraph } from "./AudioGraphWindow";
 import { setupPalette } from "./Palette";

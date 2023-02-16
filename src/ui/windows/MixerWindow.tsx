@@ -1,34 +1,20 @@
-import { Window } from "./window";
-import { globals, React } from "./globals";
-import { Channel } from "./Channel";
-import { PluginSlot } from "./Mixer";
-import { PluginWindow } from "./temp_plugin_test";
-import { ContextMenu } from "./ContextMenu";
+import { Window } from "../../window";
+import { React, globals } from "../../globals";
+import { ChannelComponent } from "../Components/Channel";
 
 export class MixerWindow extends Window {
 
-	private channels: Array<Channel>
-	private pluginSlotContextMenu: ContextMenu
+	private channels: Array<ChannelComponent>;
 
-	constructor() {
-		super(false);
+    constructor() {
+        super(false);
 
 		this.channels = [];
+		
+        this.initialiseContent();
+    }
 
-		let temp_this = this;
-		this.pluginSlotContextMenu = new ContextMenu(
-            globals.plugins.map(plugin => plugin.getName()),
-            globals.plugins.map(plugin => function () {
-				temp_this.getSelectedChannel().addPlugin(plugin);
-				temp_this.updatePluginSlots(temp_this.getSelectedChannel());
-                return true;
-            })
-        );
-
-		this.initialiseContent();
-	}
-
-	initialiseContent(): void {
+    initialiseContent(): void {
 		this.get(".content").appendChild(
 			<div className="mixer_wrapper">
 				<div className="mixer">
@@ -79,6 +65,9 @@ export class MixerWindow extends Window {
 						<div className="mixer_seperator">
 							<i className="fa-solid fa-ellipsis-vertical"></i>
 						</div>
+						<div className="mixer_channels">
+							{/* the channels will be added here */}
+						</div>
 					</div>
 				</div>
 				<div className="mixer_plugins">
@@ -108,65 +97,24 @@ export class MixerWindow extends Window {
 			</div> as any
 		);
 
-		// add the channels
-		for (let i = 0; i < 20; i++) {
-			let a = new Channel(i);
-			this.get(".mixer_channels_wrapper").appendChild(a.element);
-			this.channels.push(a);
-		}
-
-		this.channels[0].select(true);
-
-		// add the slots
-		for (let i = 0; i < 10; i++) {
-			let tmp = new PluginSlot("Slot " + i);
-			tmp.setArrowEventListener("contextmenu", (e: any) => {
-				this.pluginSlotContextMenu.toggle(e);
-			});
-		}
-
-		// !debugging!
-		/*
-		const pluginpath = "plugins/TestPlugin";
-		let win = new PluginWindow(pluginpath);
-		setTimeout(() => {
-			let plugin = win.getPlugin();
-			console.log(plugin);
-			this.channels[0].addPlugin(plugin);
-	
-			// display the plugins of the first channel
-			this.channels[0].select(true);
-			let channel_plugins = this.channels[0].getPlugins();
-			for (let i = 0; i < 10; i++) {
-				if (i < channel_plugins.length) {
-					new PluginSlot(channel_plugins[i].getName());
-				} else {
-					new PluginSlot("Slot " + i);
-				}
-			}
-		}, 2000);*/
+        this.updateChannels();
 
 		this.setContentSize(760, 320);
 	}
 
-	updatePluginSlots(channel: Channel) {
-		// clear
-		this.get(".channel_plugins").childNodes.forEach(v => this.get(".channel_plugins").removeChild(v));
+    updateChannels() {
+        this.get(".mixer_channels").replaceChildren();
+		this.channels = [];
 
-		let channel_plugins = channel.getPlugins();
-		for (let i = 0; i < 10; i++) {
-			if (i < channel_plugins.length) {
-				new PluginSlot(channel_plugins[i].getName());
-			} else {
-				new PluginSlot("Slot " + i);
-			}
-		}
-	}
-
-	getSelectedChannel(): Channel {
-		for (let i = 0; i < this.channels.length; i++) {
-			if (this.channels[i].isSelected()) return this.channels[i];
-		}
-		return null;
-	}
+        globals.mixer.getChannels().forEach(channel => {
+			let c = new ChannelComponent(channel);
+			c.getElement().addEventListener("mousedown", () => {
+				this.channels.forEach(v => v.select(false));
+				c.select(true);
+			});
+			this.get(".mixer_channels").appendChild(c.getElement());
+			c.update();
+			this.channels.push(c);
+        });
+    }
 }

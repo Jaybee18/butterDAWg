@@ -1,4 +1,4 @@
-import { Color } from "./Color";
+import { Color } from "./ui/misc/Color";
 import { cumulativeOffset, currently_hovered_track, globals, ms_to_pixels } from "./globals";
 import { Item } from "./PaletteItem";
 import { Track } from "./Track";

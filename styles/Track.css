@@ -38,7 +38,9 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    background: linear-gradient(0deg, #00000014, transparent);
+    /*background: linear-gradient(0deg, #00000014, transparent);*/
+    background: #646e73;
+    border-color: #5c666b #6e7887;
 }
 
 .description > .fa-ellipsis {

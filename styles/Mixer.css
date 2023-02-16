@@ -174,3 +174,7 @@
     background-color: #5cff5c;
     transition: background-color 0.2s;
 }
+
+.mixer_channels {
+    display: flex;
+}

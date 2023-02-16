@@ -1,4 +1,4 @@
-import { Color } from "./Color";
+import { Color } from "./ui/misc/Color";
 import { globals } from "./globals";
 
 // new color picker

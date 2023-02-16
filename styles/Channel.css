@@ -170,8 +170,9 @@
 }
 
 .channel_volume_knob {
+    left: calc(50% - 8px);
     position: absolute;
-    width: 15px;
+    width: 16px;
     height: 20px;
     top: 15%;
     border-radius: 2px;
@@ -183,7 +184,7 @@
 }
 
 .channel_volume_knob_peak {
-    width: 15px;
+    width: 16px;
     height: 5px;
     background-color: #00000014;
     box-shadow: 0 0 4px 2px #0000008c, inset 0 1px 1px 1px #ffffff6b, inset 0 -1px 2px 1px #5a5a5a4f;
