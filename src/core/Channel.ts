@@ -1,6 +1,6 @@
-import { globals } from "../globals";
+import { Connectable, globals } from "../globals";
 
-export class Channel {
+export class Channel implements Connectable {
 
     private input: AudioNode;
     private plugins: Array<AudioNode>;
@@ -8,6 +8,7 @@ export class Channel {
     private volume: number;
     private panning: number;
     private enabled: boolean;
+    private name: string;
 
     constructor() {
         // with a merger node as the audio input, any number
@@ -29,6 +30,8 @@ export class Channel {
         this.volume = 1;
         this.panning = 1;
         this.enabled = true;
+
+        this.name = "";
     }
 
     setVolume(v: number) {
@@ -53,5 +56,17 @@ export class Channel {
 
     isActive() {
         return this.enabled;
+    }
+
+    getName() {
+        return this.name;
+    }
+
+    setName(name: string) {
+        this.name = name;
+    }
+
+    getAudioNode(): AudioNode {
+        return this.input;
     }
 }

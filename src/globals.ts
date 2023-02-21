@@ -1,6 +1,6 @@
 import { Channel } from "./ui/Components/Channel";
 import { Track } from "./Track";
-import { ContextMenu } from "./ContextMenu"
+import { ContextMenu } from "./ui/Components/ContextMenu"
 import { readdirSync } from "fs"
 import { Window } from "./window";
 import { CustomPlugin } from "./CustomPlugin";
@@ -268,4 +268,9 @@ export function addRadioEventListener(btn: HTMLElement, track: Track) {
 			}
 		}
 	});
+}
+
+export interface Connectable {
+	// return the audio node !preceeding! Audio objects should connect to
+    getAudioNode(): AudioNode;
 }

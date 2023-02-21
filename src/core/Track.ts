@@ -1,9 +1,10 @@
 import { Color } from "../ui/misc/Color";
-import { globals } from "../globals";
+import { Connectable, globals } from "../globals";
 import { Sample } from "./Sample";
 
-export class Track {
+export class Track implements Connectable {
 
+    private audionode: AudioNode;
     private samples: Array<Sample>;
     private enabled: boolean;
 
@@ -17,6 +18,8 @@ export class Track {
 
         this.title = "";
         this.color = null;
+
+        this.audionode = new GainNode(globals.audiocontext);
     }
 
     getTitle() {
@@ -44,6 +47,7 @@ export class Track {
     }
 
     addSample(sample: Sample) {
+        sample.connect(this);
         this.samples.push(sample);
     }
 
@@ -60,5 +64,13 @@ export class Track {
                 node.start(globals.audiocontext.currentTime, globals.audiocontext.currentTime - timestamp);
             }
         });
+    }
+
+    connect(object: Connectable) {
+        this.audionode.connect(object.getAudioNode());
+    }
+
+    getAudioNode(): AudioNode {
+        return this.audionode;
     }
 }

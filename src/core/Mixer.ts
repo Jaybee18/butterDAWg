@@ -19,6 +19,7 @@ export class Mixer {
 
     newChannel(): Channel {
         let channel = new Channel();
+        channel.setName("Channel " + this.channels.length);
         this.channels.push(channel);
         return channel;
     }

@@ -5,7 +5,7 @@ import { TrackSample } from "./TrackSample";
 import { Color } from "./ui/misc/Color";
 import { Channel } from "./ui/Components/Channel";
 import { React, globals, pixels_to_ms, cumulativeOffset, addRadioEventListener } from "./globals";
-import { ContextMenu } from "./ContextMenu";
+import { ContextMenu } from "./ui/Components/ContextMenu";
 import { color_picker } from "./ColorPicker";
 import { Item } from "./PaletteItem";
 

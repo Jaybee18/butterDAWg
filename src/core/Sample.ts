@@ -1,4 +1,4 @@
-import { globals } from "../globals";
+import { Connectable, globals } from "../globals";
 import { Item } from "../PaletteItem";
 
 export class Sample {
@@ -46,5 +46,9 @@ export class Sample {
 
     stop() {
         this.source.stop();
+    }
+
+    connect(object: Connectable) {
+        this.source.connect(object.getAudioNode());
     }
 }

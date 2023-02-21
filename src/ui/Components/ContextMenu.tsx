@@ -1,4 +1,6 @@
-import { globals } from "./globals";
+import { globals, React } from "../../globals";
+
+export const CONTEXT_MENU_SPACER = "[spacer]";
 
 export class ContextMenu {
 
@@ -14,7 +16,7 @@ export class ContextMenu {
 
         // items is a list of strings representing the items of the context menu
         // a string called "[spacer]" will act as a spacer
-        this.items = items.filter((value, i, a) => {return value!=="[spacer]";});
+        this.items = items.filter(value => {return value!==CONTEXT_MENU_SPACER;});
         this.raw_items = items;
 
         // this will be set to the parent context menu to also toggle
@@ -27,6 +29,15 @@ export class ContextMenu {
     }
 
     createElement() {
+        /*this.element = <div></div> as any;
+        this.raw_items.forEach(item => {
+            if (item !== CONTEXT_MENU_SPACER) {
+                this.element.appendChild(<div className="context_item">{item}</div> as any);
+            } else {
+                this.element.appendChild(<div className="context_spacer"></div> as any);
+            }
+        });
+        this.element.id = this.id.toString();*/
         let a = "";
         this.raw_items.forEach(item => {
             if (item !== "[spacer]") {
@@ -47,8 +58,8 @@ export class ContextMenu {
         let temp_this = this;
         document.body.appendChild(this.element);
         document.addEventListener("click", (e: MouseEvent) => {
-            if (temp_this.element.style.display==="block" && (<HTMLElement> e.target).offsetParent !== this.element &&
-                !(<HTMLElement> e.target).parentElement.classList.contains("context_menu")) {
+            if (temp_this.element.style.display==="block" && (e.target as HTMLElement).offsetParent !== this.element &&
+                !(e.target as HTMLElement).parentElement.classList.contains("context_menu")) {
                 temp_this.toggle();
             }
         });
@@ -63,9 +74,9 @@ export class ContextMenu {
             // if this is a submenu, aka the clicked element is a context_item, spawn
             // the context menu offset by the parents position on the screen. Else just
             // spawn it at the mouse cursor
-            if ((<HTMLElement> e.target).classList.contains("context_item")) {
-                this.element.style.top = (<HTMLElement> e.target).offsetTop + (<HTMLElement> (<HTMLElement> e.target).offsetParent).offsetTop + "px";
-                this.element.style.left = (<HTMLElement> e.target).offsetLeft + (<HTMLElement> (<HTMLElement> e.target).offsetParent).offsetLeft + (<HTMLElement> e.target).offsetParent.clientWidth+ "px";
+            if ((e.target as HTMLElement).classList.contains("context_item")) {
+                this.element.style.top = (e.target as HTMLElement).offsetTop + ((e.target as HTMLElement).offsetParent as HTMLElement).offsetTop + "px";
+                this.element.style.left = (e.target as HTMLElement).offsetLeft + ((e.target as HTMLElement).offsetParent as HTMLElement).offsetLeft + (e.target as HTMLElement).offsetParent.clientWidth+ "px";
             } else {
                 this.element.style.top = e.clientY + "px";
                 this.element.style.left = e.clientX + "px";

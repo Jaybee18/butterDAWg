@@ -3,7 +3,7 @@ import { globals, React } from "./globals";
 import { Channel } from "./ui/Components/Channel";
 import { PluginSlot } from "./Mixer";
 import { PluginWindow } from "./temp_plugin_test";
-import { ContextMenu } from "./ContextMenu";
+import { ContextMenu } from "./ui/Components/ContextMenu";
 
 class MixerWindow extends Window {
 

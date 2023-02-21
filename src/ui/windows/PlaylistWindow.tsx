@@ -1,8 +1,8 @@
-import { Window } from "../../window";
-import { cumulativeOffset, globals, ms_to_pixels, pixels_to_ms, React, px_to_timestamp, timestamp_to_px, snap } from "../../globals";
-import { TrackComponent } from "../../Track";
-import { Item } from "../../PaletteItem";
 import { Sample } from "../../core/Sample";
+import { cumulativeOffset, globals, ms_to_pixels, px_to_timestamp, React, snap, timestamp_to_px } from "../../globals";
+import { Item } from "../../PaletteItem";
+import { TrackComponent } from "../../Track";
+import { Window } from "../../window";
 
 export class PlaylistWindow extends Window {
 
@@ -135,6 +135,10 @@ export class PlaylistWindow extends Window {
 							track.removeSample(globals.current_drag_element_preview);
 						}
 					});
+					if (globals.current_drag_element_preview === null || globals.current_drag_element_preview === undefined) {
+						console.log("test");
+						return;
+					}
 
 					globals.playlist.getTracks()[track_index].addSample(globals.current_drag_element_preview);
 				}
