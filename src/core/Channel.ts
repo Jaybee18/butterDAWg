@@ -13,7 +13,7 @@ export class Channel implements Connectable {
     constructor() {
         // with a merger node as the audio input, any number
         // of other channels can be routed as an input to this channel
-        this.input = new ChannelMergerNode(globals.audiocontext);
+        this.input = new AnalyserNode(globals.audiocontext);
 
         // the plugins array holds the plugins configured for this channel
         // their order and connection is manged by the channel they're attached to
@@ -26,6 +26,7 @@ export class Channel implements Connectable {
         // since there are no audio nodes in the beginning, we directly
         // connect the input to the output node
         this.input.connect(this.output);
+        this.output.connect(globals.audiocontext.destination);
 
         this.volume = 1;
         this.panning = 1;
@@ -67,6 +68,7 @@ export class Channel implements Connectable {
     }
 
     getAudioNode(): AudioNode {
+        console.log("audio node of channel \"" + this.name + "\" got");
         return this.input;
     }
 }
