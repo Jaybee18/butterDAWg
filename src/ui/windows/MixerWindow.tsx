@@ -82,6 +82,7 @@ export class MixerWindow extends Window {
 							<i className="fa-regular fa-clock"></i>
 						</div>
 						<div className="channel_plugins">
+							{/* the plugins will be added here */}
 						</div>
 						<div className="channel_eq"></div>
 						<div className="channel_time"></div>
@@ -116,5 +117,20 @@ export class MixerWindow extends Window {
 			c.update();
 			this.channels.push(c);
         });
+
+		this.get(".channel_plugins").replaceChildren(<p>test</p> as any);
+
+		if (this.channels.length > 0) {
+			this.channels[0].select(true);
+			let plugins = globals.mixer.getSelectedChannel().getPlugins();
+			for (let j = 0; j < 10; j++) {
+				if (j >= plugins.length) {
+					// add empty slot
+				} else {
+					// add plugin
+				}
+			}  
+		}
     }
+
 }

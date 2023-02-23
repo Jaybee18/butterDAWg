@@ -69,4 +69,8 @@ export class Channel implements Connectable {
     getAudioNode(): AudioNode {
         return this.input;
     }
+
+    getPlugins() {
+        return this.plugins;
+    }
 }
