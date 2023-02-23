@@ -71,4 +71,8 @@ export class Channel implements Connectable {
         console.log("audio node of channel \"" + this.name + "\" got");
         return this.input;
     }
+
+    getPlugins() {
+        return this.plugins;
+    }
 }

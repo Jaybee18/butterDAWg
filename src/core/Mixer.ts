@@ -23,4 +23,11 @@ export class Mixer {
         this.channels.push(channel);
         return channel;
     }
+
+    getSelectedChannel() {
+        for (let i = 0; i < this.channels.length; i++) {
+            if (this.channels[i].isActive()) return this.channels[i];
+        }
+        return null;
+    }
 }
