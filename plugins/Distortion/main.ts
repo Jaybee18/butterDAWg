@@ -2,12 +2,12 @@ import { CustomPlugin } from "../../src/CustomPlugin";
 
 export class Plugin extends CustomPlugin {
 
-    private level: AudioParam;
+    private drive: AudioParam;
 
     constructor(pluginpath: string) {
         super(pluginpath);
 
-        this.name = "MyCustomPlugin";
+        this.name = "SimpleDistortion";
     }
 
     initialiseUI(): void {
@@ -45,7 +45,7 @@ export class Plugin extends CustomPlugin {
         function handleMovement(e: MouseEvent) {
             let value = Math.min(Math.max(-26, handle.offsetTop + e.movementY), canvas.height - 37);
             handle.style.top = value + "px";
-            temp_this.level.value = 1 - (value + 26) / (26 + (canvas.height - 37));
+            temp_this.drive.value = 1 - (value + 26) / (26 + (canvas.height - 37));
         }
         handle.addEventListener("mousedown", () => {
             document.addEventListener("mousemove", handleMovement);
@@ -56,6 +56,6 @@ export class Plugin extends CustomPlugin {
     }
     
     onAudioNodeLoaded() {
-        this.level = (this.audio_node as any).parameters.get("level");
+        this.drive = (this.audio_node as any).parameters.get("drive");
     }
 }

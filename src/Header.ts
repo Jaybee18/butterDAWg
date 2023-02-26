@@ -1,6 +1,6 @@
 import { globals } from "./globals";
-import { MixerWindow } from "./MixerWindow";
-import { Playlist } from "./PlaylistWindow";
+import { PlaylistWindow } from "./ui/windows/PlaylistWindow";
+import { MixerWindow } from "./ui/windows/MixerWindow";
 
 // bpm count drag functionality
 var bpm_count = document.querySelector(".bpm");
@@ -43,5 +43,5 @@ document.querySelector(".header_mixer").addEventListener("click", () => {
 // playlist
 document.querySelector(".header_playlist").addEventListener("click", () => {
   console.log("open playlist window");
-  new Playlist();
+  new PlaylistWindow();
 });

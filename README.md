@@ -5,9 +5,34 @@ It is not a 100% clone:
 there are some deviations from the original that I believe improve the UX
 
 Basic audio functionality implemented
- 
 
-version 0.5.0:
+- [X] playback/sequencing of samples
+- [ ] routing tracks to channels
+- [ ] piano editor
+- [X] audio graph editor
+- [ ] usage of fileview for importing samples/plugins
+- [X] POC custom plugins
+- [X] basic application of custom plugins
+- [ ] dynamic application of custom plugins
+- [ ] saving and opening of files
+
+# Development
+install all necessary node modules:
+```
+npm install
+```
+
+then run with
+```
+npm run start
+```
+
+# Build
+not yet
+
+# Version History
+
+version 0.5.0 (current):
 + windowmanager massively improved
 + audio playback reworked (mor efficinci + better UX)
 + playlist view internally reworked (now a canvas instead of thousands of divs)

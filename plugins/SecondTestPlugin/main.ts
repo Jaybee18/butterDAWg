@@ -7,7 +7,7 @@ export class Plugin extends CustomPlugin {
     constructor(pluginpath: string) {
         super(pluginpath);
 
-        this.name = "MyCustomPlugin";
+        this.name = "MySecondCustomPlugin";
     }
 
     initialiseUI(): void {

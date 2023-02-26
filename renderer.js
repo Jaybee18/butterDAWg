@@ -90,7 +90,7 @@ var resizing_sidebar = false;
     left.style.width = container.clientWidth - offsetRight + "px";
     right.style.width = offsetRight + "px";
 
-    tracks_scroll_to(current_track_scroll_percent);
+    //tracks_scroll_to(current_track_scroll_percent);
 
     return false;
   }

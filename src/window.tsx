@@ -1,6 +1,6 @@
 import { createElement, cumulativeOffset, globals, React } from "./globals";
 import { BrowserWindowConstructorOptions, BrowserWindow, ipcRenderer } from "electron";
-import { Color } from "./Color";
+import { Color } from "./ui/misc/Color";
 
 export interface toolbarButtonOptions {
     tool: boolean
@@ -19,6 +19,8 @@ export abstract class Window {
     protected content: HTMLElement
     private minimized: boolean
     private size: {width: number, height: number}
+    private minSize: {width: number, height: number}
+    private listeners: Array<{event: string, listener: (this: HTMLElement, e: Event) => any}>;
 
     constructor(callInitialiseContent: boolean = true) {
         this.id = Math.round(Date.now() * Math.random()).toString();
@@ -27,12 +29,17 @@ export abstract class Window {
         this.content = this.element.querySelector(".content");
         globals.windows.push(this);
 
-        if (callInitialiseContent) this.initialiseContent();
-
         this.size = {
             width: this.element.clientWidth,
             height: this.element.clientHeight,
         };
+        this.minSize = {
+            width: 0,
+            height: 0,
+        };
+        this.listeners = [];
+
+        if (callInitialiseContent) this.initialiseContent();
     }
 
     initElement() {
@@ -52,30 +59,18 @@ export abstract class Window {
 
         // initialise movement/dragging listeners
         let temp_this = this;
-        const sidebar_width = document.getElementById("sidebar").clientWidth;
-        const header_height = document.querySelector("header").clientHeight;
         let cursor_down = { "x": 0, "y": 0 };
         let window_down = { "x": 0, "y": 0 };
         let cursor_delta = { "x": 0, "y": 0 };
         function windowmove(e: MouseEvent) {
+            const sidebar_width = document.getElementById("sidebar").clientWidth;
+            const header_height = document.querySelector("header").clientHeight;
             temp_this.element.style.left = Math.max(e.clientX - cursor_down.x + window_down.x, sidebar_width) + "px";
             temp_this.element.style.top = Math.max(e.clientY - cursor_down.y + window_down.y, header_height) + "px";
 
             temp_this.setContentSize();
         }
         this.get(".toolbar").addEventListener("mousedown", (e) => {
-            // it looks ugly for the window to very briefly appear 
-            // (for like 1 frame) only to be closed right after, so
-            // don't even bring it to the front if it's going to get
-            // closed anyway
-            if (e.target !== this.get(".fa-xmark")) {
-                // bring to front
-                globals.windows.forEach((w) => {
-                    w.setZIndex(1);
-                });
-                this.element.style.zIndex = "10";
-            }
-
             // save some attributes for window dragging
             cursor_down.x = e.clientX;
             cursor_down.y = e.clientY;
@@ -89,6 +84,19 @@ export abstract class Window {
         document.addEventListener("mouseup", () => {
             // normalize
             document.removeEventListener("mousemove", windowmove);
+        });
+        this.element.addEventListener("mousedown", (e) => {
+            // it looks ugly for the window to very briefly appear 
+            // (for like 1 frame) only to be closed right after, so
+            // don't even bring it to the front if it's going to get
+            // closed anyway
+            if (e.target !== this.get(".fa-xmark")) {
+                // bring to front
+                globals.windows.forEach((w) => {
+                    w.setZIndex(1);
+                });
+                this.element.style.zIndex = "10";
+            }
         });
 
         // initialise resizing listeners
@@ -199,13 +207,23 @@ export abstract class Window {
             this.size = {width: width, height: height};
         }
 
-        this.element.style.width = Math.min(width, this.size.width) + "px";
-        this.element.style.height = Math.min(this.size.height, height) + "px";
+        this.element.style.width = Math.max(Math.min(width, this.size.width), this.minSize.width) + "px";
+        this.element.style.height = Math.max(Math.min(this.size.height, height), this.minSize.height) + "px";
         this.onResizeContent(this.element.clientWidth, this.element.clientHeight);
+    }
+
+    setMinWindowSize(minWidth: number, minHeight: number) {
+        this.minSize = {
+            width: minWidth,
+            height: minHeight,
+        };
     }
 
     // resize method that gets called on window resize events
     onResizeContent(newWidth: number, newHeight: number) { }
+
+    // close method that gets called when the window gets the command to close itself
+    onClose() { }
 
     protected get(query: string): HTMLElement { return this.element.querySelector(query); }
 
@@ -237,6 +255,16 @@ export abstract class Window {
         }
     }
 
+    // method for adding an event listener to the window.
+    // this aims to prevent adding document wide listeners that would
+    // have to be manually/painfully removed when deleting the window.
+    // and also: the window handles the active/passive/background tracking
+    // and knows best when to disable/enable these listeners
+    addEventListener(event: string, listener: (this: HTMLElement, e: Event) => any) {
+        this.listeners.push({event: event, listener: listener});
+        document.addEventListener(event, listener);
+    }
+
     popOut() {
         //ipcRenderer.on(this.id, (e) => {
         //    alert("test");
@@ -253,7 +281,15 @@ export abstract class Window {
     }
 
     close() {
+        this.onClose();
+
+        // remove all listeners attached to this window
+        this.listeners.forEach(element => {
+            document.removeEventListener(element.event, element.listener);
+        });
+
         document.querySelector(".main_content").removeChild(this.element);
+        globals.windows.splice(globals.windows.indexOf(this), 1);
     }
 
     maximize() {

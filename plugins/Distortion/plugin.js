@@ -1,8 +1,8 @@
-class MyCustomPlugin extends AudioWorkletProcessor {
+class SimpleDistortion extends AudioWorkletProcessor {
 
 	static get parameterDescriptors() {
 		return [{
-			name: "level",
+			name: "drive",
 			defaultValue: 1,
 			minValue: 0,
 			maxValue: 1,
@@ -19,7 +19,11 @@ class MyCustomPlugin extends AudioWorkletProcessor {
 		
 		for (let channel = 0; channel < input.length; channel++) {
 			for (let i = 0; i < input[channel].length; i++) {
-				output[channel][i] = input[channel][i] * parameters.level[0];
+				if (input[channel][i] === 0) {
+					output[channel][i] = 0;
+				} else {
+					output[channel][i] = (input[channel][i]/Math.abs(input[channel][i])) * (1 - Math.exp(-Math.abs((input[channel][i] * Math.max(parameters.drive[0]*40, 1)))));
+				}
 			}
 		}
 
@@ -27,4 +31,4 @@ class MyCustomPlugin extends AudioWorkletProcessor {
 	}
 }
 
-registerProcessor("MyCustomPlugin", MyCustomPlugin);
+registerProcessor("SimpleDistortion", SimpleDistortion);
