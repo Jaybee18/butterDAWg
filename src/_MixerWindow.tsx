@@ -2,7 +2,7 @@ import { Window } from "./window";
 import { globals, React } from "./globals";
 import { Channel } from "./ui/Components/Channel";
 import { PluginSlot } from "./Mixer";
-import { PluginWindow } from "./temp_plugin_test";
+import { PluginWindow } from "./PluginWindow";
 import { ContextMenu } from "./ui/Components/ContextMenu";
 
 class MixerWindow extends Window {

@@ -4,10 +4,12 @@ export abstract class CustomPlugin {
 
     protected name: string;
     protected audio_node: AudioNode;
+    protected pluginpath: string;
 
     constructor(pluginpath: string) {
         // "./plugins/TestPlugin/plugin.js"
-        globals.audiocontext.audioWorklet.addModule(pluginpath).then(() => {
+        this.pluginpath = pluginpath;
+        globals.audiocontext.audioWorklet.addModule(pluginpath + "/plugin.js").then(() => {
             this.initialiseAudioNode();
             this.onAudioNodeLoaded();
             console.log("plugin loaded: " + pluginpath);
@@ -23,7 +25,8 @@ export abstract class CustomPlugin {
     }
 
     initialiseAudioNode(): void {
-        this.audio_node = new AudioWorkletNode(globals.audiocontext, "my-custom-plugin");
+        // TODO this only works because of the async loading above!! fix this!!!
+        this.audio_node = new AudioWorkletNode(globals.audiocontext, this.getName());
         console.log(this.audio_node);
     }
 
@@ -33,5 +36,9 @@ export abstract class CustomPlugin {
 
     connect(destination: AudioNode): void {
         this.audio_node.connect(destination);
+    }
+
+    getPluginPath(): string {
+        return this.pluginpath;
     }
 }

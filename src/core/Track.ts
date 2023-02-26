@@ -43,7 +43,8 @@ export class Track implements Connectable {
     }
 
     removeSample(sample: Sample) {
-        this.samples.splice(this.samples.indexOf(sample));
+        sample.disconnect(this);
+        this.samples.splice(this.samples.indexOf(sample), 1);
     }
 
     addSample(sample: Sample) {
@@ -54,7 +55,6 @@ export class Track implements Connectable {
     play() {
         this.samples.forEach(sample => {
             let node = sample.getAudioNode();
-            node.connect(globals.audiocontext.destination);
 		    const timestamp = globals.audiocontext.currentTime + (sample.getTimestamp() - globals.current_time/1000);
             // TODO there is also a offset parameter in .start() -> use that when the cursor is somewhere
 		    // in the middle of the sample

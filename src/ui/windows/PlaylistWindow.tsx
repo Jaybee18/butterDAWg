@@ -89,22 +89,32 @@ export class PlaylistWindow extends Window {
 		});
 
 		// view drag listeners
-		let touchdown = { x: 0, y: 0, scrollY: 0, scrollX };
-		this.get(".tracks").addEventListener("mousemove", (e: MouseEvent) => {
-			this.lastMousePos = {x: e.clientX, y: e.clientY};
-			if (e.buttons === 4) {
+		let touchdown = { x: 0, y: 0, scrollY: 0, scrollX: 0};
+		const scroll_delta = (e: MouseEvent, x: boolean = true, y: boolean = true) => {
+			if (x) {
 				this.scroll = Math.max(touchdown.scrollX + (touchdown.x - e.clientX), 0);
-				this.get(".tracks").scrollTo({ top: touchdown.scrollY + (touchdown.y - e.clientY) });
-				this.updateBarLabels();
-				this.updatePlaylist();
 			}
-		});
-		this.get(".tracks").addEventListener("mousedown", (e) => {
-			e.preventDefault();
+			if (y) {
+				this.get(".tracks").scrollTo({ top: touchdown.scrollY + (touchdown.y - e.clientY) });
+			}
+			this.updateBarLabels();
+			this.updatePlaylist();
+		}
+		const set_touchdown = (e: MouseEvent) => {
 			touchdown.x = e.clientX;
 			touchdown.y = e.clientY;
 			touchdown.scrollY = this.get(".tracks").scrollTop;
 			touchdown.scrollX = this.scroll;
+		}
+		this.get(".tracks").addEventListener("mousemove", (e: MouseEvent) => {
+			this.lastMousePos = {x: e.clientX, y: e.clientY};
+			if (e.buttons === 4) {
+				scroll_delta(e);
+			}
+		});
+		this.get(".tracks").addEventListener("mousedown", (e) => {
+			e.preventDefault();
+			set_touchdown(e);
 		});
 
 		// sample darg listeners
@@ -116,27 +126,32 @@ export class PlaylistWindow extends Window {
 			base = cumulativeOffset(this.get(".tracks_canvas"))
 			let track_index = Math.floor((e.clientY - base.top + this.get(".tracks").scrollTop) / 70);
 			if (globals.current_drag_element !== null) {
+				// something is currently being dragged over the canvas
 				if (globals.current_drag_element_preview === null) {
+					// and it is not currently being previewed in the playlist canvas
 					if (globals.current_drag_element instanceof Item) {
+						// only display previews in the playlist of drag items that can
+						// be dragged into the playlist (aka of type "Item" here)
 						globals.current_drag_element_preview = new Sample(globals.current_drag_element);
 					}
 				}
 
 				// set x pos of drag element
-				(globals.current_drag_element_preview as Sample).setTimestamp(px_to_timestamp(snap(e.clientX - base.left)))
+				(globals.current_drag_element_preview as Sample).setTimestamp(px_to_timestamp(snap(e.clientX - base.left + this.scroll)));
 				
 				// set y pos of drag element
 				if (globals.playlist.getTracks()[track_index].getSamples().includes(globals.current_drag_element_preview)) {
 					// everything is fine
 				} else {
-					// everything is not fine. the sample has been moved
+					// everything is not fine. the sample has been moved to another track
 					globals.playlist.getTracks().forEach(track => {
 						if (track.getSamples().includes(globals.current_drag_element_preview)) {
 							track.removeSample(globals.current_drag_element_preview);
+							console.log("probably here");
 						}
 					});
 					if (globals.current_drag_element_preview === null || globals.current_drag_element_preview === undefined) {
-						console.log("test");
+						console.log("remove this print if you see it");
 						return;
 					}
 
@@ -150,11 +165,10 @@ export class PlaylistWindow extends Window {
 				if (sample_track !== null) {
 					let new_track = globals.playlist.getTracks()[track_index];
 					if (sample_track !== new_track) {
+						console.log("removing here");
 						sample_track.removeSample(current_drag_element);
 						new_track.addSample(current_drag_element);
 					}
-				} else {
-					console.log(current_drag_element, this.getTrackOfSample(s));
 				}
 				this.updatePlaylist();
 			}
@@ -168,6 +182,17 @@ export class PlaylistWindow extends Window {
 		});
 		document.addEventListener("mouseup", () => {
 			current_drag_element = null;
+		});
+
+		// top scroll bar listener
+		let bars_scrollbar_handle = this.get(".tracks_top_bar_scrollbar_handle");
+		bars_scrollbar_handle.addEventListener("mousedown", (e) => {
+			set_touchdown(e);
+		});
+		bars_scrollbar_handle.addEventListener("mousemove", (e) => {
+			if (e.buttons === 1) {
+				scroll_delta(e, true, false);
+			}
 		});
 
 		// key events handler

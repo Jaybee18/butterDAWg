@@ -5,25 +5,25 @@ import { Window } from "./window";
 
 export class PluginWindow extends Window {
 
-    private pluginpath: string;
     private plugin: CustomPlugin;
 
-    constructor(pluginpath: string) {
+    constructor(plugin: CustomPlugin) {
         super(false);
 
-        this.pluginpath = pluginpath;
+        this.plugin = plugin;
 
         this.initialiseContent();
     }
 
     initialiseContent(): void {
-        let content = readFileSync(this.pluginpath + "/index.html", {encoding: "ascii"});
-
+        let content = readFileSync(this.plugin.getPluginPath() + "/index.html", {encoding: "ascii"});
+        
         this.setContent(content);
-
-        let plugin_module = require("../" + this.pluginpath + "/main");
+        
+        let plugin_module = require("../" + this.plugin.getPluginPath() + "/main");
         console.log(plugin_module);
-        this.plugin = new plugin_module.Plugin();
+        //this.plugin = new plugin_module.Plugin();
+        this.plugin.initialiseUI();
         console.log(this.plugin.getAudioNode());
 
         this.setContentSize(450, 420);

@@ -7,9 +7,11 @@ export class ChannelComponent {
 
     private element: HTMLElement;
     private channel: Channel;
+    private selected: boolean;
 
     constructor(channel: Channel) {
         this.channel = channel;
+        this.selected = false;
         this.createElement();
     }
 
@@ -126,6 +128,26 @@ export class ChannelComponent {
         this.element.addEventListener("mousedown", () => {
             this.select(true);
         });
+
+        // level update
+        let level_indicator = this.element.querySelector(".indicator_top") as HTMLElement;
+        let temp_this = this;
+        function step() {
+                requestAnimationFrame(() => {
+                    if (globals.is_playing) {
+                        //let node = (temp_this.channel.getAudioNode() as AnalyserNode);
+                        //let buffer = new Float32Array(node.frequencyBinCount);
+                        //node.getFloatTimeDomainData(buffer);
+                        let buffer = temp_this.channel.getFloatTimeDomainData();
+                        let max = buffer.reduce((prev, current) => {
+                            return Math.max(current, prev);
+                        });
+                        level_indicator.style.height = (1 - max) * 100 + "%";
+                    }
+                    requestAnimationFrame(step);
+            });
+        };
+        step();
     }
 
     getElement() {
@@ -158,7 +180,12 @@ export class ChannelComponent {
 			volume_wrapper.style.background =
 				"linear-gradient(#374045, var(--bg-dark))";
 		}
+        this.selected = selected;
 	}
+
+    isSelected() {
+        return this.selected;
+    }
 
     update() {
         // update the toggle switch

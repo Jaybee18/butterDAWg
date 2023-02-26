@@ -29,9 +29,10 @@ const loadPluginsThen = (callback: Function) => {
 
 		// dynamically load plugin classes from plugin folder
 		let plugin_import = require("../" + pluginpath + "/main");
-		globals.plugins.push(new plugin_import.Plugin("./plugins/TestPlugin/plugin.js"));
+		//globals.plugins.push(new plugin_import.Plugin("./plugins/TestPlugin/plugin.js"));
+		globals.plugins.push(new plugin_import.Plugin("./" + pluginpath));
 
-		return globals.audiocontext.audioWorklet.addModule("./plugins/TestPlugin/plugin.js");
+		return globals.audiocontext.audioWorklet.addModule("./" + pluginpath + "/plugin.js");
 	});
 	Promise.allSettled(plugin_promises).then(callback());
 };

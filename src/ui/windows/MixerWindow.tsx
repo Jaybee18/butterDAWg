@@ -1,6 +1,9 @@
 import { Window } from "../../window";
 import { React, globals } from "../../globals";
 import { ChannelComponent } from "../Components/Channel";
+import { ContextMenu } from "../Components/ContextMenu";
+import { PluginWindow } from "../../PluginWindow";
+import { Channel } from "../../core/Channel";
 
 export class MixerWindow extends Window {
 
@@ -98,39 +101,95 @@ export class MixerWindow extends Window {
 			</div> as any
 		);
 
+		// initialise the channel components
+		globals.mixer.getChannels().forEach(channel => {
+			let c = new ChannelComponent(channel);
+			c.getElement().addEventListener("mousedown", () => {
+				this.channels.forEach(v => v.select(false));
+				c.select(true);
+				this.updateChannels();
+			});
+			this.get(".mixer_channels").appendChild(c.getElement());
+			c.update();
+			this.channels.push(c);
+        });
+		this.channels[0].select(true);
+
         this.updateChannels();
 
-		this.setContentSize(760, 320);
+		//this.setContentSize(760, 320);
 	}
 
     updateChannels() {
-        this.get(".mixer_channels").replaceChildren();
-		this.channels = [];
+        //this.get(".mixer_channels").replaceChildren();
+		/*this.channels = [];
 
         globals.mixer.getChannels().forEach(channel => {
 			let c = new ChannelComponent(channel);
 			c.getElement().addEventListener("mousedown", () => {
 				this.channels.forEach(v => v.select(false));
 				c.select(true);
+				this.updateChannels();
 			});
 			this.get(".mixer_channels").appendChild(c.getElement());
 			c.update();
 			this.channels.push(c);
-        });
+        });*/
 
-		this.get(".channel_plugins").replaceChildren(<p>test</p> as any);
+		this.get(".channel_plugins").replaceChildren();
+		let sample_node = <div className="plugin_slot">
+			<div className="slot_wrapper">
+				<i className="fa-solid fa-caret-right"></i>
+				<p>Slot</p>
+				<div className="plugin_volume">
+					<div className="plugin_volume_knob"></div>
+				</div>
+			</div >
+			<div className="plugin_toggle">
+				<div className="plugin_toggle_green"></div>
+			</div>
+		</div > as any;
 
 		if (this.channels.length > 0) {
-			this.channels[0].select(true);
-			let plugins = globals.mixer.getSelectedChannel().getPlugins();
+			let plugins = this.getSelectedChannel().getPlugins();
 			for (let j = 0; j < 10; j++) {
-				if (j >= plugins.length) {
+				let concrete_node = sample_node.cloneNode(true);
+				if (plugins[j] === null) {
 					// add empty slot
+					concrete_node.querySelector(".slot_wrapper > p").innerText = "Slot " + (j + 1);
+					concrete_node.querySelector(".slot_wrapper").style.backgroundColor = "#566065";
 				} else {
 					// add plugin
+					concrete_node.querySelector(".slot_wrapper > p").innerText = plugins[j].getName();
+					// visualize plugin
+					concrete_node.querySelector(".slot_wrapper").style.backgroundColor = "#4a5458";
 				}
-			}  
+				concrete_node.addEventListener("contextmenu", (e: MouseEvent) => {
+					let plugin_context_menu = new ContextMenu(
+						globals.plugins.map(plugin => plugin.getName()),
+						globals.plugins.map(plugin => () => {
+							this.getSelectedChannel().addPlugin(plugin, j);
+							this.updateChannels();
+							return true;
+						}),
+					);
+					plugin_context_menu.toggle(e);
+				});
+				concrete_node.addEventListener("click", () => {
+					let clicked_plugin = this.getSelectedChannel().getPlugins()[j];
+					if (clicked_plugin !== undefined) {
+						globals.windows.push(new PluginWindow(clicked_plugin));
+					}
+				});
+				this.get(".channel_plugins").appendChild(concrete_node);
+			}
 		}
     }
 
+	private getSelectedChannel(): Channel {
+		for (let i = 0; i < this.channels.length; i++) {
+			if (this.channels[i].isSelected()) return globals.mixer.getChannels()[i];
+		}
+		return null;
+	}
 }

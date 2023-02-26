@@ -68,7 +68,7 @@ export class ContextMenu {
     toggle(e?: MouseEvent) {
         // e is the event that triggered the context menu popup
         // it will provide the location the menu should be displayed
-        if (this.element.style.display === "block") {
+        if (this.element.style.display === "block" || e === undefined) {
             this.element.style.display = "none";
         } else {
             // if this is a submenu, aka the clicked element is a context_item, spawn

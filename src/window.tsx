@@ -71,18 +71,6 @@ export abstract class Window {
             temp_this.setContentSize();
         }
         this.get(".toolbar").addEventListener("mousedown", (e) => {
-            // it looks ugly for the window to very briefly appear 
-            // (for like 1 frame) only to be closed right after, so
-            // don't even bring it to the front if it's going to get
-            // closed anyway
-            if (e.target !== this.get(".fa-xmark")) {
-                // bring to front
-                globals.windows.forEach((w) => {
-                    w.setZIndex(1);
-                });
-                this.element.style.zIndex = "10";
-            }
-
             // save some attributes for window dragging
             cursor_down.x = e.clientX;
             cursor_down.y = e.clientY;
@@ -96,6 +84,19 @@ export abstract class Window {
         document.addEventListener("mouseup", () => {
             // normalize
             document.removeEventListener("mousemove", windowmove);
+        });
+        this.element.addEventListener("mousedown", (e) => {
+            // it looks ugly for the window to very briefly appear 
+            // (for like 1 frame) only to be closed right after, so
+            // don't even bring it to the front if it's going to get
+            // closed anyway
+            if (e.target !== this.get(".fa-xmark")) {
+                // bring to front
+                globals.windows.forEach((w) => {
+                    w.setZIndex(1);
+                });
+                this.element.style.zIndex = "10";
+            }
         });
 
         // initialise resizing listeners

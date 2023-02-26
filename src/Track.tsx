@@ -34,6 +34,7 @@ export class TrackComponent {
             globals.mixer.getChannels().map(channel => channel.getName()),
             globals.mixer.getChannels().map(channel => () => {
                 this.track.connect(channel);
+                console.log("track \"" + this.track.getTitle() + "\" connected to channel \"" + channel.getName() + "\"");
                 return true;
             })
         );
