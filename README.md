@@ -7,13 +7,13 @@ there are some deviations from the original that I believe improve the UX
 Basic audio functionality implemented
 
 - [X] playback/sequencing of samples
-- [ ] routing tracks to channels
+- [X] routing tracks to channels
 - [ ] piano editor
 - [X] audio graph editor
 - [ ] usage of fileview for importing samples/plugins
 - [X] POC custom plugins
 - [X] basic application of custom plugins
-- [ ] dynamic application of custom plugins
+- [X] dynamic application of custom plugins
 - [ ] saving and opening of files
 
 # Development
@@ -32,7 +32,13 @@ not yet
 
 # Version History
 
-version 0.5.0 (current):
+version 0.5.1 (current):
++ internal restructuring complete
++ custom plugins can now be developed, dynamically loaded and used
+
+![butterDAWg_v5 1](https://user-images.githubusercontent.com/64578396/221420687-f7ac91d9-d1a6-454b-8cf2-24762e3bfd95.png)
+
+version 0.5.0:
 + windowmanager massively improved
 + audio playback reworked (mor efficinci + better UX)
 + playlist view internally reworked (now a canvas instead of thousands of divs)
