@@ -126,4 +126,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+_ideas
+built
+
 ideas/

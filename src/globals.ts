@@ -1,12 +1,17 @@
-import { Channel } from "./Channel";
+import { Channel } from "./ui/Components/Channel";
 import { Track } from "./Track";
-import { ContextMenu } from "./ContextMenu"
+import { ContextMenu } from "./ui/Components/ContextMenu"
 import { readdirSync } from "fs"
 import { Window } from "./window";
 import { CustomPlugin } from "./CustomPlugin";
+import { Mixer } from "./core/Mixer";
+import { Playlist } from "./core/Playlist";
 
 
 class Globals {
+	mixer: Mixer;
+	playlist: Playlist;
+
 	tracks: Array<Track> = [];
 	channels: Array<Channel> = [];
 	context_menus: Array<ContextMenu> = []; // all open context menus
@@ -51,10 +56,6 @@ class Globals {
 	// toggle button colors
 	green: string = "rgb(50, 255, 32)"; // #32ff17
 	grey: string = "rgb(126, 135, 125)"; // #7e877d
-
-	// keybinds
-	control_down: boolean = false;
-	alt_down: boolean = false;
 }
 
 export var globals = new Globals();
@@ -141,6 +142,12 @@ export function pixels_to_ms(px: number) { return px / (globals.xsnap * 4 / 8 / 
 export function ms_to_pixels(ms: number) { return ms * (globals.xsnap * 4 / 8 / (1 / (globals.bpm / 60000))); }
 
 function pixels_to_frames(px: number) { return (44100 * (60 / globals.bpm)) / (globals.xsnap * 4 / 8) * px; }
+
+export function timestamp_to_px(timestamp: number) {return ms_to_pixels(timestamp*1000);}
+
+export function px_to_timestamp(px: number) {return pixels_to_ms(px)/1000;}
+
+export function snap(x: number) {return x - (x%globals.xsnap);}
 
 // cheaty stuff
 export function sleep(milliseconds: number) {
@@ -261,4 +268,9 @@ export function addRadioEventListener(btn: HTMLElement, track: Track) {
 			}
 		}
 	});
+}
+
+export interface Connectable {
+	// return the audio node !preceeding! Audio objects should connect to
+    getAudioNode(): AudioNode;
 }

@@ -1,6 +1,10 @@
 const { app, BrowserWindow, ipcRenderer, ipcMain } = require('electron')
 const path = require('path')
 
+try {
+    require("electron-reloader")(module);
+} catch (_) {}
+
 var wind = null;
 
 let subwindows = [];

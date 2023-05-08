@@ -1,27 +1,44 @@
 import { Item } from "./PaletteItem";
-import { Playlist } from "./PlaylistWindow";
+//import { Playlist } from "./PlaylistWindow";
+import { Playlist } from "./core/Playlist";
 import { globals } from "./globals";
 import { readdirSync } from "fs";
+import { loadPalette } from "./Palette";
+import { Mixer } from "./core/Mixer";
+
+// load the core penis
+globals.mixer = new Mixer();
+globals.mixer.newChannel();
+globals.mixer.newChannel();
+globals.mixer.newChannel();
+globals.mixer.newChannel();
+globals.playlist = new Playlist();
+for (let i = 0; i < 15; i++) {
+	globals.playlist.newTrack().setTitle("Track " + i);
+}
+
+loadPalette();
 
 // load all plugins, then do all the app shit
-import { CustomPlugin } from "./CustomPlugin";
+//import { CustomPlugin } from "./CustomPlugin";
 const loadPluginsThen = (callback: Function) => {
-	let plugin_promises = readdirSync("plugins").map((v) => {
+	let plugin_promises = readdirSync("plugins").map((v: any) => {
 		const pluginpath = "plugins/" + v;
 		console.log(pluginpath);
 		//globals.plugins.push(new CustomPlugin("./plugins/TestPlugin/plugin.js"));
 
 		// dynamically load plugin classes from plugin folder
 		let plugin_import = require("../" + pluginpath + "/main");
-		globals.plugins.push(new plugin_import.Plugin("./plugins/TestPlugin/plugin.js"));
+		//globals.plugins.push(new plugin_import.Plugin("./plugins/TestPlugin/plugin.js"));
+		globals.plugins.push(new plugin_import.Plugin("./" + pluginpath));
 
-		return globals.audiocontext.audioWorklet.addModule("./plugins/TestPlugin/plugin.js");
+		return globals.audiocontext.audioWorklet.addModule("./" + pluginpath + "/plugin.js");
 	});
 	Promise.allSettled(plugin_promises).then(callback());
 };
 
 //let playlist = new Playlist();
-import { MixerWindow } from "./MixerWindow";
+import { MixerWindow } from "./ui/windows/MixerWindow";
 window.addEventListener("load", () => {
 	//playlist.maximize();
 	//playlist.addSample(new Item("rawstyle_kick.wav", "./files/0Current project/rawstyle_kick.wav"));
@@ -35,6 +52,8 @@ window.addEventListener("load", () => {
 
 	loadPluginsThen(() => {
 		let mixer = new MixerWindow();
+		//mixer.updateChannels();
+		
 	});
 });
 
@@ -45,7 +64,7 @@ window.addEventListener("load", () => {
 //console.log(plugin);
 
 // probably unnecessary
-import { setupKeybinds } from "./Keybinds";
-setupKeybinds();
+//import { setupKeybinds } from "./Keybinds";
+//setupKeybinds();
 
 require("./Header");
