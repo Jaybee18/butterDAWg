@@ -1,4 +1,4 @@
-import { Source } from "../src/Source";
+import { Source } from "../src/core/Source";
 import { addRadioEventListener, createElement, cumulativeOffset, globals, ms_to_pixels } from "../src/globals";
 import { Plugin } from "../src/Plugin";
 import { readdirSync } from "fs";

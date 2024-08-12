@@ -1,5 +1,5 @@
 import { WaveFile } from "wavefile";
-import { globals } from "./globals";
+import { globals } from "../globals";
 import { readFileSync } from "fs"
 
 /*

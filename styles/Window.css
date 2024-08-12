@@ -13,6 +13,7 @@
     height: 20px;
     display: flex;
     justify-content: space-between;
+    cursor: move;
 }
 
 .wrapper > .toolbar > .tools, .wrapper > .toolbar > .window_buttons {
@@ -29,6 +30,7 @@
     justify-content: center;
     align-items: center;
     color: #b2d0d3;
+    cursor: pointer;
     outline: solid 2px transparent;
     outline-offset: 1.5px;
     border-radius: 5px;

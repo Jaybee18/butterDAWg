@@ -96,24 +96,28 @@
 /* =================== Color Picker =================*/
 /* ==================================================*/
 .color_picker {
-    position: absolute;
     z-index: 100;
     overflow: hidden;
-    background: #4d565c;
-    padding: 30px 10px 55px 10px;
+    background: #34393b;
+    box-shadow: inset 0 0 2px 0px black;
+    /*background: #4d565c;*/
+    /*padding: 30px 10px 55px 10px;*/
     border: solid 1px #343d43;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 
     left: 100px;
     top: 100px;
-    
-    display: none;
 }
 
 .color_picker canvas {
-    width: 250px;
-    height: 250px;
+    width: 255px;
+    height: 255px;
     
     border: solid 1px #191f23;
+    box-sizing: border-box;
 }
 
 .color_picker > #top {
@@ -146,7 +150,7 @@
 }
 
 #color_picker_top {
-    height: 30px;
+    height: 20px;
     display: flex;
     flex-direction: row;
 }
@@ -154,13 +158,19 @@
 #color_picker_mid {
     height: 250px;
     position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#color_picker_mid > div {
+    position: relative;
 }
 
 #color_picker_inner {
-    width: 294px;
-    height: 400px;
-    background: #3c454b;
+    /*background: #3c454b;*/
     padding: 18px;
+    padding-top: 6px;
 }
 
 .color_picker .color_slider {
@@ -203,18 +213,18 @@
     height: 10px;
     border: solid 1px black;
     border-radius: 20px;
-    top: 195px;
-    right: 33px;
     pointer-events: none;
     position: absolute;
+    left: calc(50% - 6px);
 }
 
 #luminance_slider {
     position: absolute;
     width: 20px;
-    height: 250px;
+    height: 255px;
     background: red;
     border: solid 1px #191f23;
+    box-sizing: border-box;
     right: 0px;
     top: 0px;
     /*background: linear-gradient(0deg, black, transparent 50%), linear-gradient(0deg, transparent, white 100%);*/
@@ -238,7 +248,7 @@
 
 #upper_canvas_limiter {
     position: absolute;
-    width: 255px;
+    width: 100%;
     height: 110px;
     top: 0px;
     backdrop-filter: grayscale(1);
@@ -246,8 +256,8 @@
 
 #lower_canvas_limiter {
     position: absolute;
-    width: 255px;
-    bottom: -1px;
+    width: 100%;
+    bottom: 0px;
     height: 30px;
     backdrop-filter: grayscale(1);
 }
@@ -291,11 +301,11 @@
 }
 
 .color_picker #bottom {
-    position: absolute;
-    width: 330px;
-    height: 45px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    padding: 0 20px 10px 20px;
 }
 
 .color_picker > #bottom > .btn {
@@ -304,9 +314,9 @@
     outline: solid 1px #2e373c;
     border-radius: 2px;
     width: fit-content;
+    height: min-content;
     color: #acc3c6;
     padding: 5px;
-    margin-top: 10px;
 }
 
 .context_menu {

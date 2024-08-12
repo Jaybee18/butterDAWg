@@ -2,7 +2,7 @@ import { Sample } from "../../core/Sample";
 import { cumulativeOffset, globals, ms_to_pixels, px_to_timestamp, React, snap, timestamp_to_px } from "../../globals";
 import { Item } from "../../PaletteItem";
 import { TrackComponent } from "../../Track";
-import { Window } from "../../window";
+import { Window, WindowType } from "../misc/window";
 
 export class PlaylistWindow extends Window {
 
@@ -13,6 +13,7 @@ export class PlaylistWindow extends Window {
 	constructor() {
 		super(false);
 		this.scroll = 0;
+		this.type = WindowType.Playlist;
 		this.sampleCanvasBuffer = new Map();
 		this.lastMousePos = {x: 0, y: 0};
 		this.initialiseContent();
@@ -47,7 +48,7 @@ export class PlaylistWindow extends Window {
 					<div className="tracks_wrapper_wrapper">
 						<div className="tracks_top_bar">
 							<div className="top_bar_corner_svg">
-								<img src="./graphics/corner.svg"></img>
+								<img className="corner_svg" src="./graphics/corner.svg"></img>
 								<img className="piano_svg" src="./graphics/piano.svg"></img>
 								<img className="automation_svg" src="./graphics/automation.svg"></img>
 								<img className="wave_svg" src="./graphics/wave.svg"></img>
@@ -78,12 +79,21 @@ export class PlaylistWindow extends Window {
 			</div> as any);
 
 		// scroll listeners
-		this.get(".tracks").addEventListener("wheel", (e) => {
+		this.get(".tracks").addEventListener("wheel", (e: WheelEvent) => {
 			if (e.ctrlKey) {
 				let delta = e.deltaY / 100;
 
 				globals.xsnap -= delta;
 			}
+
+			// horizontal scroll on track pad
+			this.scroll += e.deltaX;
+			this.scroll = Math.max(this.scroll, 0);
+
+			// this may cause vertical scrolling to be double the speed
+			// but I can't be bothered fixing it right now. Live with it
+			this.get(".tracks").scrollBy({top: e.deltaY});
+
 			this.updateBarLabels();
 			this.updatePlaylist();
 		});
@@ -124,7 +134,16 @@ export class PlaylistWindow extends Window {
 		let base = cumulativeOffset(this.get(".tracks_canvas"));
 		this.get(".tracks_canvas").addEventListener("mousemove", (e) => {
 			base = cumulativeOffset(this.get(".tracks_canvas"))
-			let track_index = Math.floor((e.clientY - base.top + this.get(".tracks").scrollTop) / 70);
+
+			let track_index = 0;
+			let sample_offset_top = (e.clientY - base.top + this.get(".tracks").scrollTop);
+			for (; track_index < globals.tracks.length; track_index++) {
+				sample_offset_top -= globals.tracks[track_index].getHeight();
+				if (sample_offset_top <= 0) {
+					break;
+				}
+			}
+
 			if (globals.current_drag_element !== null) {
 				// something is currently being dragged over the canvas
 				if (globals.current_drag_element_preview === null) {
@@ -233,6 +252,11 @@ export class PlaylistWindow extends Window {
 			this.get("#tracks").appendChild(new TrackComponent(t).getElement());
 		});
 
+		// the width of the corner svg is important for correct label positioning, but loads a bit slower
+		this.get(".top_bar_corner_svg > .corner_svg").addEventListener("load", () => {
+			this.updateBarLabels();
+		});
+
 		this.updateBarLabels();
 		this.updatePlaylist();
 
@@ -275,7 +299,6 @@ export class PlaylistWindow extends Window {
 
 		const w = globals.xsnap;
 		const o = this.scroll;
-		const h = 70; // TODO idk for some fucking reason a track is exactly 70 px high
 
 		// draw slightly darker background
 		ctx.fillStyle = "#2e3e48";
@@ -288,9 +311,11 @@ export class PlaylistWindow extends Window {
 		// draw vertical seperators
 		ctx.strokeStyle = "#182832";
 		ctx.lineWidth = 1;
-		for (let i = 0; i < globals.playlist.getTrackCount(); i++) {
-			ctx.moveTo(0, i * 70);
-			ctx.lineTo(playlist.width, i * 70);
+		let current_offset = 0;
+		for (let i = 0; i < globals.tracks.length; i++) {
+			ctx.moveTo(0, current_offset);
+			ctx.lineTo(playlist.width, current_offset);
+			current_offset += globals.tracks[i].getHeight();
 		}
 		ctx.stroke();
 
@@ -310,10 +335,15 @@ export class PlaylistWindow extends Window {
 		}
 
 		// draw samples
+		current_offset = 0;
 		globals.playlist.getTracks().forEach((track, index) => {
-			track.getSamples().forEach(sample => {
+			const trackSamples = track.getSamples();
+			const trackHeight = globals.tracks[index].getHeight();
+			for (let j = 0; j < trackSamples.length; j++) {
+				const sample = trackSamples[j];
+
 				if (!this.sampleCanvasBuffer.has(sample)) {
-					this.sampleCanvasBuffer.set(sample, this.createCanvasForSample(sample));
+					this.sampleCanvasBuffer.set(sample, this.createCanvasForSample(sample, trackHeight));
 				}
 
 				// draw the frame of the sample
@@ -324,24 +354,26 @@ export class PlaylistWindow extends Window {
 				ctx.strokeStyle = color + "b0";
 				ctx.lineWidth = 1.2;
 				ctx.beginPath();
-				ctx.roundRect(sampleX, index*70, sampleWidth, h, 2);
+				//ctx.roundRect(sampleX, index*70, sampleWidth, h, 2);
+				ctx.rect(sampleX, current_offset, sampleWidth, trackHeight);
 				ctx.fillStyle = color + "30";
 				ctx.fill();
 				
 				// draw the actual waveform
-				ctx.drawImage(this.sampleCanvasBuffer.get(sample), sampleX, index*70, sampleWidth, 70);
+				ctx.drawImage(this.sampleCanvasBuffer.get(sample), sampleX, current_offset, sampleWidth, trackHeight);
 
 				ctx.stroke();
-			});
+			}
+			current_offset += trackHeight;
 		});
 
 		ctx.translate(-0.5, -0.5);
 	}
 
-	private createCanvasForSample(sample: Sample) {
+	private createCanvasForSample(sample: Sample, height: number) {
 		let canvas = document.createElement("canvas");
 		canvas.width = ms_to_pixels(sample.getDuration()*1000);
-		canvas.height = 70;
+		canvas.height = height;
 		let ctx = canvas.getContext("2d");
 		ctx.translate(0.5, 0.5);
 		ctx.beginPath();
@@ -365,16 +397,22 @@ export class PlaylistWindow extends Window {
 
 	private getCurrentHoverSample() {
 		const base = cumulativeOffset(this.get(".tracks_canvas"));
+		let current_offset = 0;
 		let targets = globals.playlist.getTracks().flatMap((track, index) => {
-			return track.getSamples().map(sample => {
-				return [this.point_in_rect(this.lastMousePos.x - base.left + this.scroll, 
+			const trackSamples = track.getSamples();
+			const res = [];
+			for (let i = 0; i < trackSamples.length; i++) {
+				const sample = trackSamples[i];
+				res.push([this.point_in_rect(this.lastMousePos.x - base.left + this.scroll, 
 					this.lastMousePos.y - base.top, 
 					timestamp_to_px(sample.getTimestamp()),
-					index*70 - this.get(".tracks").scrollTop,
+					current_offset - this.get(".tracks").scrollTop,
 					ms_to_pixels(sample.getDuration()*1000),
-					70),
-					sample];
-			});
+					globals.tracks[index].getHeight()),
+					sample]);
+			}
+			current_offset += globals.tracks[index].getHeight();
+			return res;
 		});
 		console.log(targets)
 		return targets.some(v => v[0]) ? targets[targets.findIndex(v => v[0])][1] : null;

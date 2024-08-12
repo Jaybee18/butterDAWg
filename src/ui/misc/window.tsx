@@ -1,6 +1,6 @@
-import { createElement, cumulativeOffset, globals, React } from "./globals";
+import { createElement, cumulativeOffset, globals, React } from "../../globals";
 import { BrowserWindowConstructorOptions, BrowserWindow, ipcRenderer } from "electron";
-import { Color } from "./ui/misc/Color";
+import { Color } from "./Color";
 
 export interface toolbarButtonOptions {
     tool: boolean
@@ -8,12 +8,18 @@ export interface toolbarButtonOptions {
     customParentCss: string
 }
 
+export enum WindowType {
+    Playlist,
+    Mixer
+}
+
 export abstract class Window {
 
-    /* general Wrapper for every window-type in the whole app */
+    /* general wrapper for every window-type in the whole app */
 
     private title: string
     private id: string
+    protected type: WindowType
     protected element: HTMLElement
     protected toolbar: HTMLElement
     protected content: HTMLElement
@@ -21,6 +27,7 @@ export abstract class Window {
     private size: {width: number, height: number}
     private minSize: {width: number, height: number}
     private listeners: Array<{event: string, listener: (this: HTMLElement, e: Event) => any}>;
+    private resizable: boolean;
 
     constructor(callInitialiseContent: boolean = true) {
         this.id = Math.round(Date.now() * Math.random()).toString();
@@ -38,6 +45,8 @@ export abstract class Window {
             height: 0,
         };
         this.listeners = [];
+        this.resizable = true;
+        this.minimized = false;
 
         if (callInitialiseContent) this.initialiseContent();
     }
@@ -91,11 +100,7 @@ export abstract class Window {
             // don't even bring it to the front if it's going to get
             // closed anyway
             if (e.target !== this.get(".fa-xmark")) {
-                // bring to front
-                globals.windows.forEach((w) => {
-                    w.setZIndex(1);
-                });
-                this.element.style.zIndex = "10";
+                this.toFront();
             }
         });
 
@@ -109,23 +114,27 @@ export abstract class Window {
             });
         }
         addListener(this.get(".se_resize"), (e: MouseEvent) => {
+            if (!this.isResizable()) return;
             temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
             temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
             this.anti_minimize();
         });
         addListener(this.get(".ne_resize"), (e: MouseEvent) => {
+            if (!this.isResizable()) return;
             temp_this.element.style.width = e.clientX - temp_this.element.offsetLeft + "px";
             temp_this.element.style.height = temp_this.element.clientHeight - e.movementY + "px";
             temp_this.element.style.top = temp_this.element.offsetTop + e.movementY + "px";
             this.anti_minimize();
         });
         addListener(this.get(".sw_resize"), (e: MouseEvent) => {
+            if (!this.isResizable()) return;
             temp_this.element.style.width = temp_this.element.clientWidth - e.movementX + "px";
             temp_this.element.style.height = e.clientY - temp_this.element.offsetTop + "px";
             temp_this.element.style.left = temp_this.element.offsetLeft + e.movementX + "px";
             this.anti_minimize();
         });
         addListener(this.get(".nw_resize"), (e: MouseEvent) => {
+            if (!this.isResizable()) return;
             temp_this.element.style.width = temp_this.element.clientWidth - e.movementX + "px";
             temp_this.element.style.height = temp_this.element.clientHeight - e.movementY + "px";
             temp_this.element.style.left = temp_this.element.offsetLeft + e.movementX + "px";
@@ -161,8 +170,30 @@ export abstract class Window {
         } as toolbarButtonOptions);
     }
 
+    toFront() {
+        // bring to front
+        globals.windows.forEach((w) => {
+            w.setZIndex(1);
+        });
+        this.element.style.zIndex = "10";
+    }
+
+    getType() {
+        return this.type;
+    } 
+
     getToolbar() {
         return this.get(".toolbar > .tools");
+    }
+
+    getPosition() {
+        return {x: this.element.offsetLeft, y: this.element.offsetTop};
+    }
+
+    setPosition(x: number, y: number) {
+        this.element.style.left = x + "px";
+        this.element.style.top = y + "px";
+        this.setContentSize();
     }
 
     abstract initialiseContent(): void;
@@ -171,9 +202,18 @@ export abstract class Window {
         return this.content;
     }
 
+    getId() {
+        return this.id;
+    }
+
     setContent(content: string) {
         let tmp = createElement(content);
         this.get(".content").appendChild(tmp);
+    }
+
+    // set the content with reacts tsx elements
+    setContentWithReact(content: any) {
+        this.get(".content").appendChild(content);
     }
 
     setZIndex(index: number) {
@@ -181,6 +221,8 @@ export abstract class Window {
     }
 
     setContentSize(width: number = undefined, height: number = undefined) {
+        if (!this.isResizable()) return;
+
         // if width and height are undefined, this should just
         // act like a size update function
         if (width === undefined && height === undefined) {
@@ -318,6 +360,28 @@ export abstract class Window {
     }
 
     private updateSize() {
+        if (!this.isResizable()) return;
+
         this.size = {width: this.element.clientWidth, height: this.element.clientHeight};
+    }
+
+    setResizable(_resizable: boolean) {
+        this.resizable = _resizable;
+
+        if (this.resizable) {
+            this.get(".se_resize").style.cursor = "nwse-resize";
+            this.get(".ne_resize").style.cursor = "aunesw-resizeto";
+            this.get(".sw_resize").style.cursor = "nesw-resize";
+            this.get(".nw_resize").style.cursor = "nwse-resize";
+        } else {
+            this.get(".se_resize").style.cursor = "auto";
+            this.get(".ne_resize").style.cursor = "auto";
+            this.get(".sw_resize").style.cursor = "auto";
+            this.get(".nw_resize").style.cursor = "auto";
+        }
+    }
+
+    isResizable() {
+        return this.resizable;
     }
 }

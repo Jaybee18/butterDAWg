@@ -1,8 +1,8 @@
-import { Window } from "./window";
+import { Window } from "./ui/misc/window";
 import { globals, React } from "./globals";
 import { Channel } from "./ui/Components/Channel";
 import { PluginSlot } from "./Mixer";
-import { PluginWindow } from "./PluginWindow";
+import { PluginWindow } from "./ui/windows/PluginWindow";
 import { ContextMenu } from "./ui/Components/ContextMenu";
 
 class MixerWindow extends Window {
