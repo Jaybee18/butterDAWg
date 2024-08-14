@@ -21,7 +21,8 @@
 #track_resize {
     width: 70%;
     height: 10px;
-    bottom: -6px;
+    /* bottom: -6px; this leads to a 6px margin at the bottom*/
+    bottom: 0px;
     cursor: n-resize;
     position: absolute;
     z-index: 1;

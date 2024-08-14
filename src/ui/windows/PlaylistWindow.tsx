@@ -1,18 +1,21 @@
 import { Sample } from "../../core/Sample";
-import { cumulativeOffset, globals, ms_to_pixels, px_to_timestamp, React, snap, timestamp_to_px } from "../../globals";
+import { addDragListener, cumulativeOffset, globals, ms_to_pixels, px_to_timestamp, React, snap, timestamp_to_px, pixels_to_ms } from "../../globals";
 import { Item } from "../../PaletteItem";
 import { TrackComponent } from "../../Track";
-import { Window, WindowType } from "../misc/window";
+import { Color } from "../misc/Color";
+import { toolbarButtonOptions, Window, WindowType } from "../misc/window";
 
 export class PlaylistWindow extends Window {
 
 	private scroll: number;
+	private maxBeats: number;
 	private sampleCanvasBuffer: Map<Sample, HTMLCanvasElement>;
 	private lastMousePos: {x: number, y: number};
 
 	constructor() {
 		super(false);
 		this.scroll = 0;
+		this.maxBeats = 100;
 		this.type = WindowType.Playlist;
 		this.sampleCanvasBuffer = new Map();
 		this.lastMousePos = {x: 0, y: 0};
@@ -56,13 +59,15 @@ export class PlaylistWindow extends Window {
 							<div id="tracks_top_bar_inner">
 								<div className="tracks_top_bar_scrollbar">
 									<div className="tracks_top_bar_scrollbar_left"><i className="fa-solid fa-chevron-left"></i></div>
-									<div className="tracks_top_bar_scrollbar_handle" id="tracks_top_bar_scrollbar_handle"></div>
+									<div className="tracks_top_bar_scrollbar_rail">
+										<div className="tracks_top_bar_scrollbar_handle" id="tracks_top_bar_scrollbar_handle"></div>
+									</div>
 									<div className="tracks_top_bar_scrollbar_right"><i className="fa-solid fa-chevron-right"></i></div>
 								</div>
 								<div className="tracks_top_bar_bars_wrapper">
 									<div className="tracks_top_bar_bars">
-										<img className="bars_cursor" id="bars_cursor" src="./graphics/cursor.svg"></img>
 										<canvas className="bars_canvas" width={200} height={100}></canvas>
+										<img className="bars_cursor" id="bars_cursor" src="./graphics/cursor.svg"></img>
 									</div>
 								</div>
 							</div>
@@ -81,35 +86,19 @@ export class PlaylistWindow extends Window {
 		// scroll listeners
 		this.get(".tracks").addEventListener("wheel", (e: WheelEvent) => {
 			if (e.ctrlKey) {
+				e.preventDefault();
 				let delta = e.deltaY / 100;
 
 				globals.xsnap -= delta;
+
+				this.update();
+			} else {
+				this.scrollBy(e.deltaX, e.deltaY);
 			}
-
-			// horizontal scroll on track pad
-			this.scroll += e.deltaX;
-			this.scroll = Math.max(this.scroll, 0);
-
-			// this may cause vertical scrolling to be double the speed
-			// but I can't be bothered fixing it right now. Live with it
-			this.get(".tracks").scrollBy({top: e.deltaY});
-
-			this.updateBarLabels();
-			this.updatePlaylist();
 		});
 
 		// view drag listeners
 		let touchdown = { x: 0, y: 0, scrollY: 0, scrollX: 0};
-		const scroll_delta = (e: MouseEvent, x: boolean = true, y: boolean = true) => {
-			if (x) {
-				this.scroll = Math.max(touchdown.scrollX + (touchdown.x - e.clientX), 0);
-			}
-			if (y) {
-				this.get(".tracks").scrollTo({ top: touchdown.scrollY + (touchdown.y - e.clientY) });
-			}
-			this.updateBarLabels();
-			this.updatePlaylist();
-		}
 		const set_touchdown = (e: MouseEvent) => {
 			touchdown.x = e.clientX;
 			touchdown.y = e.clientY;
@@ -119,10 +108,10 @@ export class PlaylistWindow extends Window {
 		this.get(".tracks").addEventListener("mousemove", (e: MouseEvent) => {
 			this.lastMousePos = {x: e.clientX, y: e.clientY};
 			if (e.buttons === 4) {
-				scroll_delta(e);
+				this.scrollTo(touchdown.scrollX + (touchdown.x - e.clientX), touchdown.scrollY + (touchdown.y - e.clientY));
 			}
 		});
-		this.get(".tracks").addEventListener("mousedown", (e) => {
+		this.element.addEventListener("mousedown", (e) => {
 			e.preventDefault();
 			set_touchdown(e);
 		});
@@ -205,14 +194,22 @@ export class PlaylistWindow extends Window {
 
 		// top scroll bar listener
 		let bars_scrollbar_handle = this.get(".tracks_top_bar_scrollbar_handle");
-		bars_scrollbar_handle.addEventListener("mousedown", (e) => {
-			set_touchdown(e);
-		});
-		bars_scrollbar_handle.addEventListener("mousemove", (e) => {
-			if (e.buttons === 1) {
-				scroll_delta(e, true, false);
+		let bars_scrollbar_rail = this.get(".tracks_top_bar_scrollbar_rail");
+		addDragListener(bars_scrollbar_handle, (e: MouseEvent) => {
+			if (e.button === 0) {
+				const viewportWidth = this.get(".tracks_canvas").clientWidth;
+				const playlistWidth = this.maxBeats * globals.xsnap;
+				const scrollArea1 = playlistWidth - viewportWidth;
+
+				const handleWidth = bars_scrollbar_handle.clientWidth;
+				const railWidth = bars_scrollbar_rail.clientWidth;
+				const scrollArea2 = railWidth - handleWidth;
+				
+				const delta = e.clientX - touchdown.x;
+				const ratio = (scrollArea1 / scrollArea2);
+				this.scrollTo(touchdown.scrollX + delta * ratio);
 			}
-		});
+		}, true);
 
 		// key events handler
 		let track_cursor = this.get(".bars_cursor");
@@ -228,7 +225,7 @@ export class PlaylistWindow extends Window {
 					// play cursor animation
 					cursor_anim = setInterval(() => {
 						globals.cursor_pos += cursor_step;
-						track_cursor.style.left = globals.cursor_pos + "px";
+						this.updateCursor();
 						globals.current_time += globals.timeout;
 					}, globals.timeout);
 
@@ -247,6 +244,13 @@ export class PlaylistWindow extends Window {
 			}
 		});
 
+		addDragListener(track_cursor, (e: MouseEvent) => {
+			globals.cursor_pos += e.movementX;
+			globals.cursor_pos = Math.max(globals.cursor_pos, 0);
+			globals.current_time = pixels_to_ms(globals.cursor_pos);
+			this.updateCursor();
+		}, true);
+
 		// add all tracks
 		globals.playlist.getTracks().forEach(t => {
 			this.get("#tracks").appendChild(new TrackComponent(t).getElement());
@@ -257,16 +261,84 @@ export class PlaylistWindow extends Window {
 			this.updateBarLabels();
 		});
 
-		this.updateBarLabels();
-		this.updatePlaylist();
+		// tool buttons
+		this.addToolbarButton("fa-solid fa-magnet", new Color("#7eefa9"), () => { }, {
+			customCss: "transform: rotate(180deg) translate(0.5px, 1px);",
+			customParentCss: "margin-right: 17px;"
+		} as toolbarButtonOptions);
+		this.addToolbarButton("fa-solid fa-pencil", new Color("#fcba40"), () => { });
+		this.addToolbarButton("fa-solid fa-brush", new Color("#7bcefd"), () => { }, {
+			customCss: "transform: translate(1px, 0.5px) rotate(-45deg);"
+		} as toolbarButtonOptions);
+		this.addToolbarButton("fa-solid fa-ban", new Color("#ff5b53"), () => { });
+		this.addToolbarButton("fa-solid fa-volume-xmark", new Color("#ff54b0"), () => { });
+		this.addToolbarButton("fa-solid fa-arrows-left-right", new Color("#ffa64a"), () => { });
+		this.addToolbarButton("fa-solid fa-spoon", new Color("#85b3ff"), () => { });
+		this.addToolbarButton("fa-solid fa-expand", new Color("#ffab60"), () => { });
+		this.addToolbarButton("fa-solid fa-magnifying-glass", new Color("#85b3ff"), () => { });
+		this.addToolbarButton("fa-solid fa-volume-high", new Color("#ffa64a"), () => { }, {
+			customCss: "transform: scale(0.9);"
+		} as toolbarButtonOptions);
+
+		this.update();
 
 		this.setContentSize(1200, 700);
 		this.setMinWindowSize(450, 100);
 	}
 
+	private getScrollPercent() {
+		return this.scroll / ((this.maxBeats - 1) * globals.xsnap - this.get(".tracks_canvas").clientWidth);
+	}
+
+	scrollBy(x: number, y: number) {
+		const max_scroll = (this.maxBeats - 1) * globals.xsnap;
+
+		this.scroll += x;
+		this.scroll = Math.max(Math.min(this.scroll, max_scroll - this.get(".tracks_canvas").clientWidth), 0);
+
+		this.get(".tracks").scrollTo({ top: this.get(".tracks").scrollTop + y });
+		
+		this.update();
+	}
+
+	scrollTo(x: number = null, y: number = null) {
+		if (x) {
+			let bars_scrollbar_handle = this.get(".tracks_top_bar_scrollbar_handle");
+			let bars_scrollbar_rail = this.get(".tracks_top_bar_scrollbar_rail");
+
+			this.scroll = x;
+			//this.scroll = Math.max(Math.min(this.scroll, bars_scrollbar_rail.clientWidth - bars_scrollbar_handle.clientWidth), 0);
+			const max_scroll = (this.maxBeats - 1) * globals.xsnap;
+			this.scroll = Math.max(Math.min(this.scroll, max_scroll - this.get(".tracks_canvas").clientWidth), 0);
+		}
+
+		if (y) {
+			this.get(".tracks").scrollTo({ top: y });
+		}
+		this.update();
+	}
+
 	onResizeContent(newWidth: number, newHeight: number): void {
-		this.updatePlaylist();
-		this.updateBarLabels();
+		this.update();
+	}
+
+	updateScrollBars() {
+		let bars_scrollbar_handle = this.get(".tracks_top_bar_scrollbar_handle");
+		let bars_scrollbar_rail = this.get(".tracks_top_bar_scrollbar_rail");
+
+		const viewportWidth = this.get(".tracks_canvas").clientWidth;
+		const playlistWidth = this.maxBeats * globals.xsnap;
+		const relativeViewportWidth = viewportWidth / playlistWidth;
+
+		const handleWidth = bars_scrollbar_rail.clientWidth * relativeViewportWidth;
+
+		bars_scrollbar_handle.style.width = handleWidth + "px";
+		bars_scrollbar_handle.style.left = ((bars_scrollbar_rail.clientWidth - handleWidth) * this.getScrollPercent()) + "px";
+	}
+
+	updateCursor() {
+		let track_cursor = this.get(".bars_cursor");
+		track_cursor.style.left = globals.cursor_pos - this.scroll + "px";
 	}
 
 	updateBarLabels() {
@@ -277,7 +349,7 @@ export class PlaylistWindow extends Window {
 
 		ctx.fillStyle = "#d3d3d3";
 		ctx.lineWidth = 1;
-		for (let i = 0; i < bars_canvas.clientWidth * 2 / globals.xsnap; i++) {
+		for (let i = 0; i < this.maxBeats; i++) {
 			if (i % 12 == 0 || i % 4 == 0) {
 				ctx.font = (i % 12 == 0 ? "15pt" : "10pt") + " Calibri";
 				ctx.fillText((i + 1).toString(), (i * globals.xsnap - this.scroll) * 2, bars_canvas.height - 3);
@@ -287,8 +359,8 @@ export class PlaylistWindow extends Window {
 
 	updatePlaylist() {
 		let playlist = this.get(".tracks_canvas") as HTMLCanvasElement;
-		playlist.width = playlist.clientWidth;
-		playlist.height = playlist.clientHeight;
+		playlist.width = playlist.getBoundingClientRect().width;
+		playlist.height = playlist.getBoundingClientRect().height;
 		let ctx = playlist.getContext("2d", { alpha: false });
 		ctx.imageSmoothingEnabled = false;
 		ctx.translate(0.5, 0.5);
@@ -425,5 +497,12 @@ export class PlaylistWindow extends Window {
 			});
 		});
 		return res;
+	}
+
+	update() {
+		this.updatePlaylist();
+		this.updateBarLabels();
+		this.updateScrollBars();
+		this.updateCursor();
 	}
 }
