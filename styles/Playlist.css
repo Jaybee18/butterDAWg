@@ -119,6 +119,10 @@
     border-color: #1d262b;
 }
 
+.tracks_descriptions {
+    height: 100%;
+}
+
 .tracks_content_wrapper {
     display: flex;
 }

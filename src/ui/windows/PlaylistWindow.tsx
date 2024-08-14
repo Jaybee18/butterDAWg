@@ -9,6 +9,7 @@ export class PlaylistWindow extends Window {
 
 	private scroll: number;
 	private maxBeats: number;
+	private zoom: number;
 	private sampleCanvasBuffer: Map<Sample, HTMLCanvasElement>;
 	private lastMousePos: {x: number, y: number};
 
@@ -16,6 +17,7 @@ export class PlaylistWindow extends Window {
 		super(false);
 		this.scroll = 0;
 		this.maxBeats = 100;
+		this.zoom = 30;
 		this.type = WindowType.Playlist;
 		this.sampleCanvasBuffer = new Map();
 		this.lastMousePos = {x: 0, y: 0};
@@ -91,7 +93,18 @@ export class PlaylistWindow extends Window {
 
 				globals.xsnap -= delta;
 
+				const overflow = this.scroll + this.get(".tracks_canvas").clientWidth - (this.maxBeats - 1) * globals.xsnap;
+				if (overflow > 0) {
+					this.scrollTo(this.scroll - overflow);
+				}
+
 				this.update();
+
+				// TODO definitely rework this bit ugh
+				if (this.zoom > 1) {
+					globals.xsnap += delta;
+					this.update()
+				}
 			} else {
 				this.scrollBy(e.deltaX, e.deltaY);
 			}
@@ -303,12 +316,8 @@ export class PlaylistWindow extends Window {
 
 	scrollTo(x: number = null, y: number = null) {
 		if (x) {
-			let bars_scrollbar_handle = this.get(".tracks_top_bar_scrollbar_handle");
-			let bars_scrollbar_rail = this.get(".tracks_top_bar_scrollbar_rail");
-
-			this.scroll = x;
-			//this.scroll = Math.max(Math.min(this.scroll, bars_scrollbar_rail.clientWidth - bars_scrollbar_handle.clientWidth), 0);
 			const max_scroll = (this.maxBeats - 1) * globals.xsnap;
+			this.scroll = x;
 			this.scroll = Math.max(Math.min(this.scroll, max_scroll - this.get(".tracks_canvas").clientWidth), 0);
 		}
 
@@ -329,11 +338,20 @@ export class PlaylistWindow extends Window {
 		const viewportWidth = this.get(".tracks_canvas").clientWidth;
 		const playlistWidth = this.maxBeats * globals.xsnap;
 		const relativeViewportWidth = viewportWidth / playlistWidth;
+		this.zoom = relativeViewportWidth;
 
-		const handleWidth = bars_scrollbar_rail.clientWidth * relativeViewportWidth;
+		let handleWidth = bars_scrollbar_rail.clientWidth * relativeViewportWidth;
+		handleWidth = Math.min(handleWidth, bars_scrollbar_rail.clientWidth);
+
+		let handlePosition = ((bars_scrollbar_rail.clientWidth - handleWidth) * this.getScrollPercent());
+
+		// when zooming at the far right of the playlist
+		if (handlePosition + handleWidth > bars_scrollbar_rail.clientWidth) {
+			handlePosition -= (handlePosition + handleWidth) - bars_scrollbar_rail.clientWidth;
+		}
 
 		bars_scrollbar_handle.style.width = handleWidth + "px";
-		bars_scrollbar_handle.style.left = ((bars_scrollbar_rail.clientWidth - handleWidth) * this.getScrollPercent()) + "px";
+		bars_scrollbar_handle.style.left = handlePosition + "px";
 	}
 
 	updateCursor() {
@@ -359,8 +377,9 @@ export class PlaylistWindow extends Window {
 
 	updatePlaylist() {
 		let playlist = this.get(".tracks_canvas") as HTMLCanvasElement;
-		playlist.width = playlist.getBoundingClientRect().width;
-		playlist.height = playlist.getBoundingClientRect().height;
+		let descriptions = this.get(".tracks_descriptions");
+		playlist.width = playlist.clientWidth;
+		playlist.height = descriptions.clientHeight;
 		let ctx = playlist.getContext("2d", { alpha: false });
 		ctx.imageSmoothingEnabled = false;
 		ctx.translate(0.5, 0.5);
