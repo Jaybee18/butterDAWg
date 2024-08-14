@@ -105,6 +105,11 @@ export class PlaylistWindow extends Window {
 					globals.xsnap += delta;
 					this.update()
 				}
+
+				if (this.zoom < 0.01) {
+					globals.xsnap += delta;
+					this.update();
+				}
 			} else {
 				this.scrollBy(e.deltaX, e.deltaY);
 			}
@@ -365,14 +370,23 @@ export class PlaylistWindow extends Window {
 		bars_canvas.height = bars_canvas.clientHeight;
 		let ctx = bars_canvas.getContext("2d");
 
-		ctx.fillStyle = "#d3d3d3";
-		ctx.lineWidth = 1;
-		for (let i = 0; i < this.maxBeats; i++) {
-			if (i % 12 == 0 || i % 4 == 0) {
-				ctx.font = (i % 12 == 0 ? "15pt" : "10pt") + " Calibri";
-				ctx.fillText((i + 1).toString(), (i * globals.xsnap - this.scroll) * 2, bars_canvas.height - 3);
-			}
+		let roundWithOneDecimal = (num: number) => Math.round(num * 10) / 10;
+
+		let tmp = 1;
+		let space = globals.xsnap * 2;
+		while (space > 160) {
+			space /= 2;
+			tmp *= 2;
 		}
+
+		ctx.fillStyle = "#d3d3d3";
+		ctx.strokeStyle = "white";
+		ctx.lineWidth = 1;
+		for (let i = 0; i < bars_canvas.clientWidth * 2 / space; i++) {
+			ctx.font = ((i / tmp + Math.floor(this.scroll / globals.xsnap)) % 12 == 0 ? "15pt" : "10pt") + " Calibri";
+			ctx.fillText(roundWithOneDecimal(i / tmp + 1 + Math.floor(this.scroll / globals.xsnap)).toString(), i * space - (this.scroll % globals.xsnap) * 2, bars_canvas.height - 3);
+		}
+		ctx.stroke();
 	}
 
 	updatePlaylist() {
