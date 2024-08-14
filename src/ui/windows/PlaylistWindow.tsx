@@ -382,7 +382,7 @@ export class PlaylistWindow extends Window {
 		ctx.fillStyle = "#d3d3d3";
 		ctx.strokeStyle = "white";
 		ctx.lineWidth = 1;
-		for (let i = 0; i < bars_canvas.clientWidth * 2 / space; i++) {
+		for (let i = 0; i < bars_canvas.clientWidth * 2 / space + 1; i++) {
 			ctx.font = ((i / tmp + Math.floor(this.scroll / globals.xsnap)) % 12 == 0 ? "15pt" : "10pt") + " Calibri";
 			ctx.fillText(roundWithOneDecimal(i / tmp + 1 + Math.floor(this.scroll / globals.xsnap)).toString(), i * space - (this.scroll % globals.xsnap) * 2, bars_canvas.height - 3);
 		}
