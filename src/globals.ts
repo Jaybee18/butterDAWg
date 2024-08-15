@@ -160,7 +160,13 @@ export function timestamp_to_px(timestamp: number) {return ms_to_pixels(timestam
 
 export function px_to_timestamp(px: number) {return pixels_to_ms(px)/1000;}
 
-export function snap(x: number) {return x - (x%globals.xsnap);}
+export function snap(x: number) {
+	let space = globals.xsnap;
+	while (space > 80) {
+		space /= 2;
+	}
+	return x - (x % space);
+}
 
 // cheaty stuff
 export function sleep(milliseconds: number) {

@@ -361,7 +361,7 @@ export class PlaylistWindow extends Window {
 
 	updateCursor() {
 		let track_cursor = this.get(".bars_cursor");
-		track_cursor.style.left = globals.cursor_pos - this.scroll + "px";
+		track_cursor.style.left = ((globals.cursor_pos + 10) * (1/this.zoom)) - 10 - this.scroll + "px";
 	}
 
 	updateBarLabels() {
@@ -379,14 +379,17 @@ export class PlaylistWindow extends Window {
 			tmp *= 2;
 		}
 
-		ctx.fillStyle = "#d3d3d3";
-		ctx.strokeStyle = "white";
+		ctx.strokeStyle = "#d3d3d3";
 		ctx.lineWidth = 1;
-		for (let i = 0; i < bars_canvas.clientWidth * 2 / space + 1; i++) {
+		for (let i = 0; i < bars_canvas.clientWidth * 2 / space + tmp; i++) {
 			ctx.font = ((i / tmp + Math.floor(this.scroll / globals.xsnap)) % 12 == 0 ? "15pt" : "10pt") + " Calibri";
-			ctx.fillText(roundWithOneDecimal(i / tmp + 1 + Math.floor(this.scroll / globals.xsnap)).toString(), i * space - (this.scroll % globals.xsnap) * 2, bars_canvas.height - 3);
+			if (i % 2 === 1 && tmp !== 1) {
+				ctx.strokeStyle = new Color("#d3d3d3").transparent(Math.min(Math.round(255 * ((space - 80) / 5)), 255));
+			} else {
+				ctx.strokeStyle = "#d3d3d3";
+			}
+			ctx.strokeText(roundWithOneDecimal(i / tmp + 1 + Math.floor(this.scroll / globals.xsnap)).toString(), i * space - (this.scroll % globals.xsnap) * 2, bars_canvas.height - 3);
 		}
-		ctx.stroke();
 	}
 
 	updatePlaylist() {
@@ -424,18 +427,24 @@ export class PlaylistWindow extends Window {
 		}
 		ctx.stroke();
 
+		let space = globals.xsnap;
+		while (space > 80) {
+			space /= 2;
+		}
+
 		// draw vertical lines
 		ctx.strokeStyle = "10202a";
 		ctx.lineWidth = 0.4;
-		for (let i = 0; i < (playlist.width + o) / w; i++) {
+		for (let i = 0; i < playlist.width / space; i++) {
+			const x = i * space - (o % globals.xsnap);
 			ctx.beginPath();
 			if (i % 12 == 0) {
 				ctx.lineWidth = 0.5;
 			} else {
 				ctx.lineWidth = 0.3;
 			}
-			ctx.moveTo(i * w - o, 0);
-			ctx.lineTo(i * w - o, playlist.height);
+			ctx.moveTo(x, 0);
+			ctx.lineTo(x, playlist.height);
 			ctx.stroke();
 		}
 

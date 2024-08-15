@@ -44,7 +44,8 @@ export class Color {
 		return "#" + a[0] + a[1] + a[2];
 	}
 	transparent(magnitude: number) {
-		return this.color + magnitude.toString(16);
+		// magnitude = value from 0 to 255
+		return this.color + magnitude.toString(16).padStart(2, "0");
 	}
 	lerp(target_color: Color, percent: number) {
 		let [r, g, b] = this.toRGB();
