@@ -98,8 +98,7 @@ export class TrackComponent {
 			null,
 			null,
 			() => {
-				//globals.current_context_track.resize_locked = !globals.current_context_track.resize_locked;
-				globals.current_context_track
+				this.resize_locked = !this.resize_locked;
 				return true;
 			},
 			null,
