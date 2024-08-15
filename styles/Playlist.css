@@ -433,9 +433,8 @@
 
 .line_cursor {
     display: none;
-    width: 15px;
-    height: calc(100vh + 500px);
-    margin-top: -250px;
+    width: 11px;
+    height: 100%;
     position: absolute;
     z-index: 3;
     left: 0px;

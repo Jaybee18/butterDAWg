@@ -361,6 +361,7 @@ export class PlaylistWindow extends Window {
 
 	updateCursor() {
 		let track_cursor = this.get(".bars_cursor");
+		let track_line_cursor = this.get(".line_cursor");
 		track_cursor.style.left = ((globals.cursor_pos + 10) * (1/this.zoom)) - 10 - this.scroll + "px";
 	}
 
@@ -374,10 +375,14 @@ export class PlaylistWindow extends Window {
 
 		let tmp = 1;
 		let space = globals.xsnap * 2;
-		while (space > 160) {
+		while (space > 80 * 2) {
 			space /= 2;
 			tmp *= 2;
 		}
+
+		// this also works:
+		// const magnification = Math.max(Math.ceil(Math.log2(globals.xsnap / 80)), 0);
+		// const space = globals.xsnap / Math.pow(2, magnification) * 2;
 
 		ctx.strokeStyle = "#d3d3d3";
 		ctx.lineWidth = 1;
