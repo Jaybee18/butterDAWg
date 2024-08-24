@@ -7,7 +7,6 @@ export abstract class CustomPlugin {
     protected pluginpath: string;
 
     constructor(pluginpath: string) {
-        // "./plugins/TestPlugin/plugin.js"
         this.pluginpath = pluginpath;
         globals.audiocontext.audioWorklet.addModule(pluginpath + "/plugin.js").then(() => {
             this.initialiseAudioNode();

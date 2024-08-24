@@ -32,6 +32,7 @@
     position: relative;
     background-color: #353e43;
     box-shadow: inset 0 0 0 1px #1d262b;
+    display: flex;
 }
 
 .tracks_top_bar_scrollbar_left, .tracks_top_bar_scrollbar_right {
@@ -63,7 +64,11 @@
     box-shadow: inset 0 0 0 1px #000000aa, inset 0 0 0 2px #636c71;
     position: absolute;
     float: left;
-    left: 20px;
+}
+
+.tracks_top_bar_scrollbar_rail {
+    width: 100%;
+    position: relative;
 }
 
 .notransition {
@@ -114,12 +119,17 @@
     border-color: #1d262b;
 }
 
+.tracks_descriptions {
+    height: 100%;
+}
+
 .tracks_content_wrapper {
     display: flex;
 }
 
 .tracks_canvas {
     flex-grow: 1;
+    min-width: 0; /* https://stackoverflow.com/questions/38382734/flex-items-not-shrinking-when-window-gets-smaller */
 }
 
 /*main::-webkit-scrollbar {
@@ -423,9 +433,8 @@
 
 .line_cursor {
     display: none;
-    width: 15px;
-    height: calc(100vh + 500px);
-    margin-top: -250px;
+    width: 11px;
+    height: 100%;
     position: absolute;
     z-index: 3;
     left: 0px;

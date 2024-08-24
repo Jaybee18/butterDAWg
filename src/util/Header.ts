@@ -1,6 +1,8 @@
-import { globals } from "./globals";
-import { PlaylistWindow } from "./ui/windows/PlaylistWindow";
-import { MixerWindow } from "./ui/windows/MixerWindow";
+import { globals } from "../globals";
+import { PlaylistWindow } from "../ui/windows/PlaylistWindow";
+import { MixerWindow } from "../ui/windows/MixerWindow";
+import { WindowType } from "../ui/misc/window";
+import { AudioGraphWindow } from "../ui/windows/AudioGraphWindow";
 
 // bpm count drag functionality
 var bpm_count = document.querySelector(".bpm");
@@ -36,12 +38,35 @@ scope_pat.click();
 
 // mixer
 document.querySelector(".header_mixer").addEventListener("click", () => {
-  console.log("open mixer window");
-  new MixerWindow();
+  if (windowTypeOpen(WindowType.Mixer)) {
+    console.log("mixer window already open");
+  } else {
+    console.log("open mixer window");
+    new MixerWindow();
+  }
 });
 
 // playlist
 document.querySelector(".header_playlist").addEventListener("click", () => {
-  console.log("open playlist window");
-  new PlaylistWindow();
+  if (windowTypeOpen(WindowType.Playlist)) {
+    console.log("playlist window already open");
+  } else {
+    console.log("open playlist window");
+    new PlaylistWindow();
+  }
 });
+
+// audio graph
+document.querySelector(".header_audio_graph").addEventListener("click", () => {
+    new AudioGraphWindow();
+});
+
+export function windowTypeOpen(windowType: WindowType): boolean {
+  for (let i = 0; i < globals.windows.length; i++) {
+    const type = globals.windows[i].getType();
+    if (type !== undefined && type == windowType) {
+      return true;
+    }
+  }
+  return false;
+}

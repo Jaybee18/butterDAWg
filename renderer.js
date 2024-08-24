@@ -1,8 +1,6 @@
 //const Speaker = require("speaker");
 //var {Howl, Howler} = require("howler");
 
-
-
 // just for VSCode, bc it doesn't automatically clear the 
 // debug console after a reload
 window.addEventListener("beforeunload", () => {
@@ -64,41 +62,6 @@ document.querySelectorAll(".header_button").forEach(button => {
     }
   });
 });
-
-// sidebar resizing 
-var resizing_sidebar = false;
-
-(function() {
-  var container = document.getElementById("content"),
-    left = document.getElementById("sidebar"),
-    right = document.getElementById("main_content"),
-    handle = document.getElementById("sidebar_resize");
-
-  handle.onmousedown = function(e) {
-    resizing_sidebar = true;
-    return false;
-  };
-
-  document.onmousemove = function(e) {
-    // we don't want to do anything if we aren't resizing.
-    if (!resizing_sidebar) {
-      return;
-    }
-
-    var offsetRight = container.clientWidth - (e.clientX - container.offsetLeft);
-
-    left.style.width = container.clientWidth - offsetRight + "px";
-    right.style.width = offsetRight + "px";
-
-    //tracks_scroll_to(current_track_scroll_percent);
-
-    return false;
-  }
-
-  document.addEventListener("mouseup", () => {
-    resizing_sidebar = false;
-  });
-})();
 
 // canvas size = 200, 100
 function updateHeaderWaveview() {

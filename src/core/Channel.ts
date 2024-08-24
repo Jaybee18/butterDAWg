@@ -1,10 +1,11 @@
 import { CustomPlugin } from "../CustomPlugin";
 import { Connectable, globals } from "../globals";
+import { Plugin } from "../Plugin";
 
 export class Channel implements Connectable {
 
     private input: AudioNode;
-    private plugins: Array<CustomPlugin>;
+    private plugins: Array<Plugin>;
     private panning_node: PannerNode;
     private gain_node: GainNode;
     private output: AnalyserNode;
@@ -87,7 +88,7 @@ export class Channel implements Connectable {
         return this.plugins;
     }
 
-    addPlugin(plugin: CustomPlugin, index?: number) {
+    addPlugin(plugin: Plugin, index?: number) {
         // calculate the next possible empty slot index
         // if the index parameter wasn't provided
         if (index === undefined) {
@@ -112,7 +113,7 @@ export class Channel implements Connectable {
         let succeeding = this.plugins.findIndex((v, i) => i > index && v !== null);
         
         // disconnect and reconnect the preceeding audio node
-        if (preceeding === -1) {
+        /*if (preceeding === -1) {
             this.input.disconnect();
             this.input.connect(plugin.getAudioNode());
         } else {
@@ -125,7 +126,7 @@ export class Channel implements Connectable {
             plugin.getAudioNode().connect(this.panning_node);
         } else {
             plugin.getAudioNode().connect(this.plugins[succeeding].getAudioNode());
-        }
+        }*/
 
         // finally add the new plugin at the right index
         this.plugins[index] = plugin;

@@ -1,7 +1,7 @@
 import { readFileSync } from "original-fs";
-import { CustomPlugin } from "./CustomPlugin";
-import { createElement, globals } from "./globals";
-import { Window } from "./window";
+import { CustomPlugin } from "../../CustomPlugin";
+import { globals } from "../../globals";
+import { Window } from "../misc/window";
 
 export class PluginWindow extends Window {
 

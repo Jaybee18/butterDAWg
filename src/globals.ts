@@ -1,23 +1,36 @@
-import { Channel } from "./ui/Components/Channel";
-import { Track } from "./Track";
 import { ContextMenu } from "./ui/Components/ContextMenu"
 import { readdirSync } from "fs"
-import { Window } from "./window";
+import { Window } from "./ui/misc/window";
 import { CustomPlugin } from "./CustomPlugin";
 import { Mixer } from "./core/Mixer";
 import { Playlist } from "./core/Playlist";
+import { Plugin } from "./Plugin"
+import { Track } from "./core/Track";
+import { TrackComponent } from "./Track";
+import { Channel } from "./core/Channel";
 
-
+class PluginFactory {
+	name:string = "distortion plugin";
+	constructor() {}
+	getName() {
+		return this.name;
+	}
+	createPlugin() {
+		return new Plugin();
+	}
+}
 class Globals {
 	mixer: Mixer;
 	playlist: Playlist;
 
-	tracks: Array<Track> = [];
+	tracks: Array<TrackComponent> = [];
 	channels: Array<Channel> = [];
 	context_menus: Array<ContextMenu> = []; // all open context menus
 	windows: Array<Window> = [];
 	//audio_graph_nodes: Array<AudioGraphNode> = [];
-	plugins: Array<CustomPlugin> = [];
+	plugins: Array<PluginFactory> = [
+		new PluginFactory(),
+	];
 
 	deactivate_space_to_play: boolean = false;
 
@@ -147,7 +160,13 @@ export function timestamp_to_px(timestamp: number) {return ms_to_pixels(timestam
 
 export function px_to_timestamp(px: number) {return pixels_to_ms(px)/1000;}
 
-export function snap(x: number) {return x - (x%globals.xsnap);}
+export function snap(x: number) {
+	let space = globals.xsnap;
+	while (space > 80) {
+		space /= 2;
+	}
+	return x - (x % space);
+}
 
 // cheaty stuff
 export function sleep(milliseconds: number) {
@@ -230,47 +249,35 @@ export function insertAfter(newNode: Node, existingNode: Node) {
 }
 
 export function currently_hovered_track() {
-	let t: Track = null;
+	let t: TrackComponent = null;
 	globals.tracks.forEach(track => {
-		if (track.element.matches(":hover")) {
+		if (track.getElement().matches(":hover")) {
 			t = track;
 		}
 	});
 	return t;
 }
 
-// add event listeners to all toggle buttons
-export function addRadioEventListener(btn: HTMLElement, track: Track) {
-	var light = <HTMLElement>btn.querySelector(".radio_btn_green");
-	btn.addEventListener("click", (e) => {
-		e.preventDefault();
-		if (e.button === 0) {
-			var bg = light.style.backgroundColor;
-			// the 'or' is bc the property is "" at first, but since the button
-			// gets initialized with a green background, it gets treated as "green"
-			(bg === globals.green || bg === "") ? track.disable() : track.enable();
-		}
-	});
-	btn.addEventListener("contextmenu", (e) => {
-		e.preventDefault();
-		var all_tracks_disabled = true;
-		globals.tracks.forEach(element => {
-			if (element.enabled && element !== track) { all_tracks_disabled = false; }
-		});
-
-		if (all_tracks_disabled && track.enabled) {
-			for (let i = 0; i < globals.tracks.length; i++) {
-				globals.tracks[i].enable();
-			}
-		} else {
-			for (let i = 0; i < globals.tracks.length; i++) {
-				(globals.tracks[i] !== track) ? globals.tracks[i].disable() : globals.tracks[i].enable();
-			}
-		}
-	});
-}
-
 export interface Connectable {
 	// return the audio node !preceeding! Audio objects should connect to
     getAudioNode(): AudioNode;
+}
+
+export function addDragListener(element: HTMLElement, listener: (event: MouseEvent) => any, documentWide: boolean = false) {
+	element.addEventListener("mousedown", () => {
+		if (documentWide) {
+			document.addEventListener("mousemove", listener);
+		} else {
+			element.addEventListener("mousemove", listener);
+		}
+	})
+	if (documentWide) {
+		document.addEventListener("mouseup", () => {
+			document.removeEventListener("mousemove", listener)
+		});
+	} else {
+		element.addEventListener("mouseup", () => {
+			element.removeEventListener("mousemove", listener);
+		});
+	}
 }
