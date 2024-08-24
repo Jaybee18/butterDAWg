@@ -21,9 +21,11 @@ export abstract class Window {
     private size: {width: number, height: number}
     private minSize: {width: number, height: number}
     private listeners: Array<{event: string, listener: (this: HTMLElement, e: Event) => any}>;
+    private useIframe: boolean;
 
-    constructor(callInitialiseContent: boolean = true) {
+    constructor(callInitialiseContent: boolean = true, useIframe: boolean = false) {
         this.id = Math.round(Date.now() * Math.random()).toString();
+        this.useIframe = useIframe;
         this.initElement();
         this.toolbar = this.element.querySelector(".toolbar");
         this.content = this.element.querySelector(".content");
@@ -53,7 +55,7 @@ export abstract class Window {
                     <div className="tools"></div>
                     <div className="window_buttons"></div>
                 </div>
-                <div className="content"></div>
+                {this.useIframe ? <iframe className="content"></iframe> : <div className="content"></div>}
             </div> as any;
         document.querySelector(".main_content").appendChild(this.element);
 
@@ -161,6 +163,15 @@ export abstract class Window {
         } as toolbarButtonOptions);
     }
 
+    loadFile(path: string) {
+        if (!this.useIframe) {
+            throw new Error("cannot load html file because the window doesn't use iframes");
+        }
+        let frame = this.get(".content") as HTMLIFrameElement;
+        
+        frame.src = path;
+    }
+
     getToolbar() {
         return this.get(".toolbar > .tools");
     }
@@ -171,9 +182,8 @@ export abstract class Window {
         return this.content;
     }
 
-    setContent(content: string) {
-        let tmp = createElement(content);
-        this.get(".content").appendChild(tmp);
+    setContent(content: any) {
+        this.get(".content").appendChild(content);
     }
 
     setZIndex(index: number) {
@@ -206,7 +216,7 @@ export abstract class Window {
         } else {
             this.size = {width: width, height: height};
         }
-
+        
         this.element.style.width = Math.max(Math.min(width, this.size.width), this.minSize.width) + "px";
         this.element.style.height = Math.max(Math.min(this.size.height, height), this.minSize.height) + "px";
         this.onResizeContent(this.element.clientWidth, this.element.clientHeight);

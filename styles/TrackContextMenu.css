@@ -96,17 +96,10 @@
 /* =================== Color Picker =================*/
 /* ==================================================*/
 .color_picker {
-    position: absolute;
-    z-index: 100;
-    overflow: hidden;
-    background: #4d565c;
-    padding: 30px 10px 55px 10px;
-    border: solid 1px #343d43;
-
-    left: 100px;
-    top: 100px;
-    
-    display: none;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .color_picker canvas {
@@ -157,10 +150,7 @@
 }
 
 #color_picker_inner {
-    width: 294px;
-    height: 400px;
-    background: #3c454b;
-    padding: 18px;
+    flex: 1;
 }
 
 .color_picker .color_slider {
@@ -204,7 +194,7 @@
     border: solid 1px black;
     border-radius: 20px;
     top: 195px;
-    right: 33px;
+    left: calc(50% - 6px);
     pointer-events: none;
     position: absolute;
 }
@@ -291,9 +281,6 @@
 }
 
 .color_picker #bottom {
-    position: absolute;
-    width: 330px;
-    height: 45px;
     display: flex;
     justify-content: space-between;
 }

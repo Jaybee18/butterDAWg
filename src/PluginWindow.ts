@@ -1,6 +1,6 @@
 import { readFileSync } from "original-fs";
 import { CustomPlugin } from "./CustomPlugin";
-import { globals } from "./globals";
+import { createElement, globals } from "./globals";
 import { Window } from "./window";
 
 export class PluginWindow extends Window {
@@ -18,7 +18,7 @@ export class PluginWindow extends Window {
     initialiseContent(): void {
         let content = readFileSync(this.plugin.getPluginPath() + "/index.html", {encoding: "ascii"});
         
-        this.setContent(content);
+        this.setContent(createElement(content));
         
         let plugin_module = require("../" + this.plugin.getPluginPath() + "/main");
         console.log(plugin_module);

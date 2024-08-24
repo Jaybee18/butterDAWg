@@ -3,10 +3,15 @@
     height: 24px;
     display: flex;
     align-items: center;
+    cursor: pointer;
 }
 
 .sidebar_item_lvl1 > i {
     margin: 0px 4px 0px 5px;
+}
+
+.sidebar_item_lvl1:hover {
+    background: #597b9f40;
 }
 
 .sidebar_item_lvl1_text {

@@ -11,6 +11,7 @@ class SimpleDistortion extends AudioWorkletProcessor {
 
 	constructor(options) {
 		super(options);
+		this.distortion_function = (x) => (Math.PI + 50) * x / (Math.PI + 50 * Math.abs(x));
 	}
 
 	process(inputs, outputs, parameters) {
@@ -22,7 +23,8 @@ class SimpleDistortion extends AudioWorkletProcessor {
 				if (input[channel][i] === 0) {
 					output[channel][i] = 0;
 				} else {
-					output[channel][i] = (input[channel][i]/Math.abs(input[channel][i])) * (1 - Math.exp(-Math.abs((input[channel][i] * Math.max(parameters.drive[0]*40, 1)))));
+					//output[channel][i] = (input[channel][i]/Math.abs(input[channel][i])) * (1 - Math.exp(-Math.abs((input[channel][i] * Math.max(parameters.drive[0]*40, 1)))));
+					output[channel][i] = this.distortion_function(input[channel][i] * parameters.drive[0]*40);
 				}
 			}
 		}

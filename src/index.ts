@@ -14,7 +14,11 @@ globals.mixer.newChannel();
 globals.mixer.newChannel();
 globals.playlist = new Playlist();
 for (let i = 0; i < 15; i++) {
-	globals.playlist.newTrack().setTitle("Track " + i);
+	let new_track = globals.playlist.newTrack();
+	new_track.setTitle("Track " + i);
+	if (i < globals.mixer.getChannels().length) {
+		new_track.connect(globals.mixer.getChannels()[i]);
+	}
 }
 
 loadPalette();
@@ -39,6 +43,8 @@ const loadPluginsThen = (callback: Function) => {
 
 //let playlist = new Playlist();
 import { MixerWindow } from "./ui/windows/MixerWindow";
+import { ColorPicker } from "./ui/windows/ColorPicker";
+import { Window } from "./window";
 window.addEventListener("load", () => {
 	//playlist.maximize();
 	//playlist.addSample(new Item("rawstyle_kick.wav", "./files/0Current project/rawstyle_kick.wav"));
@@ -51,7 +57,7 @@ window.addEventListener("load", () => {
 	//}, 300);
 
 	loadPluginsThen(() => {
-		let mixer = new MixerWindow();
+		//let mixer = new MixerWindow();
 		//mixer.updateChannels();
 		
 	});
@@ -68,3 +74,21 @@ window.addEventListener("load", () => {
 //setupKeybinds();
 
 require("./Header");
+
+//new ColorPicker();
+
+/*class TestWindow extends Window {
+
+	constructor() {
+		super(true, true);
+	}
+
+	initialiseContent(): void {
+		this.loadFile("./plugins/Distortion/index.html");
+		let t = require("../plugins/Distortion/main");
+		let a = new t.Plugin();
+		a.initialiseUI();
+	}
+}*/
+
+//const test = new TestWindow();

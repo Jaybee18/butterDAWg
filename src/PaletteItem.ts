@@ -28,7 +28,7 @@ export class Item extends Draggable {
 		a.classList.add("sidebar_item_lvl1");
 		var dedicated_color = sidebar_folder_colors[title];
 		a.style.color = dedicated_color === undefined ? "var(--bg-light)" : dedicated_color;
-		a.style.marginLeft = indent * globals.palette_indent_width + "px";
+		a.style.paddingLeft = indent * globals.palette_indent_width + "px";
 		this.element = a;
 		// add icon
 		// TODO display a little loading circle while the sample is being loaded in, when the user opens a folder
