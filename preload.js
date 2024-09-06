@@ -10,9 +10,16 @@ window.addEventListener('DOMContentLoaded', () => {
 })
 
 
-//const { contextBridge, ipcRenderer } = require("electron");
+// const { contextBridge, ipcRenderer } = require("electron");
+// const { readFileSync, readdirSync, existsSync } = require("fs");
 
-// !! some importand ipc shit !!
-//contextBridge.exposeInMainWorld("electronAPI", {
+// contextBridge.exposeInMainWorld("electronAPI", {
 //  openWindow: () => ipcRenderer.invoke("test")
-//})
+// })
+
+// const fs = {
+//   readFileSync,
+//   readdirSync,
+//   existsSync
+// }
+// contextBridge.exposeInMainWorld("fs", fs);

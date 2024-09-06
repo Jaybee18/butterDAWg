@@ -1,9 +1,8 @@
 import { CustomPlugin } from "../CustomPlugin";
 import { Connectable, globals } from "../globals";
-import { Plugin } from "../Plugin";
+import { Plugin } from "./Plugin";
 
 export class Channel implements Connectable {
-
     private input: AudioNode;
     private plugins: Array<Plugin>;
     private panning_node: PannerNode;
@@ -21,7 +20,7 @@ export class Channel implements Connectable {
 
         // the plugins array holds the plugins configured for this channel
         // their order and connection is manged by the channel they're attached to
-        this.plugins = Array.from({length: 10}, () => null);
+        this.plugins = Array.from({ length: 10 }, () => null);
 
         // the effect stack for default effects like panning and gain
         // that can be natively applied in the mixer
@@ -92,7 +91,7 @@ export class Channel implements Connectable {
         // calculate the next possible empty slot index
         // if the index parameter wasn't provided
         if (index === undefined) {
-            index = this.plugins.findIndex(v => v === null);
+            index = this.plugins.findIndex((v) => v === null);
         }
 
         // no suitable index was found, because all plugin slots are full
@@ -101,7 +100,21 @@ export class Channel implements Connectable {
             return;
         }
 
-        console.log("adding plugin \"" + plugin.getName() + "\" to channel \"" + this.name + "\" at index " + index);
+        // TODO this has to go at some point
+        if (this.plugins[index] !== null) {
+            alert("there is already a plugin in slot " + index);
+            return;
+        }
+        this.plugins[index] = plugin;
+
+        console.log(
+            'adding plugin "' +
+                plugin.name +
+                '" to channel "' +
+                this.name +
+                '" at index ' +
+                index,
+        );
         /*if (this.plugins.length === 0) {
             this.disconnectInput();
             this.plugins.push(plugin);
@@ -109,27 +122,32 @@ export class Channel implements Connectable {
             plugin.getAudioNode().connect(this.panning_node);
             return;
         }*/
-        let preceeding = this.plugins.findIndex((v, i) => i < index && v !== null);
-        let succeeding = this.plugins.findIndex((v, i) => i > index && v !== null);
-        
-        // disconnect and reconnect the preceeding audio node
-        /*if (preceeding === -1) {
+        let preceeding = this.plugins.findIndex(
+            (v, i) => i < index && v !== null,
+        );
+        let succeeding = this.plugins.findIndex(
+            (v, i) => i > index && v !== null,
+        );
+
+        // // disconnect and reconnect the preceeding audio node
+        if (preceeding === -1) {
             this.input.disconnect();
             this.input.connect(plugin.getAudioNode());
         } else {
             this.plugins[preceeding].getAudioNode().disconnect();
-            this.plugins[preceeding].getAudioNode().connect(plugin.getAudioNode());
+            this.plugins[preceeding]
+                .getAudioNode()
+                .connect(plugin.getAudioNode());
         }
 
         // connect the new plugin
         if (succeeding === -1) {
             plugin.getAudioNode().connect(this.panning_node);
         } else {
-            plugin.getAudioNode().connect(this.plugins[succeeding].getAudioNode());
-        }*/
-
-        // finally add the new plugin at the right index
-        this.plugins[index] = plugin;
+            plugin
+                .getAudioNode()
+                .connect(this.plugins[succeeding].getAudioNode());
+        }
     }
 
     getFloatTimeDomainData(): Float32Array {

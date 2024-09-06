@@ -2,9 +2,7 @@ import { Window, WindowType } from "../misc/window";
 import { React, globals } from "../../globals";
 import { ChannelComponent } from "../Components/Channel";
 import { ContextMenu } from "../Components/ContextMenu";
-import { PluginWindow } from "./PluginWindow";
 import { Channel } from "../../core/Channel";
-import { CustomPlugin } from "../../CustomPlugin";
 
 export class MixerWindow extends Window {
 
