@@ -28,9 +28,7 @@ class Globals {
 	context_menus: Array<ContextMenu> = []; // all open context menus
 	windows: Array<Window> = [];
 	//audio_graph_nodes: Array<AudioGraphNode> = [];
-	plugins: Array<PluginFactory> = [
-		new PluginFactory(),
-	];
+	plugins: string[] = [];
 
 	deactivate_space_to_play: boolean = false;
 

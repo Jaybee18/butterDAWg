@@ -3,6 +3,9 @@ import { React, globals } from "../../globals";
 import { ChannelComponent } from "../Components/Channel";
 import { ContextMenu } from "../Components/ContextMenu";
 import { Channel } from "../../core/Channel";
+import { getPluginNameFromPath } from "../../util/plugins";
+import { Plugin } from "../../core/Plugin";
+import { PluginWindow } from "./PluginWindow";
 
 export class MixerWindow extends Window {
 
@@ -160,14 +163,15 @@ export class MixerWindow extends Window {
 					concrete_node.querySelector(".slot_wrapper").style.backgroundColor = "#566065";
 				} else {
 					// add plugin
-					concrete_node.querySelector(".slot_wrapper > p").innerText = plugins[j].getName();
+					concrete_node.querySelector(".slot_wrapper > p").innerText = plugins[j].name;
 					// visualize plugin
 				}
 				concrete_node.addEventListener("contextmenu", (e: MouseEvent) => {
 					let plugin_context_menu = new ContextMenu(
-						globals.plugins.map(plugin => plugin.getName()),
-						globals.plugins.map(plugin => () => {
-							this.getSelectedChannel().addPlugin(plugin.createPlugin(), j);
+						globals.plugins.map(pluginPath => getPluginNameFromPath(pluginPath)),
+						globals.plugins.map(pluginPath => () => {
+							const plugin = new Plugin(pluginPath);
+							this.getSelectedChannel().addPlugin(plugin, j);
 							this.updateChannels();
 							return true;
 						}),
@@ -177,7 +181,7 @@ export class MixerWindow extends Window {
 				concrete_node.addEventListener("click", () => {
 					let clicked_plugin = this.getSelectedChannel().getPlugins()[j];
 					if (clicked_plugin !== undefined) {
-						clicked_plugin.openWindow();
+						new PluginWindow(clicked_plugin).toFront();
 					}
 				});
 				this.get(".channel_plugins").appendChild(concrete_node);
