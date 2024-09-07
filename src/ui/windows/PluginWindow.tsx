@@ -20,10 +20,10 @@ export class PluginWindow extends Window {
         this.initialiseContent();
     }
     initialiseContent(): void {
-        const pluginPath = "/Users/jbes/GitHub/butterDAWg/SimpleDistortion.bdp/";
-        const htmlPath = pluginPath + "plugin.html";
+        const pluginPath = this.plugin.pluginPath;
+        const htmlPath = pluginPath + "/plugin.html";
         const htmlContent = readFileSync(htmlPath, "utf-8");
-        const hostPath = pluginPath + "host.js";
+        const hostPath = pluginPath + "/host.js";
         const hostContent = readFileSync(hostPath, "utf-8");
 
         this.setContent(`<div id="${this.pluginId}">${htmlContent}</div>`);

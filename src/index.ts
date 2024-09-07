@@ -100,11 +100,14 @@ require("./util/Header");
 const availablePlugins = discoverPlugins();
 globals.plugins = availablePlugins;
 
+// load all built-in plugins
 const fs = require("fs");
-const pluginPath = "/Users/jbes/GitHub/butterDAWg/SimpleDistortion.bdp/plugin.js";
-const jsContent = fs.readFileSync(pluginPath, "utf-8");
-
-// load audio worklet processor
-const blob = new Blob([jsContent], {type: "application/javascript; charset=utf-8"});
-const workletUrl = window.URL.createObjectURL(blob);
-globals.audiocontext.audioWorklet.addModule(workletUrl);
+globals.plugins.forEach(pluginPath => {
+	const jsPath = pluginPath + "/plugin.js";
+	const jsContent = fs.readFileSync(jsPath, "utf-8");
+	
+	// load audio worklet processor
+	const blob = new Blob([jsContent], {type: "application/javascript; charset=utf-8"});
+	const workletUrl = window.URL.createObjectURL(blob);
+	globals.audiocontext.audioWorklet.addModule(workletUrl);
+});

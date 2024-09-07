@@ -1,6 +1,12 @@
+import { readdirSync } from "fs";
+
 export function discoverPlugins() {
-    // TODO scan a dedicated plugin folder in the future
-    return ["/Users/jbes/GitHub/butterDAWg/SimpleDistortion.bdp"]
+    // scan the built-in plugin folder
+    let plugins = readdirSync("plugins/");
+    plugins = plugins.map(v => "plugins/" + v);
+
+    // the returned paths can either be absolute or relative to the source dir
+    return plugins;
 }
 
 export function getPluginNameFromPath(pluginPath: string) {

@@ -4,7 +4,7 @@ import { globals } from "../globals";
 export class Plugin {
 
     public name: string;
-    private pluginPath: string;
+    public pluginPath: string;
     private audioNode: AudioWorkletNode;
 
     constructor(pluginPath: string) {

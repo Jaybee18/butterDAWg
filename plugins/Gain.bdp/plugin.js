@@ -1,4 +1,4 @@
-class MyCustomPlugin extends AudioWorkletProcessor {
+class Gain extends AudioWorkletProcessor {
 
 	static get parameterDescriptors() {
 		return [{
@@ -27,4 +27,4 @@ class MyCustomPlugin extends AudioWorkletProcessor {
 	}
 }
 
-registerProcessor("MyCustomPlugin", MyCustomPlugin);
+registerProcessor("Gain", Gain);
