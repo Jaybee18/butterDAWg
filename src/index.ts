@@ -85,22 +85,13 @@ window.addEventListener("load", () => {
 	})();
 });
 
-// add all plugin slots
-//for (let i = 0; i < 10; i++) {
-//    pluginslots.push(new PluginSlot(i));
-//}
-//console.log(plugin);
-
-// probably unnecessary
-//import { setupKeybinds } from "./Keybinds";
-//setupKeybinds();
-
 require("./util/Header");
 
+// discover all plugins
 const availablePlugins = discoverPlugins();
 globals.plugins = availablePlugins;
 
-// load all built-in plugins
+// load all plugins
 const fs = require("fs");
 globals.plugins.forEach(pluginPath => {
 	const jsPath = pluginPath + "/plugin.js";

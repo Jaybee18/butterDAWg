@@ -1,24 +1,11 @@
 import { ContextMenu } from "./ui/Components/ContextMenu"
-import { readdirSync } from "fs"
 import { Window } from "./ui/misc/window";
-import { CustomPlugin } from "./CustomPlugin";
 import { Mixer } from "./core/Mixer";
 import { Playlist } from "./core/Playlist";
-import { Plugin } from "./Plugin"
 import { Track } from "./core/Track";
 import { TrackComponent } from "./Track";
 import { Channel } from "./core/Channel";
 
-class PluginFactory {
-	name:string = "distortion plugin";
-	constructor() {}
-	getName() {
-		return this.name;
-	}
-	createPlugin() {
-		return new Plugin();
-	}
-}
 class Globals {
 	mixer: Mixer;
 	playlist: Playlist;
