@@ -1,7 +1,5 @@
 import { Source } from "../src/core/Source";
-import { addRadioEventListener, createElement, cumulativeOffset, globals, ms_to_pixels } from "../src/globals";
-import { Plugin } from "../src/Plugin";
-import { readdirSync } from "fs";
+import { createElement, cumulativeOffset, globals, ms_to_pixels } from "../src/globals";
 
 export let audio_graph_nodes: Array<AudioGraphNode> = [];
 
@@ -729,18 +727,18 @@ export class PluginNode extends AudioGraphNode {
         this.plugin = plugin;
 
         // try initialising the audio node
-        try {
-            // audio module has already been added, so just create the audio node
-            this.audio_node = new AudioWorkletNode(globals.audiocontext, this.plugin.getName());
-            this.initComponents();
-        } catch (error) {
-            console.log("error");
-            // audio module has to be registered first before using it
-            this.plugin.loadPlugin().then(() => {
-                this.audio_node = new AudioWorkletNode(globals.audiocontext, this.plugin.getName());
-                this.initComponents();
-            });
-        }
+        // try {
+        //     // audio module has already been added, so just create the audio node
+        //     this.audio_node = new AudioWorkletNode(globals.audiocontext, this.plugin.name);
+        //     this.initComponents();
+        // } catch (error) {
+        //     console.log("error");
+        //     // audio module has to be registered first before using it
+        //     this.plugin.loadPlugin().then(() => {
+        //         this.audio_node = new AudioWorkletNode(globals.audiocontext, this.plugin.name);
+        //         this.initComponents();
+        //     });
+        // }
     }
 
     initComponents(): void {

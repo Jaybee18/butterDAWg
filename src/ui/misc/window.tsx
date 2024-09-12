@@ -31,7 +31,6 @@ export abstract class Window {
 
     constructor(callInitialiseContent: boolean = true, useIframe: boolean = false) {
         this.id = Math.round(Date.now() * Math.random()).toString();
-        this.useIframe = useIframe;
         this.initElement();
         this.toolbar = this.element.querySelector(".toolbar");
         this.content = this.element.querySelector(".content");
@@ -63,7 +62,6 @@ export abstract class Window {
                     <div className="tools"></div>
                     <div className="window_buttons"></div>
                 </div>
-                {this.useIframe ? <iframe className="content"></iframe> : <div className="content"></div>}
             </div> as any;
         document.querySelector(".main_content").appendChild(this.element);
 
