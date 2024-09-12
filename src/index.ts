@@ -14,7 +14,7 @@ globals.mixer.newChannel();
 globals.mixer.newChannel();
 globals.playlist = new Playlist();
 for (let i = 0; i < 15; i++) {
-	globals.playlist.newTrack().setTitle("Track " + i);
+	globals.playlist.newTrack().title = "Track " + i;
 }
 
 loadPalette();
@@ -44,6 +44,7 @@ import { Color } from "./ui/misc/Color";
 import { Plugin } from "./core/Plugin";
 import { PluginWindow } from "./ui/windows/PluginWindow";
 import { discoverPlugins } from "./util/plugins";
+import { PlaylistWindow } from "./ui/windows/PlaylistWindow";
 window.addEventListener("load", () => {
 	// sidebar resizing
 	var resizing_sidebar = false;
@@ -102,3 +103,12 @@ globals.plugins.forEach(pluginPath => {
 	const workletUrl = window.URL.createObjectURL(blob);
 	globals.audiocontext.audioWorklet.addModule(workletUrl);
 });
+
+// tmp
+const tmpPlaylist = new PlaylistWindow();
+tmpPlaylist.setPosition(200, 440);
+tmpPlaylist.update();
+
+const tmpMixer = new MixerWindow();
+
+globals.playlist.getTracks()[0].connect(globals.mixer.getChannels()[0]);

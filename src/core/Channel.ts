@@ -1,4 +1,3 @@
-import { CustomPlugin } from "../CustomPlugin";
 import { Connectable, globals } from "../globals";
 import { Plugin } from "./Plugin";
 

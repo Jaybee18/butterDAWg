@@ -2,7 +2,6 @@ import { Window } from "../misc/window";
 import { readdirSync } from "fs";
 import { Source } from "../../core/Source";
 import { AudioGraphAnalyzerNode, AudioGraphOutputNode, AudioGraphSourceNode, PluginNode } from "../../../AudioGraph/main";
-import { Plugin } from "../../Plugin";
 import { globals } from "../../globals";
 import { audio_graph_nodes } from "../../../AudioGraph/main";
 

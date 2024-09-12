@@ -3,6 +3,7 @@ import { Item } from "../PaletteItem";
 
 export class Sample {
 
+    private name: string;
     private timestamp: number;
     private data: Float64Array;
     private duration: number;
@@ -14,6 +15,7 @@ export class Sample {
         this.timestamp = 0;
         this.data = item.getData();
         this.duration = item.getDuration();
+        this.name = item.title;
 
         this.connections = [];
 
@@ -61,5 +63,9 @@ export class Sample {
 
     disconnect(object: Connectable) {
         this.connections.splice(this.connections.indexOf(object), 1);
+    }
+
+    getName() {
+        return this.name;
     }
 }
