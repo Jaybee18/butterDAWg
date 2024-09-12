@@ -14,11 +14,7 @@ globals.mixer.newChannel();
 globals.mixer.newChannel();
 globals.playlist = new Playlist();
 for (let i = 0; i < 15; i++) {
-	let new_track = globals.playlist.newTrack();
-	new_track.setTitle("Track " + i);
-	if (i < globals.mixer.getChannels().length) {
-		new_track.connect(globals.mixer.getChannels()[i]);
-	}
+	globals.playlist.newTrack().title = "Track " + i;
 }
 
 loadPalette();
@@ -45,6 +41,10 @@ loadPalette();
 import { MixerWindow } from "./ui/windows/MixerWindow";
 import { ColorPicker } from "./ui/windows/ColorPicker";
 import { Color } from "./ui/misc/Color";
+import { Plugin } from "./core/Plugin";
+import { PluginWindow } from "./ui/windows/PluginWindow";
+import { discoverPlugins } from "./util/plugins";
+import { PlaylistWindow } from "./ui/windows/PlaylistWindow";
 window.addEventListener("load", () => {
 	// sidebar resizing
 	var resizing_sidebar = false;
@@ -86,14 +86,29 @@ window.addEventListener("load", () => {
 	})();
 });
 
-// add all plugin slots
-//for (let i = 0; i < 10; i++) {
-//    pluginslots.push(new PluginSlot(i));
-//}
-//console.log(plugin);
-
-// probably unnecessary
-//import { setupKeybinds } from "./Keybinds";
-//setupKeybinds();
-
 require("./util/Header");
+
+// discover all plugins
+const availablePlugins = discoverPlugins();
+globals.plugins = availablePlugins;
+
+// load all plugins
+const fs = require("fs");
+globals.plugins.forEach(pluginPath => {
+	const jsPath = pluginPath + "/plugin.js";
+	const jsContent = fs.readFileSync(jsPath, "utf-8");
+	
+	// load audio worklet processor
+	const blob = new Blob([jsContent], {type: "application/javascript; charset=utf-8"});
+	const workletUrl = window.URL.createObjectURL(blob);
+	globals.audiocontext.audioWorklet.addModule(workletUrl);
+});
+
+// tmp
+const tmpPlaylist = new PlaylistWindow();
+tmpPlaylist.setPosition(200, 440);
+tmpPlaylist.update();
+
+const tmpMixer = new MixerWindow();
+
+globals.playlist.getTracks()[0].connect(globals.mixer.getChannels()[0]);

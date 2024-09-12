@@ -1,24 +1,11 @@
 import { ContextMenu } from "./ui/Components/ContextMenu"
-import { readdirSync } from "fs"
 import { Window } from "./ui/misc/window";
-import { CustomPlugin } from "./CustomPlugin";
 import { Mixer } from "./core/Mixer";
 import { Playlist } from "./core/Playlist";
-import { Plugin } from "./Plugin"
 import { Track } from "./core/Track";
 import { TrackComponent } from "./Track";
 import { Channel } from "./core/Channel";
 
-class PluginFactory {
-	name:string = "distortion plugin";
-	constructor() {}
-	getName() {
-		return this.name;
-	}
-	createPlugin() {
-		return new Plugin();
-	}
-}
 class Globals {
 	mixer: Mixer;
 	playlist: Playlist;
@@ -28,9 +15,7 @@ class Globals {
 	context_menus: Array<ContextMenu> = []; // all open context menus
 	windows: Array<Window> = [];
 	//audio_graph_nodes: Array<AudioGraphNode> = [];
-	plugins: Array<PluginFactory> = [
-		new PluginFactory(),
-	];
+	plugins: string[] = [];
 
 	deactivate_space_to_play: boolean = false;
 
@@ -144,7 +129,7 @@ export const React = new ReactSubstitution();
 
 // conversion functions
 //var ms_to_pixels_factor = xsnap*4/8 / (1/(bpm/60000));
-export function pixels_to_ms(px: number) { return px / (globals.xsnap * 4 / 8 / (1 / (globals.bpm / 60000))); }
+export function pixels_to_ms(px: number) { return px / (globals.xsnap / (1 / (globals.bpm / 60000))); }
 /*
 10 px = 1 beat
 1 beat = 150/60000 = 0.0025 beats/ms
@@ -152,9 +137,9 @@ export function pixels_to_ms(px: number) { return px / (globals.xsnap * 4 / 8 / 
 10 px / 400 = 0.025 px/ms
 => 10 px / (1 beat / (150 beat/min / 60_000 ms)) = 0.025 px/ms
 */
-export function ms_to_pixels(ms: number) { return ms * (globals.xsnap * 4 / 8 / (1 / (globals.bpm / 60000))); }
+export function ms_to_pixels(ms: number) { return ms * (globals.xsnap / (1 / (globals.bpm / 60000))); }
 
-function pixels_to_frames(px: number) { return (44100 * (60 / globals.bpm)) / (globals.xsnap * 4 / 8) * px; }
+function pixels_to_frames(px: number) { return (44100 * (60 / globals.bpm)) / globals.xsnap * px; }
 
 export function timestamp_to_px(timestamp: number) {return ms_to_pixels(timestamp*1000);}
 

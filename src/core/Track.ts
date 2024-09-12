@@ -9,25 +9,17 @@ export class Track implements Connectable {
     private enabled: boolean;
 
     // ui stuff
-    private title: string;
-    private color: Color;
+    public title: string;
+    public color: Color;
 
     constructor() {
         this.enabled = true;
         this.samples = [];
 
         this.title = "";
-        this.color = null;
+        this.color = new Color("#646e73");
 
         this.audionode = new GainNode(globals.audiocontext);
-    }
-
-    getTitle() {
-        return this.title;
-    }
-
-    setTitle(title: string) {
-        this.title = title;
     }
 
     isActive() {

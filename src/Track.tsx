@@ -11,12 +11,10 @@ export class TrackComponent {
 
 	private element: HTMLElement;
 	private track: Track;
-	private color: Color;
 	private resize_locked: boolean = false
 
 	constructor(track: Track) {
 		this.track = track;
-		this.color = new Color("#646e73");
 		
 		this.createElement();
 		
@@ -39,13 +37,13 @@ export class TrackComponent {
 				</div>
 			</div> as any;
 
-		this.element.querySelector("#track_title").innerHTML = this.track.getTitle();
+		this.element.querySelector("#track_title").innerHTML = this.track.title;
 
 		let channel_context = new ContextMenu(
 			globals.mixer.getChannels().map(channel => channel.getName()),
 			globals.mixer.getChannels().map(channel => () => {
 				this.track.connect(channel);
-				console.log("track \"" + this.track.getTitle() + "\" connected to channel \"" + channel.getName() + "\"");
+				console.log("track \"" + this.track.title + "\" connected to channel \"" + channel.getName() + "\"");
 				return true;
 			})
 		);
@@ -83,8 +81,10 @@ export class TrackComponent {
 				return true;
 			},
 			() => {
-				new ColorPicker(this.color, (result: Color) => {
+				new ColorPicker(this.track.color, (result: Color) => {
+					// TODO border still not right color
 					(this.element.querySelector(".description") as HTMLElement).style.background = result.color;
+					this.track.color = result;
 				}).toFront();
 				return true;
 			},
@@ -122,7 +122,7 @@ export class TrackComponent {
 		});
 
 		this.element.querySelector(".description").addEventListener("mouseenter", () => {
-			globals.header_help_text.innerHTML = this.track.getTitle();
+			globals.header_help_text.innerHTML = this.track.title;
 		});
 
 		(this.element.querySelector(".radio_btn") as HTMLElement).addEventListener("click", (e: MouseEvent) => {
@@ -184,11 +184,11 @@ export class TrackComponent {
 		(radio_btn.firstElementChild as HTMLElement).style.backgroundColor = globals.grey;
 
 		const description = this.element.querySelector(".description") as HTMLElement;
-		description.style.backgroundColor = this.color.darken(20);
+		description.style.backgroundColor = this.track.color.darken(20);
 		description.style.color = "#ffffff45";
-		description.style.borderRightColor = this.color.darken(20);
-		description.style.borderLeftColor = this.color.darken(20);
-		description.style.background = "repeating-linear-gradient(45deg, transparent, transparent 2px, #0000000a 2px, #0000000a 4px) " + this.color.darken(20);
+		description.style.borderRightColor = this.track.color.darken(20);
+		description.style.borderLeftColor = this.track.color.darken(20);
+		description.style.background = "repeating-linear-gradient(45deg, transparent, transparent 2px, #0000000a 2px, #0000000a 4px) " + this.track.color.darken(20);
 	}
 
 	enable() {
@@ -198,10 +198,10 @@ export class TrackComponent {
 		(radio_btn.firstElementChild as HTMLElement).style.backgroundColor = globals.green;
 		
 		const description = this.element.querySelector(".description") as HTMLElement;
-		description.style.backgroundColor = this.color.color;
+		description.style.backgroundColor = this.track.color.color;
 		description.style.color = "";
-		description.style.borderRightColor = this.color.lighten(10);
-		description.style.background = this.color.color;
+		description.style.borderRightColor = this.track.color.lighten(10);
+		description.style.background = this.track.color.color;
 	}
 
 	isEnabled() {

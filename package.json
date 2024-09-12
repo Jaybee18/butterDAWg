@@ -71,6 +71,7 @@
         "type-fest": "^0.13.1",
         "universalify": "^0.1.2",
         "url-parse-lax": "^3.0.0",
+        "uuid": "^10.0.0",
         "wavefile": "^11.0.0",
         "wrappy": "^1.0.2",
         "yallist": "^4.0.0",
@@ -91,6 +92,7 @@
     "homepage": "https://github.com/Jaybee18/butterDAWg#readme",
     "devDependencies": {
         "@types/audioworklet": "^0.0.35",
+        "@types/uuid": "^10.0.0",
         "browserify": "^17.0.0",
         "electron-reloader": "^1.2.3",
         "http-server": "^14.1.1"
