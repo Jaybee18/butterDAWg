@@ -13,7 +13,7 @@ const createWindow = () => {
     const win = new BrowserWindow({
       width: 1800,
       height: 1000,
-      autoHideMenuBar: true,
+      autoHideMenuBar: false, // TODO just for debugging purposes of the packaged app
       fullscreen: false, // just for debugging TODO
       frame: true, // just for debugging
       webPreferences: {
