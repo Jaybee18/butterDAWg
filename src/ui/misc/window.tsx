@@ -62,6 +62,7 @@ export abstract class Window {
                     <div className="tools"></div>
                     <div className="window_buttons"></div>
                 </div>
+                <div className="content"></div>
             </div> as any;
         document.querySelector(".main_content").appendChild(this.element);
 
