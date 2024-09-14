@@ -35,4 +35,8 @@ export class Playlist {
     stop() {
         globals.audiocontext.suspend();
     }
+
+    getIndexOfTrack(track: Track) {
+        return this.tracks.indexOf(track);
+    }
 }

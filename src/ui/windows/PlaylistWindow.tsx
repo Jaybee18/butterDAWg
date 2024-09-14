@@ -1,4 +1,5 @@
 import { Sample } from "../../core/Sample";
+import { Track } from "../../core/Track";
 import {
 	addDragListener,
 	cumulativeOffset,
@@ -16,12 +17,34 @@ import { msToTime } from "../../util/time";
 import { Color } from "../misc/Color";
 import { toolbarButtonOptions, Window, WindowType } from "../misc/window";
 
+/* 
+	a selection can either be:
+	- one or more specific track elements (samples, midi clips, ...) or
+	- a time selection across one or more tracks or
+	- one or more entire tracks
+
+	A switch of selection types always has to clear all other selections!
+
+	When only tracks are specified, it's a selection of entire tracks. When 
+	tracks and start- and end-time are specified, it's a selection of a specific
+	segment of the tracks; not the entire tracks!
+*/
+interface Selection {
+	samples?: Sample[] | undefined;
+	startTime?: number | undefined;
+	endTime?: number | undefined;
+	tracks?: Track[] | undefined;
+}
+
+const sampleTitleBarHeight = 15;
+
 export class PlaylistWindow extends Window {
 	private scroll: number;
 	private maxBeats: number;
 	private zoom: number;
 	private sampleCanvasBuffer: Map<Sample, HTMLCanvasElement>;
 	private lastMousePos: { x: number; y: number };
+	private selection: Selection;
 
 	constructor() {
 		super(false);
@@ -31,6 +54,7 @@ export class PlaylistWindow extends Window {
 		this.type = WindowType.Playlist;
 		this.sampleCanvasBuffer = new Map();
 		this.lastMousePos = { x: 0, y: 0 };
+		this.selection = {};
 		this.initialiseContent();
 	}
 
@@ -141,7 +165,8 @@ export class PlaylistWindow extends Window {
 		this.get(".tracks").addEventListener("wheel", (e: WheelEvent) => {
 			if (e.ctrlKey) {
 				e.preventDefault();
-				let delta = e.deltaY / 100;
+				let delta = e.deltaY / Math.min(Math.max(globals.xsnap, 10), 40);
+				console.log(globals.xsnap);
 
 				globals.xsnap -= delta;
 
@@ -202,6 +227,7 @@ export class PlaylistWindow extends Window {
 					touchdown.scrollX + (touchdown.x - e.clientX),
 					touchdown.scrollY + (touchdown.y - e.clientY),
 				);
+				return;
 			}
 		});
 		this.element.addEventListener("mousedown", (e) => {
@@ -309,6 +335,22 @@ export class PlaylistWindow extends Window {
 					e.clientX -
 					base.left -
 					timestamp_to_px(current_drag_element.getTimestamp());
+				
+				// check if the sample should be selected.
+				// sample selection only occurs on the title bar,
+				// time selection on the rest of the sample.
+				const track = this.getTrackOfSample(current_drag_element).filter((t) => t !== null)[0];
+				const yScroll = this.get(".tracks").scrollTop;
+				const sampleTitleTop = this.getTrackY(track) - yScroll;
+				const sampleTitleBottom = this.getTrackY(track) - yScroll + sampleTitleBarHeight;
+				const relativeMouseY = e.clientY - base.top;
+				if (relativeMouseY > sampleTitleTop && relativeMouseY < sampleTitleBottom) {
+					this.selection = {
+						samples: [current_drag_element]
+					};
+
+					this.updatePlaylist();
+				}
 			}
 		});
 		document.addEventListener("mouseup", () => {
@@ -554,10 +596,7 @@ export class PlaylistWindow extends Window {
 		timeLabel.textContent = msToTime(globals.current_time);
 
 		let track_cursor = this.get(".bars_cursor");
-		let track_line_cursor = this.get(".line_cursor");
-
 		track_cursor.style.left = ((globals.cursor_pos + 10) / this.zoom - this.scroll - 10) + "px";
-		// track_cursor.style.left = (globals.cursor_pos + 10) * (1 / this.zoom) - 10 - this.scroll + "px";
 	}
 
 	updateBarLabels() {
@@ -665,7 +704,6 @@ export class PlaylistWindow extends Window {
 		}
 
 		// draw samples
-		const sampleTitleBarHeight = 15;
 		current_offset = 0;
 		globals.playlist.getTracks().forEach((track, index) => {
 			const trackSamples = track.getSamples();
@@ -688,14 +726,22 @@ export class PlaylistWindow extends Window {
 				ctx.strokeStyle = color + "b0";
 				ctx.beginPath();
 				ctx.rect(sampleX, current_offset, sampleWidth, trackHeight);
-				ctx.fillStyle = color.transparent(176);
+				if (this.isSampleSelected(sample)) {
+					ctx.fillStyle = new Color(color.lighten(50)).transparent(176);
+				} else {
+					ctx.fillStyle = color.transparent(176);
+				}
 				ctx.fill();
 				ctx.stroke();
 
 				// sample title bar background
 				ctx.beginPath();
 				ctx.rect(sampleX, current_offset, sampleWidth, sampleTitleBarHeight);
-				ctx.fillStyle = color.transparent(240);
+				if (this.isSampleSelected(sample)) {
+					ctx.fillStyle = new Color(color.lighten(80)).transparent(240)
+				} else {
+					ctx.fillStyle = color.transparent(240);
+				}
 				ctx.fill();
 				ctx.stroke();
 
@@ -767,6 +813,12 @@ export class PlaylistWindow extends Window {
 		return x > rectx && x < rectx + rectw && y > recty && y < recty + recth;
 	}
 
+	// TODO move to selection utility
+	private isSampleSelected(sample: Sample) {
+		return this.selection.samples !== undefined && this.selection.samples.includes(sample);
+	}
+
+	// TODO check here if the samples title bar is hovered
 	private getCurrentHoverSample() {
 		const base = cumulativeOffset(this.get(".tracks_canvas"));
 		let current_offset = 0;
@@ -803,6 +855,23 @@ export class PlaylistWindow extends Window {
 			});
 		});
 		return res;
+	}
+
+	getTrackY(arg1: Track | number): number {
+		let trackIndex = 0;
+		if (arg1 instanceof Track) {
+			trackIndex = globals.playlist.getIndexOfTrack(arg1);
+		} else if (typeof arg1 === "number") {
+			trackIndex = arg1;
+		}
+
+		let trackY = 0;
+		for (let i = 0; i < trackIndex; i++) {
+			const trackHeight = globals.tracks[i].getHeight();
+			trackY += trackHeight;
+		}
+
+		return trackY;
 	}
 
 	private updateSamplePreviews() {
