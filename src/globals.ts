@@ -150,6 +150,7 @@ export function snap(x: number) {
 	while (space > 80) {
 		space /= 2;
 	}
+	x += space / 2;
 	return x - (x % space);
 }
 

@@ -18,6 +18,10 @@ export class Playlist {
         return this.tracks;
     }
 
+    getTrack(index: number) {
+        return this.tracks[index];
+    }
+
     newTrack() {
         let track = new Track();
         this.tracks.push(track);

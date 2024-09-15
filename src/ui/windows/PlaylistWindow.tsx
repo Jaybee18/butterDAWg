@@ -345,12 +345,25 @@ export class PlaylistWindow extends Window {
 				const sampleTitleBottom = this.getTrackY(track) - yScroll + sampleTitleBarHeight;
 				const relativeMouseY = e.clientY - base.top;
 				if (relativeMouseY > sampleTitleTop && relativeMouseY < sampleTitleBottom) {
-					this.selection = {
-						samples: [current_drag_element]
-					};
-
+					if (e.shiftKey && !this.selection.samples.includes(current_drag_element)) {
+						this.selection.samples.push(current_drag_element)
+					} else {
+						this.selection = {
+							samples: [current_drag_element]
+						};
+					}
 					this.updatePlaylist();
 				}
+			} else if (e.buttons === 1) {
+				const relativeMousePos = this.globalToCanvasPos({x: e.clientX, y: e.clientY});
+				const clickedTrack = this.getTrackOfY(relativeMousePos.y);
+				const mousePos = this.snapPosition(relativeMousePos);
+
+				this.selection = {
+					startTime: pixels_to_ms(mousePos.x),
+					tracks: [clickedTrack]
+				}
+				this.updatePlaylist();
 			}
 		});
 		document.addEventListener("mouseup", () => {
@@ -773,6 +786,33 @@ export class PlaylistWindow extends Window {
 			current_offset += trackHeight;
 		});
 
+		// highlight time selection
+		if (this.selection.startTime !== undefined) {
+			const startX = ms_to_pixels(this.selection.startTime) - o;
+			const startY = this.getTrackY(this.selection.tracks[0]);
+
+			// only the start time can be drawn as a single line
+			// all other time selections are always rectangles
+			if (this.selection.endTime !== undefined && this.selection.tracks.length > 0) {
+				const endX = ms_to_pixels(this.selection.endTime) - o;
+				const endY = this.getTrackY(this.selection.tracks[0]);
+				const trackHeight = globals.tracks[globals.playlist.getIndexOfTrack(this.selection.tracks[0])].getHeight();
+	
+				ctx.fillStyle = new Color("#38aab9").transparent(50);
+				ctx.lineWidth = 1.5;
+				ctx.fillRect(startX, startY, endX - startX, endY + trackHeight - startY);
+			} else {
+				const trackHeight = globals.tracks[globals.playlist.getIndexOfTrack(this.selection.tracks[0])].getHeight();
+
+				ctx.strokeStyle = "#38aab9";
+				ctx.lineWidth = 1.5;
+				ctx.beginPath();
+				ctx.moveTo(startX, startY);
+				ctx.lineTo(startX, startY + trackHeight);
+				ctx.closePath();
+				ctx.stroke();
+			}
+		}
 		ctx.translate(-0.5, -0.5);
 	}
 
@@ -818,6 +858,10 @@ export class PlaylistWindow extends Window {
 		return this.selection.samples !== undefined && this.selection.samples.includes(sample);
 	}
 
+	private clearSelection() {
+		this.selection = {};
+	}
+
 	// TODO check here if the samples title bar is hovered
 	private getCurrentHoverSample() {
 		const base = cumulativeOffset(this.get(".tracks_canvas"));
@@ -846,6 +890,43 @@ export class PlaylistWindow extends Window {
 		return targets.some((v) => v[0])
 			? targets[targets.findIndex((v) => v[0])][1]
 			: null;
+	}
+
+	private globalToCanvasPos(pos: {x: number, y: number}): {x: number, y: number} {
+		let base = cumulativeOffset(this.get(".tracks_canvas"));
+		return {
+			x: pos.x - base.left + this.scroll,
+			y: pos.y - base.top + this.get(".tracks").scrollTop,
+		};
+	}
+
+	private snapPosition(pos: {x: number, y: number}): {x: number, y: number} {
+		const res = {x: 0, y: 0};
+
+		res.x = snap(pos.x);
+
+		let lastY = 0;
+		for (let i = 0; i < globals.tracks.length; i++) {
+			const trackHeight = globals.tracks[i].getHeight();
+			if (lastY + trackHeight > pos.y) {
+				res.y = lastY;
+				break;
+			}
+			lastY += trackHeight;
+		}
+
+		return res;
+	}
+
+	private getTrackOfY(y: number): Track {
+		let lastY = 0;
+		for (let i = 0; i < globals.tracks.length; i++) {
+			const trackHeight = globals.tracks[i].getHeight();
+			if (lastY + trackHeight > y) {
+				return globals.playlist.getTrack(i);
+			}
+			lastY += trackHeight;
+		}
 	}
 
 	private getTrackOfSample(sample: Sample) {
