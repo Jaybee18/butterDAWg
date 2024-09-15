@@ -325,6 +325,17 @@ export class PlaylistWindow extends Window {
 					}
 				}
 				this.updatePlaylist();
+			} else if (e.buttons === 1) {
+				// selection drag
+				const relativeMousePos = this.globalToCanvasPos({x: e.clientX, y: e.clientY});
+				const clickedTrack = this.getTrackOfY(relativeMousePos.y);
+				const mousePos = this.snapPosition(relativeMousePos);
+
+				if (!this.selection.tracks.includes(clickedTrack)) {
+					this.selection.tracks.push(clickedTrack);
+				}
+				this.selection.endTime = pixels_to_ms(mousePos.x);
+				this.updatePlaylist();
 			}
 		});
 		this.get(".tracks_canvas").addEventListener("mousedown", (e) => {
@@ -795,8 +806,11 @@ export class PlaylistWindow extends Window {
 			// all other time selections are always rectangles
 			if (this.selection.endTime !== undefined && this.selection.tracks.length > 0) {
 				const endX = ms_to_pixels(this.selection.endTime) - o;
-				const endY = this.getTrackY(this.selection.tracks[0]);
-				const trackHeight = globals.tracks[globals.playlist.getIndexOfTrack(this.selection.tracks[0])].getHeight();
+
+				const getIndexOf
+
+				const endY = this.getTrackY(this.selection.tracks[this.selection.tracks.length - 1]);
+				const trackHeight = globals.tracks[globals.playlist.getIndexOfTrack(this.selection.tracks[this.selection.tracks.length - 1])].getHeight();
 	
 				ctx.fillStyle = new Color("#38aab9").transparent(50);
 				ctx.lineWidth = 1.5;
