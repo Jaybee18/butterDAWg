@@ -31,9 +31,11 @@ import { toolbarButtonOptions, Window, WindowType } from "../misc/window";
 */
 interface Selection {
 	samples?: Sample[] | undefined;
+
 	startTime?: number | undefined;
 	endTime?: number | undefined;
-	tracks?: Track[] | undefined;
+	startTrack?: Track | undefined;
+	endTrack?: Track | undefined;
 }
 
 const sampleTitleBarHeight = 15;
@@ -165,10 +167,12 @@ export class PlaylistWindow extends Window {
 		this.get(".tracks").addEventListener("wheel", (e: WheelEvent) => {
 			if (e.ctrlKey) {
 				e.preventDefault();
-				let delta = e.deltaY / Math.min(Math.max(globals.xsnap, 10), 40);
-				console.log(globals.xsnap);
+				// what the hell is even that
+				let delta = e.deltaY / Math.min(Math.max(globals.xsnap, 1), 40);
 
 				globals.xsnap -= delta;
+				this.scroll -= delta * (this.globalToCanvasPos({x: e.clientX, y: e.clientY}).x / globals.xsnap);
+				this.scroll = Math.max(this.scroll, 0);
 
 				const overflow =
 					this.scroll +
@@ -182,7 +186,7 @@ export class PlaylistWindow extends Window {
 
 				// TODO definitely rework this bit ugh
 				if (this.zoom > 1) {
-					globals.xsnap += delta;
+					globals.xsnap = this.get(".tracks_canvas").clientWidth / this.maxBeats;
 					this.update();
 				}
 
@@ -331,8 +335,10 @@ export class PlaylistWindow extends Window {
 				const clickedTrack = this.getTrackOfY(relativeMousePos.y);
 				const mousePos = this.snapPosition(relativeMousePos);
 
-				if (!this.selection.tracks.includes(clickedTrack)) {
-					this.selection.tracks.push(clickedTrack);
+				if (this.selection.startTrack === undefined) {
+					this.selection.startTrack = clickedTrack;
+				} else {
+					this.selection.endTrack = clickedTrack;
 				}
 				this.selection.endTime = pixels_to_ms(mousePos.x);
 				this.updatePlaylist();
@@ -372,7 +378,7 @@ export class PlaylistWindow extends Window {
 
 				this.selection = {
 					startTime: pixels_to_ms(mousePos.x),
-					tracks: [clickedTrack]
+					startTrack: clickedTrack
 				}
 				this.updatePlaylist();
 			}
@@ -800,23 +806,25 @@ export class PlaylistWindow extends Window {
 		// highlight time selection
 		if (this.selection.startTime !== undefined) {
 			const startX = ms_to_pixels(this.selection.startTime) - o;
-			const startY = this.getTrackY(this.selection.tracks[0]);
+			const startY = this.getTrackY(this.selection.startTrack);
 
 			// only the start time can be drawn as a single line
 			// all other time selections are always rectangles
-			if (this.selection.endTime !== undefined && this.selection.tracks.length > 0) {
+			if (this.selection.endTime !== undefined && this.selection.endTrack !== undefined) {
 				const endX = ms_to_pixels(this.selection.endTime) - o;
-
-				const getIndexOf
-
-				const endY = this.getTrackY(this.selection.tracks[this.selection.tracks.length - 1]);
-				const trackHeight = globals.tracks[globals.playlist.getIndexOfTrack(this.selection.tracks[this.selection.tracks.length - 1])].getHeight();
+				const endY = this.getTrackY(this.selection.endTrack);
+				const trackHeight = globals.tracks[globals.playlist.getIndexOfTrack(this.selection.endTrack)].getHeight();
 	
 				ctx.fillStyle = new Color("#38aab9").transparent(50);
 				ctx.lineWidth = 1.5;
-				ctx.fillRect(startX, startY, endX - startX, endY + trackHeight - startY);
+				if (endY < startY) {
+					const startTrackHeight = globals.tracks[globals.playlist.getIndexOfTrack(this.selection.startTrack)].getHeight();
+					ctx.fillRect(startX, startY + startTrackHeight, endX - startX, endY - trackHeight - startY);
+				} else {
+					ctx.fillRect(startX, startY, endX - startX, endY + trackHeight - startY);
+				}
 			} else {
-				const trackHeight = globals.tracks[globals.playlist.getIndexOfTrack(this.selection.tracks[0])].getHeight();
+				const trackHeight = globals.tracks[globals.playlist.getIndexOfTrack(this.selection.startTrack)].getHeight();
 
 				ctx.strokeStyle = "#38aab9";
 				ctx.lineWidth = 1.5;
@@ -827,6 +835,7 @@ export class PlaylistWindow extends Window {
 				ctx.stroke();
 			}
 		}
+
 		ctx.translate(-0.5, -0.5);
 	}
 
